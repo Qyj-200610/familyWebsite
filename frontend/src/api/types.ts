@@ -18,6 +18,7 @@ export interface User {
   username: string;
   email: string;
   avatar: string | null;
+  lastLoginAt?: string | null;
   createdAt?: string;
 }
 
@@ -48,4 +49,40 @@ export interface AuthResponse {
 export interface UpdateUserRequest {
   username?: string;
   avatar?: string;
+}
+
+// === 相册 ===
+
+/** 照片上传者简要信息 */
+export interface PhotoUploader {
+  id: number;
+  username: string;
+}
+
+/** 照片 */
+export interface Photo {
+  id: number;
+  filename: string;
+  originalFilename: string;
+  fileSize: number;
+  contentType: string;
+  description: string | null;
+  uploadedBy: number;
+  uploader: PhotoUploader | null;
+  createdAt: string;
+}
+
+// === 美食点单 ===
+
+/** 订单中的单个菜品 */
+export interface OrderItem {
+  dishId: number;
+  dishName: string;
+  quantity: number;
+}
+
+/** POST /api/food/orders */
+export interface SubmitOrderRequest {
+  items: OrderItem[];
+  note?: string;
 }

@@ -1,3 +1,5 @@
+from datetime import datetime, timezone
+
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -10,8 +12,8 @@ class UserService:
     """Business logic for user and auth operations."""
 
     @staticmethod
-    async def create_user(db: AsyncSession, data: RegisterRequest) -> tuple[User, str]:
-        """Create a new user and return it with a JWT token."""
+    async def create_user(db: AsyncSession, data: RegisterRequest) -> User:
+        """Create a new user and return it."""
         # Check email uniqueness
         result = await db.execute(select(User).where(User.email == data.email))
         if result.scalar_one_or_none():
@@ -31,8 +33,7 @@ class UserService:
         await db.flush()
         await db.refresh(user)
 
-        token = create_access_token({"sub": str(user.id)})
-        return user, token
+        return user
 
     @staticmethod
     async def authenticate_user(db: AsyncSession, email: str, password: str) -> tuple[User, str] | None:
@@ -42,6 +43,10 @@ class UserService:
 
         if not user or not verify_password(password, user.hashed_password):
             return None
+
+        # 记录最后登录时间
+        user.last_login = datetime.now(timezone.utc)
+        await db.flush()
 
         token = create_access_token({"sub": str(user.id)})
         return user, token

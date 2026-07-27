@@ -2,6 +2,9 @@ import { useEffect, useState, useRef } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useAuthStore } from "../../store/authStore";
 import { authApi } from "../../api";
+
+import exitLoginIcon from "../../svg/exitLogin.svg"
+
 import "./Home.css";
 
 function Home() {
@@ -90,7 +93,7 @@ function Home() {
                 <button
                   className="home__dropdown-item home__dropdown-item--danger"
                   onClick={handleLogout}
-                >
+                ><img src={exitLoginIcon} alt="exitLogin" />
                   退出登录
                 </button>
               </div>
@@ -111,16 +114,16 @@ function Home() {
           </div>
 
           <div className="home__cards">
-            <div className="home__card home__card--disabled">
+            <Link to="/photo-album" className="home__card">
               <span className="home__card-icon">📸</span>
               <h3>家庭相册</h3>
-              <p>即将上线</p>
-            </div>
-            <div className="home__card home__card--disabled">
-              <span className="home__card-icon">📅</span>
-              <h3>日程管理</h3>
-              <p>即将上线</p>
-            </div>
+              <p>浏览和上传家庭照片</p>
+            </Link>
+            <Link to="/food-order" className="home__card">
+              <span className="home__card-icon">🍽️</span>
+              <h3>美食专栏</h3>
+              <p>浏览菜品，提交点单</p>
+            </Link>
             <div className="home__card home__card--disabled">
               <span className="home__card-icon">💬</span>
               <h3>家庭留言</h3>

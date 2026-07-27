@@ -1,77 +1,66 @@
-# React + TypeScript + Vite
+# Family Website — 前端
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+家庭门户网站的 React SPA 前端，使用 TypeScript + Vite 构建。
 
-Currently, two official plugins are available:
+## 技术栈
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+- **React 19** + TypeScript
+- **Vite 8** (Rolldown)
+- **React Router 7** (SPA 路由)
+- **Zustand 5** (状态管理)
+- **Axios** (HTTP 客户端)
 
-## React Compiler
+## 本地开发
 
-The React Compiler is enabled on this template. See [this documentation](https://react.dev/learn/react-compiler) for more information.
-
-Note: This will impact Vite dev & build performances.
-
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-
+```bash
+npm install
+npm run dev        # 启动开发服务器 → http://localhost:5175
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+开发服务器配置了代理：
+- `/api` → `http://localhost:8000`
+- `/uploads` → `http://localhost:8000`
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+确保后端服务已在 `localhost:8000` 运行。
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+## 构建
+
+```bash
+npm run build      # TypeScript 检查 + Vite 生产构建
+npm run preview    # 预览生产构建
+```
+
+## 项目结构
 
 ```
+src/
+├── main.tsx              # 应用入口
+├── App.tsx               # 首页（未登录时的展示页）
+├── router.tsx            # 路由定义
+├── api/
+│   ├── client.ts         # Axios 实例（拦截器、Token 注入、统一错误处理）
+│   ├── types.ts          # TypeScript 类型定义
+│   ├── auth.ts           # 认证 API
+│   ├── user.ts           # 用户 API
+│   ├── photo.ts          # 相册 API
+│   └── food.ts           # 美食点单 API
+├── store/
+│   └── authStore.ts      # Zustand 认证状态
+├── utils/
+│   └── navigate.ts       # 全局导航工具
+└── pages/
+    ├── home/             # 首页（已登录）
+    ├── auth/             # 登录、注册
+    ├── photoAlbum/       # 家庭相册
+    ├── foodOrder/        # 美食点单
+    ├── user/
+    │   ├── setting/      # 用户设置
+    │   └── personalCenter/ # 个人中心
+    └── notFound/         # 404
+```
+
+## API 约定
+
+- 后端统一响应格式 `{code, message, data}`，axios 拦截器自动解包 `data`
+- 认证 Token 通过 `Authorization: Bearer <token>` 传递
+- 401 响应自动跳转登录页

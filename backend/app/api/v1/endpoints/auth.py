@@ -5,19 +5,22 @@ from app.api.deps import get_current_user
 from app.core.database import get_db
 from app.core.response import error_response, success_response
 from app.models.user import User
-from app.schemas.user import LoginRequest, RegisterRequest, UpdateUserRequest
+from app.schemas.user import (
+    AuthResponse,
+    LoginRequest,
+    RegisterRequest,
+    UserResponse,
+)
 from app.services.user import UserService
 
 
 async def _auth_response(user: User, token: str):
     """Build the standard auth response with user + token."""
-    from app.schemas.user import AuthResponse, UserResponse
-
     return success_response(
         AuthResponse(
             user=UserResponse.model_validate(user),
             token=token,
-        ).model_dump(mode="json")
+        ).model_dump(mode="json", by_alias=True)
     )
 
 
@@ -28,7 +31,7 @@ router = APIRouter(prefix="/auth", tags=["auth"])
 async def register(data: RegisterRequest, db: AsyncSession = Depends(get_db)):
     """Register a new user account. Does NOT auto-login — use /auth/login."""
     try:
-        user, _ = await UserService.create_user(db, data)
+        user = await UserService.create_user(db, data)
         return success_response(None, f"账号 {user.username} 注册成功，请登录")
     except ValueError as e:
         error_map = {

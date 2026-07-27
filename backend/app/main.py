@@ -1,11 +1,15 @@
 import logging
 from contextlib import asynccontextmanager
+from pathlib import Path
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 
 from app.api.v1.router import router as v1_router
+from app.core.config import settings
 from app.core.database import engine
+from app.models.photo import Photo  # noqa: F401 — 确保模型被导入以便建表
 from app.models.user import Base
 
 logger = logging.getLogger(__name__)
@@ -43,3 +47,10 @@ app.add_middleware(
 
 # Mount v1 routes
 app.include_router(v1_router)
+
+# Mount uploaded files — ensure the directory exists
+_upload_dir = Path(settings.UPLOAD_DIR)
+_upload_dir.mkdir(parents=True, exist_ok=True)
+(_upload_dir / "avatars").mkdir(parents=True, exist_ok=True)
+(_upload_dir / "photos").mkdir(parents=True, exist_ok=True)
+app.mount("/uploads", StaticFiles(directory=str(_upload_dir)), name="uploads")

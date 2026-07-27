@@ -1,16 +1,32 @@
 import { useEffect, useState, useRef } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useAuthStore } from "../../../store/authStore";
-import { authApi } from "../../../api";
+import { authApi, userApi } from "../../../api";
 
 import exitLoginIcon from "../../../svg/exitLogin.svg"
 import "./Setting.css";
 
+/** 允许的头像格式 */
+const ALLOWED_TYPES = ["image/jpeg", "image/png", "image/webp"];
+const ALLOWED_EXTENSIONS = [".jpg", ".jpeg", ".png", ".webp"];
+const MAX_SIZE = 2 * 1024 * 1024; // 2 MB
+
 function Setting() {
   const navigate = useNavigate();
-  const { user, isAuthenticated, logout } = useAuthStore();
+  const { user, isAuthenticated, logout, updateUser } = useAuthStore();
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // 头像上传状态
+  const [uploading, setUploading] = useState(false);
+  const [uploadError, setUploadError] = useState("");
+
+  // 用户名编辑状态
+  const [editingUsername, setEditingUsername] = useState(false);
+  const [usernameValue, setUsernameValue] = useState(user?.username || "");
+  const [usernameError, setUsernameError] = useState("");
+  const [savingUsername, setSavingUsername] = useState(false);
 
   // 点击外部关闭下拉菜单
   useEffect(() => {
@@ -41,6 +57,96 @@ function Setting() {
 
   /** 获取头像首字母 */
   const avatarLetter = user?.username?.charAt(0).toUpperCase() || "U";
+
+  /** 点击"更换头像"按钮 → 打开文件选择器 */
+  const handleAvatarClick = () => {
+    setUploadError("");
+    fileInputRef.current?.click();
+  };
+
+  /** 文件选择后：校验 + 上传 */
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // ── 客户端校验扩展名 ──
+    const ext = file.name.substring(file.name.lastIndexOf(".")).toLowerCase();
+    if (!ALLOWED_EXTENSIONS.includes(ext)) {
+      setUploadError(`不支持的文件格式：${ext}，仅允许 jpg、png、webp`);
+      // 重置 input 以便再次选择同一文件
+      if (fileInputRef.current) fileInputRef.current.value = "";
+      return;
+    }
+
+    // ── 客户端校验 MIME 类型 ──
+    if (!ALLOWED_TYPES.includes(file.type)) {
+      setUploadError(`不支持的文件类型，仅允许 jpg、png、webp`);
+      if (fileInputRef.current) fileInputRef.current.value = "";
+      return;
+    }
+
+    // ── 客户端校验大小 ──
+    if (file.size > MAX_SIZE) {
+      setUploadError(`文件大小超出限制（最大 2 MB）`);
+      if (fileInputRef.current) fileInputRef.current.value = "";
+      return;
+    }
+
+    // ── 上传 ──
+    setUploading(true);
+    setUploadError("");
+    try {
+      const updatedUser = await userApi.uploadAvatar(file);
+      updateUser(updatedUser);
+    } catch (err) {
+      const message =
+        err instanceof Error ? err.message : "头像上传失败，请重试";
+      setUploadError(message);
+    } finally {
+      setUploading(false);
+      if (fileInputRef.current) fileInputRef.current.value = "";
+    }
+  };
+
+  /** 进入用户名编辑模式 */
+  const handleEditUsername = () => {
+    setUsernameValue(user?.username || "");
+    setUsernameError("");
+    setEditingUsername(true);
+  };
+
+  /** 取消编辑 */
+  const handleCancelUsername = () => {
+    setUsernameValue(user?.username || "");
+    setUsernameError("");
+    setEditingUsername(false);
+  };
+
+  /** 保存用户名 */
+  const handleSaveUsername = async () => {
+    const trimmed = usernameValue.trim();
+    if (!trimmed) {
+      setUsernameError("用户名不能为空");
+      return;
+    }
+    if (trimmed === user?.username) {
+      setEditingUsername(false);
+      return;
+    }
+    setSavingUsername(true);
+    setUsernameError("");
+    try {
+      const updatedUser = await userApi.updateMe({ username: trimmed });
+      updateUser(updatedUser);
+      setEditingUsername(false);
+    } catch (err) {
+      const message =
+        err instanceof Error ? err.message : "保存失败，请重试";
+      setUsernameError(message);
+    } finally {
+      setSavingUsername(false);
+    }
+  };
 
   if (!isAuthenticated) {
     return null;
@@ -138,30 +244,96 @@ function Setting() {
                 <div className="setting__field">
                   <label className="setting__label">头像</label>
                   <div className="setting__avatar-edit">
-                    <span className="setting__avatar setting__avatar--lg">
+                    <span className={`setting__avatar setting__avatar--lg ${uploading ? "setting__avatar--uploading" : ""}`}>
                       {user?.avatar ? (
                         <img src={user.avatar} alt={user.username} />
                       ) : (
                         <span className="setting__avatar-placeholder">{avatarLetter}</span>
                       )}
+                      {uploading && (
+                        <span className="setting__avatar-overlay">
+                          <span className="setting__spinner" />
+                        </span>
+                      )}
                     </span>
-                    <button className="setting__btn setting__btn--outline" disabled>
-                      更换头像
-                    </button>
+                    <div className="setting__avatar-actions">
+                      <button
+                        className="setting__btn setting__btn--outline"
+                        onClick={handleAvatarClick}
+                        disabled={uploading}
+                      >
+                        {uploading ? "上传中..." : "更换头像"}
+                      </button>
+                      <p className="setting__avatar-hint">
+                        支持 JPG、PNG、WebP 格式，最大 2 MB
+                      </p>
+                      {uploadError && (
+                        <p className="setting__avatar-error">{uploadError}</p>
+                      )}
+                    </div>
                   </div>
+                  {/* 隐藏的文件选择器 */}
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept=".jpg,.jpeg,.png,.webp"
+                    onChange={handleFileChange}
+                    style={{ display: "none" }}
+                  />
                 </div>
 
                 <div className="setting__field">
                   <label className="setting__label">用户名</label>
-                  <div className="setting__field-row">
-                    <input
-                      type="text"
-                      className="setting__input"
-                      defaultValue={user?.username || ""}
-                      disabled
-                    />
-                    <span className="setting__field-hint">功能开发中</span>
-                  </div>
+                  {editingUsername ? (
+                    <div className="setting__field-edit">
+                      <div className="setting__field-row">
+                        <input
+                          type="text"
+                          className="setting__input"
+                          value={usernameValue}
+                          onChange={(e) => setUsernameValue(e.target.value)}
+                          onKeyDown={(e) => {
+                            if (e.key === "Enter") handleSaveUsername();
+                            if (e.key === "Escape") handleCancelUsername();
+                          }}
+                          disabled={savingUsername}
+                          autoFocus
+                          minLength={2}
+                          maxLength={50}
+                        />
+                        <button
+                          className="setting__btn setting__btn--primary"
+                          onClick={handleSaveUsername}
+                          disabled={savingUsername}
+                        >
+                          {savingUsername ? "保存中..." : "保存"}
+                        </button>
+                        <button
+                          className="setting__btn setting__btn--outline"
+                          onClick={handleCancelUsername}
+                          disabled={savingUsername}
+                        >
+                          取消
+                        </button>
+                      </div>
+                      {usernameError && (
+                        <p className="setting__field-error">{usernameError}</p>
+                      )}
+                      <p className="setting__field-hint">
+                        2–50 个字符，修改后即时生效
+                      </p>
+                    </div>
+                  ) : (
+                    <div className="setting__field-row">
+                      <span className="setting__field-value">{user?.username || "用户"}</span>
+                      <button
+                        className="setting__btn setting__btn--outline"
+                        onClick={handleEditUsername}
+                      >
+                        编辑
+                      </button>
+                    </div>
+                  )}
                 </div>
 
                 <div className="setting__field">

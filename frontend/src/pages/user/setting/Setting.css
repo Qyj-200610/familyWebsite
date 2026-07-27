@@ -312,6 +312,33 @@
   white-space: nowrap;
 }
 
+/* 字段编辑模式 */
+.setting__field-edit {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.setting__field-edit .setting__field-hint {
+  align-self: flex-start;
+  white-space: normal;
+  font-size: 0.78rem;
+}
+
+/* 字段展示值 */
+.setting__field-value {
+  font-size: 0.95rem;
+  color: var(--color-text);
+  font-weight: 500;
+}
+
+/* 字段错误提示 */
+.setting__field-error {
+  font-size: 0.85rem;
+  color: var(--color-error);
+  margin: 0;
+}
+
 /* Input */
 .setting__input {
   flex: 1;
@@ -346,6 +373,56 @@
   width: 64px;
   height: 64px;
   font-size: 1.5rem;
+  position: relative;
+}
+
+/* 上传中遮罩 */
+.setting__avatar--uploading {
+  opacity: 0.7;
+}
+
+.setting__avatar-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: 50%;
+}
+
+/* 简易旋转加载动画 */
+.setting__spinner {
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  border: 2px solid rgba(255, 255, 255, 0.5);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: settingSpin 0.6s linear infinite;
+}
+
+@keyframes settingSpin {
+  to { transform: rotate(360deg); }
+}
+
+/* 头像操作区 */
+.setting__avatar-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.setting__avatar-hint {
+  font-size: 0.8rem;
+  color: var(--color-text-muted);
+  margin: 0;
+}
+
+.setting__avatar-error {
+  font-size: 0.85rem;
+  color: var(--color-error);
+  margin: 0;
 }
 
 /* Buttons */

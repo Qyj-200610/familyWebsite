@@ -1,0 +1,790 @@
+/* ============================================================
+   家庭相册页面 — PhotoAlbum.css
+   ============================================================ */
+
+/* ---------- 导航栏 (与 Home 风格一致) ---------- */
+
+.album__nav {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: var(--color-surface, #fff);
+  border-bottom: 1px solid var(--color-border, #e5e7eb);
+  backdrop-filter: blur(8px);
+}
+
+.album__nav-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 64px;
+}
+
+.album__logo {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--color-text, #111827);
+  text-decoration: none;
+}
+
+.album__user-area {
+  position: relative;
+}
+
+.album__avatar-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 8px;
+  transition: background 0.15s;
+}
+
+.album__avatar-btn:hover {
+  background: var(--color-bg-hover, #f3f4f6);
+}
+
+.album__avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-primary, #6366f1);
+}
+
+.album__avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.album__avatar-placeholder {
+  color: #fff;
+  font-weight: 600;
+  font-size: 0.875rem;
+}
+
+.album__username {
+  font-size: 0.875rem;
+  color: var(--color-text, #111827);
+  font-weight: 500;
+}
+
+.album__dropdown-arrow {
+  font-size: 0.75rem;
+  color: var(--color-text-muted, #6b7280);
+  transition: transform 0.2s;
+}
+
+.album__dropdown-arrow--open {
+  transform: rotate(180deg);
+}
+
+/* 下拉菜单 */
+.album__dropdown {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 8px);
+  min-width: 180px;
+  background: var(--color-surface, #fff);
+  border: 1px solid var(--color-border, #e5e7eb);
+  border-radius: 12px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  z-index: 200;
+}
+
+.album__dropdown-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 16px;
+  font-size: 0.875rem;
+  color: var(--color-text, #111827);
+  text-decoration: none;
+  background: none;
+  border: none;
+  width: 100%;
+  cursor: pointer;
+  transition: background 0.12s;
+}
+
+.album__dropdown-item:hover {
+  background: var(--color-bg-hover, #f3f4f6);
+}
+
+.album__dropdown-item--danger {
+  color: var(--color-danger, #ef4444);
+}
+
+.album__dropdown-icon {
+  font-size: 1rem;
+}
+
+.album__dropdown-divider {
+  height: 1px;
+  background: var(--color-border, #e5e7eb);
+  margin: 4px 0;
+}
+
+/* ---------- 主内容区 ---------- */
+
+.album__main {
+  min-height: calc(100vh - 64px);
+  padding: 32px 0 64px;
+  background: var(--color-bg, #f9fafb);
+}
+
+/* ---------- 顶部标题栏 ---------- */
+
+.album__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 28px;
+}
+
+.album__title {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: var(--color-text, #111827);
+  margin: 0 0 4px;
+}
+
+.album__subtitle {
+  font-size: 0.875rem;
+  color: var(--color-text-muted, #6b7280);
+  margin: 0;
+}
+
+/* 上传按钮 */
+.album__upload-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 24px;
+  background: var(--color-primary, #6366f1);
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s, transform 0.12s;
+}
+
+.album__upload-btn:hover {
+  background: var(--color-primary-hover, #4f46e5);
+  transform: translateY(-1px);
+}
+
+.album__upload-btn:active {
+  transform: translateY(0);
+}
+
+.album__upload-icon {
+  font-size: 1.25rem;
+  font-weight: 300;
+  line-height: 1;
+}
+
+/* ---------- 加载 & 空状态 ---------- */
+
+.album__loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 80px 0;
+  color: var(--color-text-muted, #6b7280);
+}
+
+.album__spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid var(--color-border, #e5e7eb);
+  border-top-color: var(--color-primary, #6366f1);
+  border-radius: 50%;
+  animation: album-spin 0.8s linear infinite;
+  margin-bottom: 16px;
+}
+
+@keyframes album-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.album__error {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 20px;
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  border-radius: 10px;
+  margin-bottom: 24px;
+  color: #dc2626;
+  font-size: 0.875rem;
+}
+
+.album__error button {
+  padding: 6px 14px;
+  background: #dc2626;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.8125rem;
+}
+
+.album__empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 80px 0;
+  text-align: center;
+}
+
+.album__empty-icon {
+  font-size: 4rem;
+  margin-bottom: 16px;
+  opacity: 0.5;
+}
+
+.album__empty h3 {
+  font-size: 1.25rem;
+  color: var(--color-text, #111827);
+  margin: 0 0 8px;
+}
+
+.album__empty p {
+  color: var(--color-text-muted, #6b7280);
+  margin: 0 0 24px;
+}
+
+.album__empty-btn {
+  padding: 12px 24px;
+  background: var(--color-primary, #6366f1);
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.album__empty-btn:hover {
+  background: var(--color-primary-hover, #4f46e5);
+}
+
+/* ---------- 照片网格 ---------- */
+
+.album__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 20px;
+}
+
+/* ---------- 照片卡片 ---------- */
+
+.album__card {
+  position: relative;
+  border-radius: 12px;
+  overflow: hidden;
+  background: var(--color-surface, #fff);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+  aspect-ratio: 4 / 3;
+}
+
+.album__card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
+}
+
+.album__card-image {
+  width: 100%;
+  height: 100%;
+  position: relative;
+}
+
+.album__card-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* hover 遮罩层 */
+.album__card-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to top,
+    rgba(0, 0, 0, 0.6) 0%,
+    rgba(0, 0, 0, 0.1) 50%,
+    transparent 100%
+  );
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding: 16px;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+.album__card:hover .album__card-overlay {
+  opacity: 1;
+}
+
+.album__card-desc {
+  color: #fff;
+  font-size: 0.875rem;
+  margin: 0 0 4px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.album__card-date {
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 0.75rem;
+}
+
+.album__card-uploader {
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 0.7rem;
+  margin-top: 2px;
+}
+
+/* 删除按钮 */
+.album__card-delete {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.5);
+  color: #fff;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  opacity: 0;
+  transition: opacity 0.2s, background 0.15s;
+}
+
+.album__card:hover .album__card-delete {
+  opacity: 1;
+}
+
+.album__card-delete:hover {
+  background: var(--color-danger, #ef4444);
+}
+
+/* ============================================================
+   上传弹窗
+   ============================================================ */
+
+.album__modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  animation: album-fade-in 0.15s ease;
+}
+
+@keyframes album-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.album__modal {
+  background: var(--color-surface, #fff);
+  border-radius: 16px;
+  width: 100%;
+  max-width: 520px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+  animation: album-modal-slide 0.2s ease;
+}
+
+@keyframes album-modal-slide {
+  from {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.album__modal--confirm {
+  max-width: 400px;
+}
+
+.album__modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 24px 0;
+}
+
+.album__modal-header h3 {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: var(--color-text, #111827);
+  margin: 0;
+}
+
+.album__modal-close {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--color-bg-hover, #f3f4f6);
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.875rem;
+  color: var(--color-text-muted, #6b7280);
+  transition: background 0.12s;
+}
+
+.album__modal-close:hover {
+  background: var(--color-border, #e5e7eb);
+}
+
+.album__modal-body {
+  padding: 20px 24px;
+}
+
+/* ---------- 拖拽区 ---------- */
+
+.album__dropzone {
+  border: 2px dashed var(--color-border, #d1d5db);
+  border-radius: 12px;
+  padding: 48px 24px;
+  text-align: center;
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s;
+}
+
+.album__dropzone:hover {
+  border-color: var(--color-primary, #6366f1);
+  background: var(--color-primary-bg, #eef2ff);
+}
+
+.album__dropzone-icon {
+  font-size: 2.5rem;
+  display: block;
+  margin-bottom: 12px;
+}
+
+.album__dropzone p {
+  font-size: 0.9375rem;
+  color: var(--color-text, #111827);
+  margin: 0 0 8px;
+}
+
+.album__dropzone-hint {
+  font-size: 0.8125rem;
+  color: var(--color-text-muted, #9ca3af);
+}
+
+/* ---------- 预览区 ---------- */
+
+.album__preview {
+  position: relative;
+  border-radius: 12px;
+  overflow: hidden;
+  background: var(--color-bg, #f9fafb);
+}
+
+.album__preview img {
+  width: 100%;
+  max-height: 320px;
+  object-fit: contain;
+  display: block;
+}
+
+.album__preview-change {
+  position: absolute;
+  bottom: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 8px 18px;
+  background: rgba(0, 0, 0, 0.6);
+  color: #fff;
+  border: none;
+  border-radius: 20px;
+  font-size: 0.8125rem;
+  cursor: pointer;
+  transition: background 0.12s;
+}
+
+.album__preview-change:hover {
+  background: rgba(0, 0, 0, 0.8);
+}
+
+/* ---------- 文件信息 ---------- */
+
+.album__file-info {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 12px;
+  padding: 10px 14px;
+  background: var(--color-bg, #f9fafb);
+  border-radius: 8px;
+}
+
+.album__file-name {
+  font-size: 0.875rem;
+  color: var(--color-text, #111827);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  flex: 1;
+  margin-right: 12px;
+}
+
+.album__file-size {
+  font-size: 0.8125rem;
+  color: var(--color-text-muted, #6b7280);
+  flex-shrink: 0;
+}
+
+/* ---------- 描述输入 ---------- */
+
+.album__desc-input {
+  width: 100%;
+  margin-top: 12px;
+  padding: 12px 14px;
+  border: 1px solid var(--color-border, #d1d5db);
+  border-radius: 10px;
+  font-size: 0.875rem;
+  font-family: inherit;
+  resize: vertical;
+  transition: border-color 0.15s;
+  box-sizing: border-box;
+  background: var(--color-surface, #fff);
+  color: var(--color-text, #111827);
+}
+
+.album__desc-input:focus {
+  outline: none;
+  border-color: var(--color-primary, #6366f1);
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+}
+
+.album__desc-input::placeholder {
+  color: var(--color-text-muted, #9ca3af);
+}
+
+/* ---------- 上传错误 ---------- */
+
+.album__upload-error {
+  margin-top: 12px;
+  padding: 10px 14px;
+  background: #fef2f2;
+  border-radius: 8px;
+  color: #dc2626;
+  font-size: 0.875rem;
+}
+
+/* ---------- 弹窗底部 ---------- */
+
+.album__modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  padding: 0 24px 20px;
+}
+
+.album__modal-btn {
+  padding: 10px 22px;
+  border-radius: 8px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  border: none;
+  cursor: pointer;
+  transition: background 0.12s, opacity 0.12s;
+}
+
+.album__modal-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.album__modal-btn--cancel {
+  background: var(--color-bg, #f3f4f6);
+  color: var(--color-text, #374151);
+}
+
+.album__modal-btn--cancel:hover:not(:disabled) {
+  background: var(--color-border, #e5e7eb);
+}
+
+.album__modal-btn--confirm {
+  background: var(--color-primary, #6366f1);
+  color: #fff;
+}
+
+.album__modal-btn--confirm:hover:not(:disabled) {
+  background: var(--color-primary-hover, #4f46e5);
+}
+
+.album__modal-btn--danger {
+  background: var(--color-danger, #ef4444);
+  color: #fff;
+}
+
+.album__modal-btn--danger:hover:not(:disabled) {
+  background: #dc2626;
+}
+
+/* ---------- 删除确认 ---------- */
+
+.album__confirm-desc {
+  display: block;
+  font-weight: 600;
+  margin-top: 4px;
+}
+
+.album__confirm-warning {
+  font-size: 0.8125rem;
+  color: var(--color-text-muted, #9ca3af);
+  margin: 4px 0 0;
+}
+
+/* ============================================================
+   照片查看器 (Lightbox)
+   ============================================================ */
+
+.album__viewer-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 2000;
+  background: rgba(0, 0, 0, 0.9);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: album-fade-in 0.2s ease;
+}
+
+.album__viewer-close {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.15);
+  color: #fff;
+  border: none;
+  cursor: pointer;
+  font-size: 1.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s;
+  z-index: 10;
+}
+
+.album__viewer-close:hover {
+  background: rgba(255, 255, 255, 0.25);
+}
+
+.album__viewer-content {
+  max-width: 90vw;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.album__viewer-content img {
+  max-width: 100%;
+  max-height: 75vh;
+  object-fit: contain;
+  border-radius: 8px;
+}
+
+.album__viewer-info {
+  margin-top: 16px;
+  text-align: center;
+  color: #fff;
+}
+
+.album__viewer-desc {
+  font-size: 1rem;
+  margin: 0 0 8px;
+  color: #fff;
+}
+
+.album__viewer-meta {
+  display: flex;
+  gap: 20px;
+  font-size: 0.8125rem;
+  color: rgba(255, 255, 255, 0.6);
+  margin: 0;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+/* ============================================================
+   响应式
+   ============================================================ */
+
+@media (max-width: 768px) {
+  .album__header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+  }
+
+  .album__upload-btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .album__grid {
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 12px;
+  }
+
+  .album__modal {
+    margin: 16px;
+    max-width: none;
+    border-radius: 16px;
+  }
+
+  .album__viewer-content img {
+    max-height: 60vh;
+  }
+}

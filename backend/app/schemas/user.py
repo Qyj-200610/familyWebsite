@@ -29,6 +29,7 @@ class UserResponse(BaseModel):
     username: str
     email: str
     avatar: str | None = None
+    last_login: datetime | None = Field(None, alias="lastLoginAt")
     created_at: datetime = Field(alias="createdAt")
 
     model_config = {"from_attributes": True, "populate_by_name": True}

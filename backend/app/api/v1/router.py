@@ -1,6 +1,6 @@
 from fastapi import APIRouter
 
-from app.api.v1.endpoints import auth, user
+from app.api.v1.endpoints import auth, food, photo, user
 
 router = APIRouter(prefix="/api")
 
@@ -13,3 +13,5 @@ async def health_check():
 
 router.include_router(auth.router)
 router.include_router(user.router)
+router.include_router(photo.router)
+router.include_router(food.router)

@@ -18,6 +18,18 @@ class Settings(BaseSettings):
     JWT_ALGORITHM: str = "HS256"
     JWT_EXPIRE_MINUTES: int = 1440  # 24 hours
 
+    # SMTP Email (QQ)
+    SMTP_HOST: str = "smtp.qq.com"
+    SMTP_PORT: int = 587
+    SMTP_USER: str = ""
+    SMTP_PASSWORD: str = ""  # QQ 邮箱 SMTP 授权码
+    SMTP_NOTIFICATION_EMAIL: str = ""  # 接收订单通知的邮箱
+
+    # File upload
+    UPLOAD_DIR: str = str(Path(__file__).resolve().parent.parent.parent / "uploads")
+    AVATAR_MAX_SIZE: int = 2 * 1024 * 1024  # 2 MB
+    AVATAR_ALLOWED_CONTENT_TYPES: set[str] = {"image/jpeg", "image/png", "image/webp"}
+
     model_config = {
         "env_file": str(_ENV_FILE),
         "env_file_encoding": "utf-8",

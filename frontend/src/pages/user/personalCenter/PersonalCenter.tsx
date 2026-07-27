@@ -40,8 +40,8 @@ function PersonalCenter() {
   /** 获取头像首字母 */
   const avatarLetter = user?.username?.charAt(0).toUpperCase() || "U";
 
-  /** 格式化注册时间 */
-  const formatDate = (dateStr?: string) => {
+  /** 格式化日期 */
+  const formatDate = (dateStr?: string | null) => {
     if (!dateStr) return "—";
     return new Date(dateStr).toLocaleDateString("zh-CN", {
       year: "numeric",
@@ -130,6 +130,9 @@ function PersonalCenter() {
                 <p className="pc__profile-meta">
                   加入于 {formatDate(user?.createdAt)}
                 </p>
+                <p className="pc__profile-meta">
+                  最近登录 {formatDate(user?.lastLoginAt)}
+                </p>
               </div>
               <Link to="/setting" className="pc__btn pc__btn--outline">
                 编辑资料
@@ -145,9 +148,9 @@ function PersonalCenter() {
               <span className="pc__stat-label">照片</span>
             </div>
             <div className="pc__stat-card">
-              <span className="pc__stat-icon">📅</span>
+              <span className="pc__stat-icon">🍽️</span>
               <span className="pc__stat-value">0</span>
-              <span className="pc__stat-label">日程</span>
+              <span className="pc__stat-label">点单</span>
             </div>
             <div className="pc__stat-card">
               <span className="pc__stat-icon">💬</span>

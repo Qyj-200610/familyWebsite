@@ -54,6 +54,7 @@ interface AuthState {
   token: string | null;
   isAuthenticated: boolean;
   setAuth: (user: User, token: string, remember?: boolean) => void;
+  updateUser: (user: User) => void;
   logout: () => void;
 }
 
@@ -67,6 +68,20 @@ export const useAuthStore = create<AuthState>((set) => ({
   setAuth: (user: User, token: string, remember = true) => {
     persistAuth(user, token, remember);
     set({ user, token, isAuthenticated: true });
+  },
+
+  updateUser: (user: User) => {
+    // 同步更新 localStorage / sessionStorage 中的用户数据
+    const storedToken =
+      localStorage.getItem(AUTH_TOKEN_KEY) ||
+      sessionStorage.getItem(AUTH_TOKEN_KEY);
+    if (storedToken) {
+      // 判断是 localStorage 还是 sessionStorage
+      const isLocal = !!localStorage.getItem(AUTH_TOKEN_KEY);
+      const storage = isLocal ? localStorage : sessionStorage;
+      storage.setItem(AUTH_USER_KEY, JSON.stringify(user));
+    }
+    set({ user });
   },
 
   logout: () => {

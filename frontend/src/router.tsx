@@ -6,6 +6,8 @@ import Register from "./pages/auth/register/Register.tsx";
 import RegisterSuccess from "./pages/auth/registerSuccess/RegisterSuccess.tsx";
 import Setting from "./pages/user/setting/Setting.tsx";
 import PersonalCenter from "./pages/user/personalCenter/PersonalCenter.tsx";
+import PhotoAlbum from "./pages/photoAlbum/photoAlbum.tsx";
+import FoodOrder from "./pages/foodOrder/foodOrder.tsx";
 import NotFound from "./pages/notFound/NotFound.tsx";
 import { setGlobalNavigate } from "./utils/navigate";
 
@@ -37,6 +39,14 @@ const router = createBrowserRouter([
   {
     path: "/personal-center",
     element: <PersonalCenter />,
+  },
+  {
+    path: "/photo-album",
+    element: <PhotoAlbum />,
+  },
+  {
+    path: "/food-order",
+    element: <FoodOrder />,
   },
   {
     path: "*",

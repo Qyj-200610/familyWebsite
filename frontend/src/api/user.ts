@@ -12,4 +12,11 @@ export const userApi = {
   /** PATCH /api/user/me — 更新当前用户信息 */
   updateMe: (data: UpdateUserRequest) =>
     client.patch<User>("/user/me", data),
+
+  /** POST /api/user/me/avatar — 上传头像（multipart/form-data） */
+  uploadAvatar: (file: File) => {
+    const formData = new FormData();
+    formData.append("file", file);
+    return client.post<User>("/user/me/avatar", formData);
+  },
 };
