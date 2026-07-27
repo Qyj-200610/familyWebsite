@@ -1,0 +1,263 @@
+/* ===== Home Page ===== */
+.home {
+  min-height: 100vh;
+  background: linear-gradient(160deg, var(--color-bg) 0%, var(--color-bg-warm) 100%);
+}
+
+/* Nav */
+.home__nav {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  backdrop-filter: blur(12px);
+  background: rgba(255, 255, 255, 0.8);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.home__nav-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 64px;
+}
+
+.home__logo {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--color-primary-dark);
+}
+
+/* User Area */
+.home__user-area {
+  position: relative;
+}
+
+.home__avatar-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: none;
+  padding: 4px 8px;
+  border-radius: var(--radius-md);
+  transition: background 0.2s;
+}
+
+.home__avatar-btn:hover {
+  background: var(--color-border);
+}
+
+.home__avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-primary-light);
+  flex-shrink: 0;
+}
+
+.home__avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.home__avatar-placeholder {
+  color: #fff;
+  font-weight: 700;
+  font-size: 0.95rem;
+}
+
+.home__username {
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--color-text);
+}
+
+.home__dropdown-arrow {
+  font-size: 0.7rem;
+  color: var(--color-text-muted);
+  transition: transform 0.2s;
+}
+
+.home__dropdown-arrow--open {
+  transform: rotate(180deg);
+}
+
+/* Dropdown */
+.home__dropdown {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  width: 200px;
+  background: var(--color-surface);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-lg);
+  border: 1px solid var(--color-border);
+  overflow: hidden;
+  z-index: 200;
+  animation: homeDropdownIn 0.15s ease;
+}
+
+@keyframes homeDropdownIn {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.home__dropdown-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 12px 16px;
+  font-size: 0.9rem;
+  color: var(--color-text);
+  text-decoration: none;
+  background: none;
+  border: none;
+  cursor: pointer;
+  transition: background 0.15s;
+  text-align: left;
+  font-family: inherit;
+}
+
+.home__dropdown-item:hover {
+  background: var(--color-bg);
+  color: var(--color-text);
+}
+
+.home__dropdown-item--danger {
+  color: var(--color-error);
+}
+
+.home__dropdown-item--danger:hover {
+  background: #fef2f2;
+  color: var(--color-error);
+}
+
+.home__dropdown-icon {
+  font-size: 1rem;
+  width: 20px;
+  text-align: center;
+}
+
+.home__dropdown-divider {
+  height: 1px;
+  background: var(--color-border);
+  margin: 4px 0;
+}
+
+/* Buttons */
+.home__btn {
+  padding: 8px 20px;
+  border-radius: var(--radius-sm);
+  font-size: 0.9rem;
+  font-weight: 600;
+  transition: all 0.2s;
+}
+
+.home__btn--primary {
+  background: var(--color-primary);
+  color: #fff;
+}
+
+.home__btn--primary:hover {
+  background: var(--color-primary-dark);
+}
+
+.home__btn--outline {
+  background: transparent;
+  color: var(--color-primary);
+  border: 2px solid var(--color-primary);
+}
+
+.home__btn--outline:hover {
+  background: var(--color-primary);
+  color: #fff;
+}
+
+/* Main */
+.home__main {
+  padding: 60px 0;
+}
+
+.home__welcome {
+  text-align: center;
+  margin-bottom: 48px;
+}
+
+.home__welcome-icon {
+  font-size: 3.5rem;
+  display: block;
+  margin-bottom: 16px;
+}
+
+.home__welcome-title {
+  font-size: 1.75rem;
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+
+.home__welcome-desc {
+  color: var(--color-text-secondary);
+  font-size: 1.05rem;
+}
+
+/* Cards */
+.home__cards {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+  max-width: 720px;
+  margin: 0 auto;
+}
+
+.home__card {
+  background: var(--color-surface);
+  border-radius: var(--radius-lg);
+  padding: 32px 24px;
+  text-align: center;
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--color-border);
+}
+
+.home__card--disabled {
+  opacity: 0.5;
+}
+
+.home__card-icon {
+  font-size: 2.5rem;
+  display: block;
+  margin-bottom: 12px;
+}
+
+.home__card h3 {
+  font-size: 1.05rem;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+
+.home__card p {
+  font-size: 0.85rem;
+  color: var(--color-text-muted);
+}
+
+/* ===== Responsive ===== */
+@media (max-width: 768px) {
+  .home__cards {
+    grid-template-columns: 1fr;
+    padding: 0 24px;
+  }
+
+  .home__username {
+    display: none;
+  }
+}

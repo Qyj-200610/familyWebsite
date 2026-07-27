@@ -1,0 +1,50 @@
+import { createBrowserRouter } from "react-router-dom";
+import App from "./App.tsx";
+import Home from "./pages/home/Home.tsx";
+import Login from "./pages/auth/login/Login.tsx";
+import Register from "./pages/auth/register/Register.tsx";
+import RegisterSuccess from "./pages/auth/registerSuccess/RegisterSuccess.tsx";
+import Setting from "./pages/user/setting/Setting.tsx";
+import PersonalCenter from "./pages/user/personalCenter/PersonalCenter.tsx";
+import NotFound from "./pages/notFound/NotFound.tsx";
+import { setGlobalNavigate } from "./utils/navigate";
+
+const router = createBrowserRouter([
+  {
+    path: "/",
+    element: <App />,
+  },
+  {
+    path: "/login",
+    element: <Login />,
+  },
+  {
+    path: "/register",
+    element: <Register />,
+  },
+  {
+    path: "/register-success",
+    element: <RegisterSuccess />,
+  },
+  {
+    path: "/home",
+    element: <Home />,
+  },
+  {
+    path: "/setting",
+    element: <Setting />,
+  },
+  {
+    path: "/personal-center",
+    element: <PersonalCenter />,
+  },
+  {
+    path: "*",
+    element: <NotFound />,
+  },
+]);
+
+// 将 SPA 导航能力注入给非组件代码（如 axios 拦截器）使用
+setGlobalNavigate((to: string) => router.navigate(to));
+
+export default router;
