@@ -19,9 +19,14 @@
 - [5. 用户模块 `/api/user`](#5-用户模块-apiuser)
   - [5.1 获取当前用户信息](#51-获取当前用户信息)
   - [5.2 更新用户信息](#52-更新用户信息)
-- [6. 家庭模块 `/api/family`](#6-家庭模块-apifamily) *(规划中)*
-- [7. 错误码对照表](#7-错误码对照表)
-- [8. TypeScript 类型定义](#8-typescript-类型定义)
+- [6. 相册模块 `/api/photos`](#6-相册模块-apiphotos)
+  - [6.1 获取照片列表](#61-获取照片列表)
+  - [6.2 上传照片](#62-上传照片)
+  - [6.3 删除照片](#63-删除照片)
+- [7. 美食模块 `/api/food`](#7-美食模块-apifood)
+  - [7.1 提交点单](#71-提交点单)
+- [8. 错误码对照表](#8-错误码对照表)
+- [9. TypeScript 类型定义](#9-typescript-类型定义)
 
 ---
 
@@ -322,15 +327,195 @@ PATCH /api/user/me
 
 ---
 
-## 6. 家庭模块 `/api/family` *(规划中)*
+### 5.3 上传头像
 
-家庭相册、日程管理、家庭留言等功能将在后续版本中接入，届时补充此部分。
+```
+POST /api/user/me/avatar
+```
+
+**请求头**
+
+```http
+Authorization: Bearer <token>
+Content-Type: multipart/form-data
+```
+
+**请求体**（multipart/form-data）
+
+| 字段 | 类型 | 必填 | 说明 |
+|------|------|------|------|
+| `file` | `File` | 是 | 头像图片文件。仅允许 JPEG、PNG、WebP，最大 2 MB |
+
+**响应体** — 同 [获取当前用户信息](#51-获取当前用户信息)，`message` 为 `"头像上传成功"`。
+
+**业务错误**
+
+| code | 说明 |
+|------|------|
+| `2002` | 用户名已被占用（更新资料时） |
+
+> 文件校验失败（格式/大小/魔数）时返回 HTTP 400，`message` 中包含具体原因。
 
 ---
 
-## 7. 错误码对照表
+## 6. 相册模块 `/api/photos`
 
-### 7.1 通用错误
+> 以下接口均需携带 `Authorization` 头。
+
+### 6.1 获取照片列表
+
+```
+GET /api/photos?skip=0&limit=50
+```
+
+**查询参数**
+
+| 参数 | 类型 | 必填 | 默认值 | 说明 |
+|------|------|------|--------|------|
+| `skip` | `number` | 否 | `0` | 跳过的记录数 |
+| `limit` | `number` | 否 | `50` | 每页记录数 |
+
+**响应体**
+
+```json
+{
+  "code": 0,
+  "message": "success",
+  "data": [
+    {
+      "id": 1,
+      "filename": "a1b2c3d4.jpg",
+      "originalFilename": "IMG_001.jpg",
+      "fileSize": 2048000,
+      "contentType": "image/jpeg",
+      "description": "全家福",
+      "uploadedBy": 1,
+      "uploader": { "id": 1, "username": "小明" },
+      "createdAt": "2026-07-15T12:00:00.000Z"
+    }
+  ]
+}
+```
+
+| 字段 | 类型 | 说明 |
+|------|------|------|
+| `filename` | `string` | 存储文件名（UUID） |
+| `originalFilename` | `string` | 原始上传文件名 |
+| `fileSize` | `number` | 文件大小（bytes） |
+| `contentType` | `string` | MIME 类型 |
+| `description` | `string` \| `null` | 照片描述 |
+| `uploadedBy` | `number` | 上传者 ID |
+| `uploader` | `object` \| `null` | 上传者简要信息 |
+| `createdAt` | `string` | 上传时间（ISO 8601） |
+
+---
+
+### 6.2 上传照片
+
+```
+POST /api/photos/upload
+```
+
+**请求头**
+
+```http
+Authorization: Bearer <token>
+Content-Type: multipart/form-data
+```
+
+**请求体**（multipart/form-data）
+
+| 字段 | 类型 | 必填 | 说明 |
+|------|------|------|------|
+| `file` | `File` | 是 | 照片文件。仅允许 JPEG、PNG、WebP，最大 10 MB |
+| `description` | `string` | 否 | 照片描述（最多 200 字符） |
+
+**响应体** — 同 [照片列表单项](#61-获取照片列表)，`message` 为 `"照片上传成功"`。
+
+**业务错误**
+
+| code | 说明 |
+|------|------|
+| `3001` | 未选择文件 |
+| `3002` | 不支持的文件格式 |
+| `3003` | 不支持的文件类型 |
+| `3004` | 文件大小超出限制（最大 10 MB） |
+| `3005` | 文件内容不是有效的图片格式 |
+
+---
+
+### 6.3 删除照片
+
+```
+DELETE /api/photos/{photo_id}
+```
+
+**请求头**
+
+```http
+Authorization: Bearer <token>
+```
+
+**响应体**
+
+```json
+{ "code": 0, "message": "照片已删除", "data": null }
+```
+
+**业务错误**
+
+| code | HTTP 状态码 | 说明 |
+|------|-------------|------|
+| `3101` | `404` | 照片不存在 |
+| `3102` | `403` | 只能删除自己上传的照片 |
+
+---
+
+## 7. 美食模块 `/api/food`
+
+> 以下接口均需携带 `Authorization` 头。
+
+### 7.1 提交点单
+
+```
+POST /api/food/orders
+```
+
+**请求体**
+
+| 字段 | 类型 | 必填 | 说明 |
+|------|------|------|------|
+| `items` | `array` | 是 | 菜品列表，每项包含 `dishId`, `dishName`, `quantity` |
+| `note` | `string` | 否 | 备注（最多 500 字符） |
+
+```json
+{
+  "items": [
+    { "dishId": 1, "dishName": "宫保鸡丁", "quantity": 2 },
+    { "dishId": 15, "dishName": "蛋炒饭", "quantity": 1 }
+  ],
+  "note": "少放辣椒"
+}
+```
+
+**响应体**
+
+```json
+{ "code": 0, "message": "点单成功！订单已通过邮件通知", "data": null }
+```
+
+**业务错误**
+
+| code | 说明 |
+|------|------|
+| `4001` | 订单不能为空 |
+| `4002` | 邮件发送失败（服务器 SMTP 配置问题） |
+
+---
+
+## 8. 错误码对照表
+
+### 8.1 通用错误
 
 | code | 说明 |
 |------|------|
@@ -342,7 +527,7 @@ PATCH /api/user/me
 | `429` | 请求过于频繁 |
 | `500` | 服务器内部错误 |
 
-### 7.2 认证错误 (`1xxx`)
+### 8.2 认证错误 (`1xxx`)
 
 | code | 说明 |
 |------|------|
@@ -353,15 +538,35 @@ PATCH /api/user/me
 | `1102` | 账号已被禁用 |
 | `1103` | 登录过于频繁，请稍后再试 |
 
-### 7.3 用户错误 (`2xxx`)
+### 8.3 用户错误 (`2xxx`)
 
 | code | 说明 |
 |------|------|
 | `2001` | 用户不存在 |
+| `2002` | 用户名已被占用（更新资料时） |
+
+### 8.4 相册错误 (`3xxx`)
+
+| code | 说明 |
+|------|------|
+| `3001` | 未选择要上传的文件 |
+| `3002` | 不支持的文件格式 |
+| `3003` | 不支持的文件类型 |
+| `3004` | 文件大小超出限制 |
+| `3005` | 文件内容不是有效的图片格式 |
+| `3101` | 照片不存在 |
+| `3102` | 只能删除自己上传的照片 |
+
+### 8.5 美食点单错误 (`4xxx`)
+
+| code | 说明 |
+|------|------|
+| `4001` | 订单不能为空 |
+| `4002` | 邮件发送失败 |
 
 ---
 
-## 8. TypeScript 类型定义
+## 9. TypeScript 类型定义
 
 以下类型与前端 [`types.ts`](../src/api/types.ts) 保持一致，可直接用于项目中：
 
@@ -375,21 +580,6 @@ interface ApiResponse<T = unknown> {
   data: T | null;
 }
 
-/** 分页参数 */
-interface PaginationParams {
-  page: number;
-  pageSize: number;
-}
-
-/** 分页响应 */
-interface PaginatedData<T> {
-  list: T[];
-  page: number;
-  pageSize: number;
-  total: number;
-  totalPages: number;
-}
-
 // === 用户 ===
 
 interface User {
@@ -397,6 +587,7 @@ interface User {
   username: string;
   email: string;
   avatar: string | null;
+  lastLoginAt?: string | null;
   createdAt?: string;
 }
 
@@ -421,12 +612,48 @@ interface AuthResponse {
   token: string;
 }
 
-// === 用户 ===
+// === 用户操作 ===
 
 /** PATCH /api/user/me */
 interface UpdateUserRequest {
   username?: string;
   avatar?: string;
+}
+
+// === 相册 ===
+
+/** 照片上传者简要信息 */
+interface PhotoUploader {
+  id: number;
+  username: string;
+}
+
+/** 照片 */
+interface Photo {
+  id: number;
+  filename: string;
+  originalFilename: string;
+  fileSize: number;
+  contentType: string;
+  description: string | null;
+  uploadedBy: number;
+  uploader: PhotoUploader | null;
+  createdAt: string;
+}
+
+// === 美食点单 ===
+
+/** 订单中的单个菜品 */
+interface OrderItem {
+  dishId: number;
+  dishName: string;
+  quantity: number;
+}
+
+/** POST /api/food/orders */
+interface SubmitOrderRequest {
+  items: OrderItem[];
+  note?: string;
 }
 ```
 

@@ -19,9 +19,9 @@ instance.interceptors.request.use((config) => {
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }
-  // FormData 上传时，删除 Content-Type 让浏览器自动设置 boundary
-  if (config.data instanceof FormData) {
-    config.headers["Content-Type"] = undefined as unknown as string;
+  // FormData 上传时，删除默认 Content-Type 让浏览器自动设置 multipart boundary
+  if (config.data instanceof FormData && config.headers["Content-Type"]) {
+    delete config.headers["Content-Type"];
   }
   return config;
 });

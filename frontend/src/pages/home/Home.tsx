@@ -2,6 +2,7 @@ import { useEffect, useState, useRef } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useAuthStore } from "../../store/authStore";
 import { authApi } from "../../api";
+import DailyRoutine from "../dailyRoutine/dailyRoutine";
 
 import exitLoginIcon from "../../svg/exitLogin.svg"
 
@@ -51,7 +52,7 @@ function Home() {
     <div className="home">
       {/* Nav */}
       <nav className="home__nav">
-        <div className="container home__nav-inner">
+        <div className="home__nav-inner">
           <h1 className="home__logo">🏠 我们的家</h1>
 
           {/* 头像 + 下拉菜单 */}
@@ -104,7 +105,11 @@ function Home() {
 
       {/* Main */}
       <main className="home__main">
-        <div className="container">
+        {/* 左侧：日程侧边栏 */}
+        <DailyRoutine />
+
+        {/* 右侧：内容区 */}
+        <div className="home__content">
           <div className="home__welcome">
             <span className="home__welcome-icon">🏡</span>
             <h2 className="home__welcome-title">欢迎来到我们的家</h2>

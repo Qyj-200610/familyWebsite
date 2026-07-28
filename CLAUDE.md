@@ -66,14 +66,19 @@ familyWebsite/
 │       │   └── authStore.ts     # Zustand 认证状态管理
 │       ├── utils/
 │       │   └── navigate.ts      # 全局导航工具（供拦截器使用）
+│       ├── svg/                 # SVG 图标（用于表单、按钮等）
+│       ├── docs/                # 前端文档
+│       │   ├── interface.md     # API 接口规范
+│       │   └── TODOLIST.md      # 待办事项
 │       └── pages/
-│           ├── home/            # 首页（已登录）
-│           ├── auth/            # 登录/注册页面
-│           ├── photoAlbum/      # 家庭相册
-│           ├── foodOrder/       # 美食点单
+│           ├── home/            # 首页（已登录，含日程侧边栏）
+│           ├── auth/            # 登录/注册/注册成功（含 Auth 布局组件）
+│           ├── dailyRoutine/    # 日常日程侧边栏组件
+│           ├── photoAlbum/      # 家庭相册（上传、浏览、删除）
+│           ├── foodOrder/       # 美食点单（筛选、购物车、邮件提交通知）
 │           ├── user/
-│           │   ├── setting/     # 用户设置
-│           │   └── personalCenter/ # 个人中心
+│           │   ├── setting/     # 用户设置（头像、用户名、预留主题/密码）
+│           │   └── personalCenter/ # 个人中心（资料、统计、活动）
 │           └── notFound/        # 404 页面
 └── .claude/                     # Claude Code 配置
     └── settings.json

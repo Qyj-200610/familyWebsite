@@ -219,10 +219,6 @@ function Setting() {
                 <span className="setting__sidebar-icon">👤</span>
                 个人资料
               </a>
-              <a href="#account" className="setting__sidebar-link">
-                <span className="setting__sidebar-icon">🔐</span>
-                账户安全
-              </a>
               <a href="#appearance" className="setting__sidebar-link">
                 <span className="setting__sidebar-icon">🎨</span>
                 外观设置
@@ -347,21 +343,6 @@ function Setting() {
                     />
                     <span className="setting__field-hint">功能开发中</span>
                   </div>
-                </div>
-              </div>
-            </section>
-
-            <section id="account" className="setting__section">
-              <h2 className="setting__section-title">账户安全</h2>
-              <p className="setting__section-desc">管理密码和安全设置</p>
-
-              <div className="setting__card">
-                <div className="setting__field">
-                  <label className="setting__label">修改密码</label>
-                  <p className="setting__field-text">定期更新密码可以保护你的账户安全</p>
-                  <button className="setting__btn setting__btn--outline" disabled>
-                    修改密码
-                  </button>
                 </div>
               </div>
             </section>

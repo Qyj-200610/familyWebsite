@@ -146,18 +146,6 @@ function Login() {
         </button>
       </form>
 
-      <div className="login__divider">
-        <span>其他方式登录</span>
-      </div>
-
-      <div className="login__social">
-        <button className="login__social-btn" title="微信登录" disabled>
-          💬 微信
-        </button>
-        <button className="login__social-btn" title="手机号登录" disabled>
-          📱 手机号
-        </button>
-      </div>
     </Auth>
   );
 }
