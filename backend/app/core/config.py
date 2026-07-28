@@ -13,7 +13,7 @@ _ENV_FILE = next((p for p in _ENV_CANDIDATES if p.is_file()), _ENV_CANDIDATES[0]
 class Settings(BaseSettings):
     """Application settings loaded from .env and environment variables."""
 
-    DATABASE_URL: str = "mysql+asyncmy://root:password@localhost:3306/family_website"
+    DATABASE_URL: str = "mysql+aiomysql://root:password@localhost:3306/family_website"
     JWT_SECRET: str = "dev-secret-key-do-not-use-in-production"
     JWT_ALGORITHM: str = "HS256"
     JWT_EXPIRE_MINUTES: int = 1440  # 24 hours

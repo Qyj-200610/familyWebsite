@@ -21,7 +21,7 @@
 | 服务 | 端口 |
 | --- | --- |
 | 前端开发服务器 | 5175 |
-| 后端 API 服务器 | 8000 |
+| 后端 API 服务器 | 8001 |
 
 > 前端 Vite 开发服务器通过代理将 `/api/*` 请求转发到后端 `http://localhost:8000`，开发时无需额外配置 CORS。
 
@@ -100,9 +100,9 @@ CREATE DATABASE IF NOT EXISTS family_website DEFAULT CHARSET utf8mb4;
 ### 3. 启动服务
 
 ```bash
-# 终端 1 — 启动后端（端口 8000）
+# 终端 1 — 启动后端（端口 8001）
 cd backend
-uvicorn app.main:app --reload --port 8000
+uvicorn app.main:app --reload --port 8001
 
 # 终端 2 — 启动前端（端口 5175）
 cd frontend
@@ -113,7 +113,7 @@ npm run dev
 
 ```bash
 # 直接测试后端
-curl http://localhost:8000/api/health
+curl http://localhost:8001/api/health
 # → {"code":0,"message":"ok","data":{"status":"healthy"}}
 
 # 通过前端代理测试（验证前后端联通）
@@ -123,7 +123,7 @@ curl http://localhost:5175/api/health
 
 打开浏览器访问：
 - 前端页面：http://localhost:5175
-- 后端 API 文档（Swagger）：http://localhost:8000/docs
+- 后端 API 文档（Swagger）：http://localhost:8001/docs
 
 ## 功能
 
@@ -138,7 +138,7 @@ curl http://localhost:5175/api/health
 
 ## API 接口
 
-> Base URL: `http://localhost:8000/api`（开发环境）
+> Base URL: `http://localhost:8001/api`（开发环境）
 
 ### 系统
 
@@ -170,7 +170,7 @@ curl http://localhost:5175/api/health
     │
     ├── 页面请求 → Vite Dev Server (5175) → React SPA
     │
-    └── API 请求 /api/* → Vite 代理 → FastAPI (8000)
+    └── API 请求 /api/* → Vite 代理 → FastAPI (8001)
                               │
                               ├── 路由层 (api/v1/)
                               ├── 服务层 (services/)

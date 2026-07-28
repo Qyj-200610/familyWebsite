@@ -69,7 +69,27 @@ export interface Photo {
   description: string | null;
   uploadedBy: number;
   uploader: PhotoUploader | null;
+  albumId: number | null;
   createdAt: string;
+}
+
+// === 相册 ===
+
+/** 相册 */
+export interface Album {
+  id: number;
+  name: string;
+  isPublic: boolean;
+  createdBy: number;
+  creator: PhotoUploader | null;
+  photoCount: number;
+  coverPhoto: Photo | null;
+  createdAt: string;
+}
+
+/** 相册详情（含照片列表） */
+export interface AlbumDetail extends Album {
+  photos: Photo[];
 }
 
 // === 美食点单 ===

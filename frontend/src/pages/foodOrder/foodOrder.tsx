@@ -1,9 +1,9 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { useAuthStore } from "../../store/authStore";
-import { authApi, foodApi } from "../../api";
+import { foodApi } from "../../api";
+import PageNav from "../../components/PageNav/PageNav";
 
-import exitLoginIcon from "../../svg/exitLogin.svg";
 import "./foodOrder.css";
 
 // ============================================================
@@ -23,13 +23,7 @@ interface Dish {
 }
 
 const CATEGORIES: (DishCategory | "全部")[] = [
-  "全部",
-  "热菜",
-  "凉菜",
-  "汤品",
-  "主食",
-  "饮品",
-  "甜点",
+  "全部", "热菜", "凉菜", "汤品", "主食", "饮品", "甜点",
 ];
 
 const DISHES: Dish[] = [
@@ -42,27 +36,22 @@ const DISHES: Dish[] = [
   { id: 6, name: "蒜蓉西兰花", category: "热菜", description: "清脆爽口，蒜香四溢", emoji: "🥦" },
   { id: 7, name: "地三鲜", category: "热菜", description: "土豆茄子青椒，东北经典", emoji: "🥔" },
   { id: 8, name: "糖醋排骨", category: "热菜", description: "酸甜可口，肉质鲜嫩", emoji: "🍖", recommended: true },
-
   // ---- 凉菜 ----
   { id: 9, name: "凉拌黄瓜", category: "凉菜", description: "清脆爽口，开胃解腻", emoji: "🥒" },
   { id: 10, name: "皮蛋豆腐", category: "凉菜", description: "嫩滑豆腐配松花蛋，经典凉菜", emoji: "🥚" },
   { id: 11, name: "口水鸡", category: "凉菜", description: "麻辣鲜香，让人回味无穷", emoji: "🐔", spicy: true },
-
   // ---- 汤品 ----
   { id: 12, name: "酸辣汤", category: "汤品", description: "酸辣开胃，暖身暖胃", emoji: "🥣", spicy: true },
   { id: 13, name: "排骨玉米汤", category: "汤品", description: "清甜鲜美，营养滋补", emoji: "🍖" },
   { id: 14, name: "紫菜蛋花汤", category: "汤品", description: "清淡爽口，简单快手", emoji: "🍲" },
-
   // ---- 主食 ----
   { id: 15, name: "蛋炒饭", category: "主食", description: "粒粒分明，家常必备", emoji: "🍚" },
   { id: 16, name: "手工水饺", category: "主食", description: "皮薄馅大，家的味道", emoji: "🥟", recommended: true },
   { id: 17, name: "葱油拌面", category: "主食", description: "葱香四溢，简单美味", emoji: "🍜" },
-
   // ---- 饮品 ----
   { id: 18, name: "冰镇柠檬水", category: "饮品", description: "酸甜清爽，夏日必备", emoji: "🍋" },
   { id: 19, name: "绿豆汤", category: "饮品", description: "清热解暑，传统饮品", emoji: "🫘" },
   { id: 20, name: "奶茶", category: "饮品", description: "香浓丝滑，甜蜜享受", emoji: "🧋" },
-
   // ---- 甜点 ----
   { id: 21, name: "芒果布丁", category: "甜点", description: "香甜嫩滑，入口即化", emoji: "🍮" },
   { id: 22, name: "红豆沙", category: "甜点", description: "细腻绵密，甜蜜暖心", emoji: "🫘" },
@@ -75,11 +64,7 @@ const DISHES: Dish[] = [
 
 function FoodOrder() {
   const navigate = useNavigate();
-  const { user, isAuthenticated, logout } = useAuthStore();
-
-  // ---------- 导航栏状态 ----------
-  const [dropdownOpen, setDropdownOpen] = useState(false);
-  const dropdownRef = useRef<HTMLDivElement>(null);
+  const { isAuthenticated } = useAuthStore();
 
   // ---------- 菜品筛选 ----------
   const [activeCategory, setActiveCategory] = useState<DishCategory | "全部">("全部");
@@ -95,34 +80,12 @@ function FoodOrder() {
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [submitSuccess, setSubmitSuccess] = useState(false);
 
-  // 点击外部关闭下拉菜单
-  useEffect(() => {
-    function handleClickOutside(e: MouseEvent) {
-      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
-        setDropdownOpen(false);
-      }
-    }
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
-
   // 认证检查
   useEffect(() => {
     if (!isAuthenticated) {
       navigate("/login", { replace: true });
     }
   }, [isAuthenticated, navigate]);
-
-  // ---------- 退出登录 ----------
-  const handleLogout = async () => {
-    try {
-      await authApi.logout();
-    } catch {
-      /* ignore */
-    }
-    logout();
-    navigate("/");
-  };
 
   // ---------- 购物车逻辑 ----------
   const handleAddToCart = useCallback((dishId: number) => {
@@ -145,11 +108,8 @@ function FoodOrder() {
     setCartItems((prev) => {
       const next = new Map(prev);
       const newQty = (prev.get(dishId) || 0) + delta;
-      if (newQty <= 0) {
-        next.delete(dishId);
-      } else {
-        next.set(dishId, newQty);
-      }
+      if (newQty <= 0) next.delete(dishId);
+      else next.set(dishId, newQty);
       return next;
     });
   }, []);
@@ -194,10 +154,8 @@ function FoodOrder() {
 
   const handleSubmitOrder = async () => {
     if (cartDetails.items.length === 0) return;
-
     setSubmitting(true);
     setSubmitError(null);
-
     try {
       await foodApi.submitOrder({
         items: cartDetails.items.map((item) => ({
@@ -207,11 +165,8 @@ function FoodOrder() {
         })),
         note: orderNote.trim() || undefined,
       });
-
       setSubmitSuccess(true);
       handleClearCart();
-
-      // 3 秒后自动关闭弹窗
       setTimeout(() => {
         setOrderModalOpen(false);
         setSubmitSuccess(false);
@@ -223,79 +178,17 @@ function FoodOrder() {
     }
   };
 
-  // ---------- 头像字母 ----------
-  const avatarLetter = user?.username?.charAt(0).toUpperCase() || "U";
-
-  if (!isAuthenticated) {
-    return null;
-  }
+  if (!isAuthenticated) return null;
 
   return (
     <div className="food">
-      {/* ==================== 导航栏 ==================== */}
-      <nav className="food__nav">
-        <div className="container food__nav-inner">
-          <Link to="/home" className="food__logo">
-            🏠 我们的家
-          </Link>
+      <div className="food__top-decor" />
+      {/* ===== 导航栏 (共享组件) ===== */}
+      <PageNav />
 
-          <div className="food__user-area" ref={dropdownRef}>
-            <button
-              className="food__avatar-btn"
-              onClick={() => setDropdownOpen(!dropdownOpen)}
-            >
-              <span className="food__avatar">
-                {user?.avatar ? (
-                  <img src={user.avatar} alt={user.username} />
-                ) : (
-                  <span className="food__avatar-placeholder">{avatarLetter}</span>
-                )}
-              </span>
-              <span className="food__username">{user?.username || "用户"}</span>
-              <span
-                className={`food__dropdown-arrow ${
-                  dropdownOpen ? "food__dropdown-arrow--open" : ""
-                }`}
-              >
-                ▾
-              </span>
-            </button>
-
-            {dropdownOpen && (
-              <div className="food__dropdown">
-                <Link
-                  to="/personal-center"
-                  className="food__dropdown-item"
-                  onClick={() => setDropdownOpen(false)}
-                >
-                  <span className="food__dropdown-icon">👤</span>
-                  个人中心
-                </Link>
-                <Link
-                  to="/setting"
-                  className="food__dropdown-item"
-                  onClick={() => setDropdownOpen(false)}
-                >
-                  <span className="food__dropdown-icon">⚙️</span>
-                  设置
-                </Link>
-                <div className="food__dropdown-divider" />
-                <button
-                  className="food__dropdown-item food__dropdown-item--danger"
-                  onClick={handleLogout}
-                >
-                  <img src={exitLoginIcon} alt="退出登录" />
-                  退出登录
-                </button>
-              </div>
-            )}
-          </div>
-        </div>
-      </nav>
-
-      {/* ==================== 主内容区 ==================== */}
+      {/* ===== 主内容区 ===== */}
       <main className="food__main">
-        <div className="container food__layout">
+        <div className="food__layout">
           {/* ---- 左侧：菜品区 ---- */}
           <div className="food__content">
             {/* 顶部标题栏 */}
@@ -313,9 +206,7 @@ function FoodOrder() {
               {CATEGORIES.map((cat) => (
                 <button
                   key={cat}
-                  className={`food__category-btn ${
-                    activeCategory === cat ? "food__category-btn--active" : ""
-                  }`}
+                  className={`food__category-btn ${activeCategory === cat ? "food__category-btn--active" : ""}`}
                   onClick={() => setActiveCategory(cat)}
                 >
                   {cat}
@@ -329,7 +220,7 @@ function FoodOrder() {
                 const inCart = cartItems.get(dish.id) || 0;
                 return (
                   <div key={dish.id} className="food__card">
-                    {/* 图片占位区 */}
+                    {/* 图片区 */}
                     <div className="food__card-image">
                       <span className="food__card-emoji">{dish.emoji}</span>
                       {dish.recommended && (
@@ -350,27 +241,12 @@ function FoodOrder() {
                     <div className="food__card-action">
                       {inCart > 0 ? (
                         <div className="food__card-qty-ctrl">
-                          <button
-                            className="food__card-qty-btn"
-                            onClick={() =>
-                              handleUpdateQuantity(dish.id, -1)
-                            }
-                          >
-                            −
-                          </button>
+                          <button className="food__card-qty-btn" onClick={() => handleUpdateQuantity(dish.id, -1)}>−</button>
                           <span className="food__card-qty">{inCart}</span>
-                          <button
-                            className="food__card-qty-btn"
-                            onClick={() => handleAddToCart(dish.id)}
-                          >
-                            +
-                          </button>
+                          <button className="food__card-qty-btn" onClick={() => handleAddToCart(dish.id)}>+</button>
                         </div>
                       ) : (
-                        <button
-                          className="food__card-add-btn"
-                          onClick={() => handleAddToCart(dish.id)}
-                        >
+                        <button className="food__card-add-btn" onClick={() => handleAddToCart(dish.id)}>
                           + 加入点单
                         </button>
                       )}
@@ -391,12 +267,7 @@ function FoodOrder() {
                     <span className="food__cart-count">{cartDetails.totalCount}</span>
                   )}
                 </h3>
-                <button
-                  className="food__cart-close"
-                  onClick={() => setCartOpen(false)}
-                >
-                  ✕
-                </button>
+                <button className="food__cart-close" onClick={() => setCartOpen(false)}>✕</button>
               </div>
 
               {cartDetails.items.length === 0 ? (
@@ -414,28 +285,12 @@ function FoodOrder() {
                         <div className="food__cart-item-info">
                           <span className="food__cart-item-name">{dish.name}</span>
                           <div className="food__cart-item-qty">
-                            <button
-                              className="food__cart-qty-btn"
-                              onClick={() => handleUpdateQuantity(dish.id, -1)}
-                            >
-                              −
-                            </button>
+                            <button className="food__cart-qty-btn" onClick={() => handleUpdateQuantity(dish.id, -1)}>−</button>
                             <span className="food__cart-qty-value">{quantity}</span>
-                            <button
-                              className="food__cart-qty-btn"
-                              onClick={() => handleAddToCart(dish.id)}
-                            >
-                              +
-                            </button>
+                            <button className="food__cart-qty-btn" onClick={() => handleAddToCart(dish.id)}>+</button>
                           </div>
                         </div>
-                        <button
-                          className="food__cart-item-remove"
-                          onClick={() => handleRemoveFromCart(dish.id)}
-                          title="移除此菜品"
-                        >
-                          🗑️
-                        </button>
+                        <button className="food__cart-item-remove" onClick={() => handleRemoveFromCart(dish.id)} title="移除此菜品">🗑️</button>
                       </li>
                     ))}
                   </ul>
@@ -444,18 +299,8 @@ function FoodOrder() {
                     <p className="food__cart-summary">
                       共 <strong>{cartDetails.totalCount}</strong> 道菜品
                     </p>
-                    <button
-                      className="food__cart-submit-btn"
-                      onClick={openOrderModal}
-                    >
-                      提交点单
-                    </button>
-                    <button
-                      className="food__cart-clear-btn"
-                      onClick={handleClearCart}
-                    >
-                      清空点单
-                    </button>
+                    <button className="food__cart-submit-btn" onClick={openOrderModal}>提交点单</button>
+                    <button className="food__cart-clear-btn" onClick={handleClearCart}>清空点单</button>
                   </div>
                 </>
               )}
@@ -464,10 +309,7 @@ function FoodOrder() {
 
           {/* ---- 移动端：购物车浮动按钮 ---- */}
           {cartDetails.totalCount > 0 && (
-            <button
-              className="food__cart-fab"
-              onClick={() => setCartOpen(!cartOpen)}
-            >
+            <button className="food__cart-fab" onClick={() => setCartOpen(!cartOpen)}>
               <span className="food__cart-fab-icon">🛒</span>
               <span className="food__cart-fab-badge">{cartDetails.totalCount}</span>
             </button>
@@ -475,30 +317,18 @@ function FoodOrder() {
 
           {/* ---- 移动端购物车遮罩 ---- */}
           {cartOpen && (
-            <div
-              className="food__cart-overlay"
-              onClick={() => setCartOpen(false)}
-            />
+            <div className="food__cart-overlay" onClick={() => setCartOpen(false)} />
           )}
         </div>
       </main>
 
-      {/* ==================== 下单确认弹窗 ==================== */}
+      {/* ===== 下单确认弹窗 ===== */}
       {orderModalOpen && (
         <div className="food__modal-overlay" onClick={closeOrderModal}>
-          <div
-            className="food__modal"
-            onClick={(e) => e.stopPropagation()}
-          >
+          <div className="food__modal" onClick={(e) => e.stopPropagation()}>
             <div className="food__modal-header">
               <h3>确认点单</h3>
-              <button
-                className="food__modal-close"
-                onClick={closeOrderModal}
-                disabled={submitting}
-              >
-                ✕
-              </button>
+              <button className="food__modal-close" onClick={closeOrderModal} disabled={submitting}>✕</button>
             </div>
 
             <div className="food__modal-body">
@@ -510,7 +340,6 @@ function FoodOrder() {
                 </div>
               ) : (
                 <>
-                  {/* 订单摘要 */}
                   <div className="food__modal-summary">
                     <h4>📋 点单明细</h4>
                     <ul className="food__modal-list">
@@ -526,11 +355,8 @@ function FoodOrder() {
                     </p>
                   </div>
 
-                  {/* 备注 */}
                   <div className="food__modal-note-area">
-                    <label className="food__modal-label">
-                      📝 备注（选填）
-                    </label>
+                    <label className="food__modal-label">📝 备注（选填）</label>
                     <textarea
                       className="food__modal-note"
                       placeholder="如有特殊需求，请在此注明..."
@@ -542,7 +368,6 @@ function FoodOrder() {
                     />
                   </div>
 
-                  {/* 错误提示 */}
                   {submitError && (
                     <div className="food__modal-error">⚠️ {submitError}</div>
                   )}
@@ -552,18 +377,8 @@ function FoodOrder() {
 
             {!submitSuccess && (
               <div className="food__modal-footer">
-                <button
-                  className="food__modal-btn food__modal-btn--cancel"
-                  onClick={closeOrderModal}
-                  disabled={submitting}
-                >
-                  取消
-                </button>
-                <button
-                  className="food__modal-btn food__modal-btn--confirm"
-                  onClick={handleSubmitOrder}
-                  disabled={submitting}
-                >
+                <button className="food__modal-btn food__modal-btn--cancel" onClick={closeOrderModal} disabled={submitting}>取消</button>
+                <button className="food__modal-btn food__modal-btn--confirm" onClick={handleSubmitOrder} disabled={submitting}>
                   {submitting ? "提交中..." : "确认提交"}
                 </button>
               </div>

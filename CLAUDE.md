@@ -93,7 +93,7 @@ cd backend
 python -m venv .venv && source .venv/Scripts/activate  # Windows
 pip install -r requirements.txt
 cp .env.example .env  # 编辑数据库和 SMTP 配置
-uvicorn app.main:app --reload --port 8000
+uvicorn app.main:app --reload --port 8001
 ```
 
 ### 前端

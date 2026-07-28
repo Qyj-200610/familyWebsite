@@ -9,6 +9,7 @@ from fastapi.staticfiles import StaticFiles
 from app.api.v1.router import router as v1_router
 from app.core.config import settings
 from app.core.database import engine
+from app.models.album import Album  # noqa: F401 — 确保模型被导入以便建表
 from app.models.photo import Photo  # noqa: F401 — 确保模型被导入以便建表
 from app.models.user import Base
 
@@ -18,13 +19,15 @@ logger = logging.getLogger(__name__)
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """Startup: create tables if DB is reachable. Shutdown: dispose engine."""
+    # Ensure all model classes are imported so Base.metadata knows about them
+    # (imports at module level above serve this purpose via noqa F401)
+
     try:
         async with engine.begin() as conn:
             await conn.run_sync(Base.metadata.create_all)
-        logger.info("Database tables created successfully")
-    except Exception as e:
-        logger.warning(f"Database unavailable during startup: {e}")
-        logger.warning("The API will start, but DB-dependent endpoints will fail")
+        logger.info("Database tables verified/created successfully")
+    except Exception:
+        logger.exception("Database initialization failed — the server may not work correctly")
     yield
     await engine.dispose()
 

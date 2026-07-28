@@ -30,6 +30,7 @@ class PhotoResponse(BaseModel):
     description: str | None = None
     uploaded_by: int = Field(alias="uploadedBy")
     uploader: PhotoUploaderResponse | None = None
+    album_id: int | None = Field(None, alias="albumId")
     created_at: datetime = Field(alias="createdAt")
 
     model_config = {"from_attributes": True, "populate_by_name": True}

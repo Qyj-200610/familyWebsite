@@ -2,8 +2,6 @@ import { useEffect, useState, useRef } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useAuthStore } from "../../../store/authStore";
 import { authApi, userApi } from "../../../api";
-
-import exitLoginIcon from "../../../svg/exitLogin.svg"
 import "./Setting.css";
 
 /** 允许的头像格式 */
@@ -69,30 +67,25 @@ function Setting() {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    // ── 客户端校验扩展名 ──
     const ext = file.name.substring(file.name.lastIndexOf(".")).toLowerCase();
     if (!ALLOWED_EXTENSIONS.includes(ext)) {
       setUploadError(`不支持的文件格式：${ext}，仅允许 jpg、png、webp`);
-      // 重置 input 以便再次选择同一文件
       if (fileInputRef.current) fileInputRef.current.value = "";
       return;
     }
 
-    // ── 客户端校验 MIME 类型 ──
     if (!ALLOWED_TYPES.includes(file.type)) {
       setUploadError(`不支持的文件类型，仅允许 jpg、png、webp`);
       if (fileInputRef.current) fileInputRef.current.value = "";
       return;
     }
 
-    // ── 客户端校验大小 ──
     if (file.size > MAX_SIZE) {
       setUploadError(`文件大小超出限制（最大 2 MB）`);
       if (fileInputRef.current) fileInputRef.current.value = "";
       return;
     }
 
-    // ── 上传 ──
     setUploading(true);
     setUploadError("");
     try {
@@ -154,6 +147,9 @@ function Setting() {
 
   return (
     <div className="setting">
+      {/* 顶部装饰条 */}
+      <div className="setting__top-decor" />
+
       {/* Nav */}
       <nav className="setting__nav">
         <div className="container setting__nav-inner">
@@ -200,7 +196,7 @@ function Setting() {
                 <button
                   className="setting__dropdown-item setting__dropdown-item--danger"
                   onClick={handleLogout}
-                ><img src={exitLoginIcon} alt="exitLogin" />
+                >
                   退出登录
                 </button>
               </div>
@@ -214,6 +210,7 @@ function Setting() {
         <div className="container setting__main-inner">
           {/* 侧边栏 */}
           <aside className="setting__sidebar">
+            <div className="setting__sidebar-label">设置</div>
             <nav className="setting__sidebar-nav">
               <a href="#profile" className="setting__sidebar-link setting__sidebar-link--active">
                 <span className="setting__sidebar-icon">👤</span>
@@ -233,8 +230,10 @@ function Setting() {
           {/* 内容区 */}
           <div className="setting__content">
             <section id="profile" className="setting__section">
-              <h2 className="setting__section-title">个人资料</h2>
-              <p className="setting__section-desc">管理你的个人信息和公开资料</p>
+              <div className="setting__section-header">
+                <h2 className="setting__section-title">个人资料</h2>
+                <p className="setting__section-desc">管理你的个人信息和公开资料</p>
+              </div>
 
               <div className="setting__card">
                 <div className="setting__field">
@@ -264,11 +263,10 @@ function Setting() {
                         支持 JPG、PNG、WebP 格式，最大 2 MB
                       </p>
                       {uploadError && (
-                        <p className="setting__avatar-error">{uploadError}</p>
+                        <p className="setting__avatar-error">⚠️ {uploadError}</p>
                       )}
                     </div>
                   </div>
-                  {/* 隐藏的文件选择器 */}
                   <input
                     ref={fileInputRef}
                     type="file"
@@ -313,7 +311,7 @@ function Setting() {
                         </button>
                       </div>
                       {usernameError && (
-                        <p className="setting__field-error">{usernameError}</p>
+                        <p className="setting__field-error">⚠️ {usernameError}</p>
                       )}
                       <p className="setting__field-hint">
                         2–50 个字符，修改后即时生效
@@ -332,38 +330,31 @@ function Setting() {
                   )}
                 </div>
 
-                <div className="setting__field">
-                  <label className="setting__label">邮箱</label>
-                  <div className="setting__field-row">
-                    <input
-                      type="email"
-                      className="setting__input"
-                      defaultValue={user?.email || ""}
-                      disabled
-                    />
-                    <span className="setting__field-hint">功能开发中</span>
-                  </div>
-                </div>
               </div>
             </section>
 
             <section id="appearance" className="setting__section">
-              <h2 className="setting__section-title">外观设置</h2>
-              <p className="setting__section-desc">自定义界面显示</p>
+              <div className="setting__section-header">
+                <h2 className="setting__section-title">外观设置</h2>
+                <p className="setting__section-desc">自定义界面显示</p>
+              </div>
 
               <div className="setting__card">
                 <div className="setting__field">
                   <label className="setting__label">主题模式</label>
-                  <p className="setting__field-text">选择你喜欢的界面配色方案</p>
+                  <p className="setting__field-desc">选择你喜欢的界面配色方案</p>
                   <div className="setting__theme-options">
                     <button className="setting__theme-btn setting__theme-btn--active" disabled>
-                      ☀️ 浅色
+                      <span className="setting__theme-icon">☀️</span>
+                      浅色
                     </button>
                     <button className="setting__theme-btn" disabled>
-                      🌙 深色
+                      <span className="setting__theme-icon">🌙</span>
+                      深色
                     </button>
                     <button className="setting__theme-btn" disabled>
-                      💻 跟随系统
+                      <span className="setting__theme-icon">💻</span>
+                      跟随系统
                     </button>
                   </div>
                 </div>
@@ -371,11 +362,17 @@ function Setting() {
             </section>
 
             <section id="notification" className="setting__section">
-              <h2 className="setting__section-title">通知偏好</h2>
-              <p className="setting__section-desc">管理消息和邮件通知</p>
+              <div className="setting__section-header">
+                <h2 className="setting__section-title">通知偏好</h2>
+                <p className="setting__section-desc">管理消息和邮件通知</p>
+              </div>
 
               <div className="setting__card">
-                <p className="setting__placeholder">通知设置功能即将上线 ✨</p>
+                <div className="setting__placeholder">
+                  <div className="setting__placeholder-icon">✨</div>
+                  <p>通知设置功能即将上线</p>
+                  <p className="setting__placeholder-hint">敬请期待更多个性化选项</p>
+                </div>
               </div>
             </section>
           </div>

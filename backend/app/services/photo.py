@@ -49,6 +49,8 @@ class PhotoService:
         user: User,
         file: UploadFile,
         description: str | None = None,
+        *,
+        album_id: int | None = None,
     ) -> Photo:
         """Upload a photo and create a database record."""
         # 读取文件内容
@@ -75,6 +77,7 @@ class PhotoService:
             content_type=content_type,
             description=description,
             uploaded_by=user.id,
+            album_id=album_id,
         )
         db.add(photo)
         await db.flush()
@@ -87,14 +90,14 @@ class PhotoService:
         db: AsyncSession,
         skip: int = 0,
         limit: int = 50,
+        *,
+        album_id: int | None = None,
     ) -> list[Photo]:
-        """Get a paginated list of photos, newest first."""
-        result = await db.execute(
-            select(Photo)
-            .order_by(Photo.created_at.desc())
-            .offset(skip)
-            .limit(limit)
-        )
+        """Get a paginated list of photos, newest first. Optionally filter by album."""
+        stmt = select(Photo).order_by(Photo.created_at.desc())
+        if album_id is not None:
+            stmt = stmt.where(Photo.album_id == album_id)
+        result = await db.execute(stmt.offset(skip).limit(limit))
         return list(result.scalars().all())
 
     @staticmethod

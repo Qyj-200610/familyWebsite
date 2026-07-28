@@ -18,12 +18,16 @@ class Photo(Base):
     uploaded_by: Mapped[int] = mapped_column(
         Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False, comment="上传者 ID"
     )
+    album_id: Mapped[int | None] = mapped_column(
+        Integer, ForeignKey("albums.id", ondelete="SET NULL"), nullable=True, default=None, comment="所属相册 ID"
+    )
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now(), nullable=False
     )
 
     # 关系
     uploader: Mapped["User"] = relationship("User", lazy="joined")  # type: ignore[name-defined]
+    album: Mapped["Album | None"] = relationship("Album", back_populates="photos")  # type: ignore[name-defined]
 
     def __repr__(self) -> str:
         return f"<Photo(id={self.id}, filename={self.filename!r}, uploaded_by={self.uploaded_by})>"
