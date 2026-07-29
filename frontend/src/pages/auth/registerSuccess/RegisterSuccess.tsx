@@ -42,6 +42,16 @@ function RegisterSuccess() {
       subtitle="您的家庭账号已创建，请前往登录"
     >
       <div className="register-success">
+        {/* Confetti particles */}
+        <div className="register-success__confetti" aria-hidden="true">
+          <span className="register-success__confetti-dot register-success__confetti-dot--1" />
+          <span className="register-success__confetti-dot register-success__confetti-dot--2" />
+          <span className="register-success__confetti-dot register-success__confetti-dot--3" />
+          <span className="register-success__confetti-dot register-success__confetti-dot--4" />
+          <span className="register-success__confetti-dot register-success__confetti-dot--5" />
+          <span className="register-success__confetti-dot register-success__confetti-dot--6" />
+        </div>
+
         <div className="register-success__icon">
           <svg viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
             <circle cx="40" cy="40" r="38" stroke="currentColor" strokeWidth="3" />

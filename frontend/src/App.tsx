@@ -62,10 +62,14 @@ function App() {
         </div>
       </section>
 
+      {/* Wave Divider */}
+      <div className="cover__wave" aria-hidden="true" />
+
       {/* Features */}
       <section className="cover__features">
         <div className="container">
           <h3 className="cover__section-title">功能一览</h3>
+          <p className="cover__section-subtitle">探索我们的家庭空间，记录每一个珍贵时刻</p>
           <div className="cover__features-grid">
             <div className="cover__feature-card">
               <span className="cover__feature-icon">📸</span>

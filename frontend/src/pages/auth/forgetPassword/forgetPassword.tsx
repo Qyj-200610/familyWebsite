@@ -2,6 +2,9 @@ import { useState, type FormEvent } from "react";
 import { useNavigate } from "react-router-dom";
 import Auth from "../Auth";
 import { authApi } from "../../../api";
+import emailIcon from "../../../svg/email.svg";
+import passwordIcon from "../../../svg/password.svg";
+import confirmPasswordIcon from "../../../svg/confirmPassword.svg";
 import "./forgetPassword.css";
 
 interface ResetForm {
@@ -27,6 +30,8 @@ function ForgetPassword() {
   const [loading, setLoading] = useState(false);
   const [serverError, setServerError] = useState("");
   const [serverSuccess, setServerSuccess] = useState("");
+  const [showNewPassword, setShowNewPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const validate = (): boolean => {
     const errs: FormErrors = {};
@@ -106,16 +111,24 @@ function ForgetPassword() {
           <label className="form-label" htmlFor="forget-email">
             邮箱地址
           </label>
-          <input
-            id="forget-email"
-            type="email"
-            className={`form-input ${errors.email ? "form-input--error" : ""}`}
-            placeholder="请输入注册邮箱"
-            value={form.email}
-            onChange={(e) => updateField("email", e.target.value)}
-            autoComplete="email"
-            autoFocus
-          />
+          <div className="form-input-wrapper">
+            <input
+              id="forget-email"
+              type="email"
+              className={`form-input form-input--with-icon ${errors.email ? "form-input--error" : ""}`}
+              placeholder="请输入注册邮箱"
+              value={form.email}
+              onChange={(e) => updateField("email", e.target.value)}
+              autoComplete="email"
+              autoFocus
+            />
+            <img
+              className="form-input-icon"
+              src={emailIcon}
+              alt=""
+              aria-hidden="true"
+            />
+          </div>
           {errors.email && <span className="form-error">{errors.email}</span>}
         </div>
 
@@ -123,15 +136,32 @@ function ForgetPassword() {
           <label className="form-label" htmlFor="forget-new-password">
             新密码
           </label>
-          <input
-            id="forget-new-password"
-            type="password"
-            className={`form-input ${errors.newPassword ? "form-input--error" : ""}`}
-            placeholder="至少 6 位密码"
-            value={form.newPassword}
-            onChange={(e) => updateField("newPassword", e.target.value)}
-            autoComplete="new-password"
-          />
+          <div className="form-input-wrapper">
+            <input
+              id="forget-new-password"
+              type={showNewPassword ? "text" : "password"}
+              className={`form-input form-input--with-icon form-input--with-toggle ${errors.newPassword ? "form-input--error" : ""}`}
+              placeholder="至少 6 位密码"
+              value={form.newPassword}
+              onChange={(e) => updateField("newPassword", e.target.value)}
+              autoComplete="new-password"
+            />
+            <img
+              className="form-input-icon"
+              src={passwordIcon}
+              alt=""
+              aria-hidden="true"
+            />
+            <button
+              type="button"
+              className="form-password-toggle"
+              onClick={() => setShowNewPassword((v) => !v)}
+              tabIndex={-1}
+              aria-label={showNewPassword ? "隐藏新密码" : "显示新密码"}
+            >
+              {showNewPassword ? "🙈" : "👁"}
+            </button>
+          </div>
           {errors.newPassword && (
             <span className="form-error">{errors.newPassword}</span>
           )}
@@ -141,15 +171,32 @@ function ForgetPassword() {
           <label className="form-label" htmlFor="forget-confirm-password">
             确认新密码
           </label>
-          <input
-            id="forget-confirm-password"
-            type="password"
-            className={`form-input ${errors.confirmPassword ? "form-input--error" : ""}`}
-            placeholder="再次输入新密码"
-            value={form.confirmPassword}
-            onChange={(e) => updateField("confirmPassword", e.target.value)}
-            autoComplete="new-password"
-          />
+          <div className="form-input-wrapper">
+            <input
+              id="forget-confirm-password"
+              type={showConfirmPassword ? "text" : "password"}
+              className={`form-input form-input--with-icon form-input--with-toggle ${errors.confirmPassword ? "form-input--error" : ""}`}
+              placeholder="再次输入新密码"
+              value={form.confirmPassword}
+              onChange={(e) => updateField("confirmPassword", e.target.value)}
+              autoComplete="new-password"
+            />
+            <img
+              className="form-input-icon"
+              src={confirmPasswordIcon}
+              alt=""
+              aria-hidden="true"
+            />
+            <button
+              type="button"
+              className="form-password-toggle"
+              onClick={() => setShowConfirmPassword((v) => !v)}
+              tabIndex={-1}
+              aria-label={showConfirmPassword ? "隐藏确认新密码" : "显示确认新密码"}
+            >
+              {showConfirmPassword ? "🙈" : "👁"}
+            </button>
+          </div>
           {errors.confirmPassword && (
             <span className="form-error">{errors.confirmPassword}</span>
           )}
@@ -157,10 +204,10 @@ function ForgetPassword() {
 
         <button
           type="submit"
-          className="form-submit"
+          className={`form-submit ${loading ? "form-submit--loading" : ""}`}
           disabled={loading}
         >
-          {loading ? "重置中..." : "重置密码"}
+          {loading ? "重置中" : "重置密码"}
         </button>
       </form>
     </Auth>

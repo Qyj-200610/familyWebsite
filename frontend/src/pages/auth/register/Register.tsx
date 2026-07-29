@@ -39,6 +39,8 @@ function Register() {
   const [errors, setErrors] = useState<FormErrors>({});
   const [loading, setLoading] = useState(false);
   const [serverError, setServerError] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const validate = (): boolean => {
     const errs: FormErrors = {};
@@ -122,66 +124,116 @@ function Register() {
 
         <div className="form-group">
           <label className="form-label" htmlFor="reg-username">
-            <img src={usernameIcon} alt="username" />
+            用户名
           </label>
-          <input
-            id="reg-username"
-            type="text"
-            className={`form-input ${errors.username ? "form-input--error" : ""}`}
-            placeholder="请输入用户名"
-            value={form.username}
-            onChange={(e) => updateField("username", e.target.value)}
-            autoComplete="username"
-            autoFocus
-          />
+          <div className="form-input-wrapper">
+            <input
+              id="reg-username"
+              type="text"
+              className={`form-input form-input--with-icon ${errors.username ? "form-input--error" : ""}`}
+              placeholder="请输入用户名"
+              value={form.username}
+              onChange={(e) => updateField("username", e.target.value)}
+              autoComplete="username"
+              autoFocus
+            />
+            <img
+              className="form-input-icon"
+              src={usernameIcon}
+              alt=""
+              aria-hidden="true"
+            />
+          </div>
           {errors.username && <span className="form-error">{errors.username}</span>}
         </div>
 
         <div className="form-group">
           <label className="form-label" htmlFor="reg-email">
-            <img src={emailIcon} alt="email" />
+            邮箱
           </label>
-          <input
-            id="reg-email"
-            type="email"
-            className={`form-input ${errors.email ? "form-input--error" : ""}`}
-            placeholder="请输入邮箱地址"
-            value={form.email}
-            onChange={(e) => updateField("email", e.target.value)}
-            autoComplete="email"
-          />
+          <div className="form-input-wrapper">
+            <input
+              id="reg-email"
+              type="email"
+              className={`form-input form-input--with-icon ${errors.email ? "form-input--error" : ""}`}
+              placeholder="请输入邮箱地址"
+              value={form.email}
+              onChange={(e) => updateField("email", e.target.value)}
+              autoComplete="email"
+            />
+            <img
+              className="form-input-icon"
+              src={emailIcon}
+              alt=""
+              aria-hidden="true"
+            />
+          </div>
           {errors.email && <span className="form-error">{errors.email}</span>}
         </div>
 
         <div className="form-group">
           <label className="form-label" htmlFor="reg-password">
-            <img src={passwordIcon} alt="password" />
+            密码
           </label>
-          <input
-            id="reg-password"
-            type="password"
-            className={`form-input ${errors.password ? "form-input--error" : ""}`}
-            placeholder="至少 6 位密码"
-            value={form.password}
-            onChange={(e) => updateField("password", e.target.value)}
-            autoComplete="new-password"
-          />
+          <div className="form-input-wrapper">
+            <input
+              id="reg-password"
+              type={showPassword ? "text" : "password"}
+              className={`form-input form-input--with-icon form-input--with-toggle ${errors.password ? "form-input--error" : ""}`}
+              placeholder="至少 6 位密码"
+              value={form.password}
+              onChange={(e) => updateField("password", e.target.value)}
+              autoComplete="new-password"
+            />
+            <img
+              className="form-input-icon"
+              src={passwordIcon}
+              alt=""
+              aria-hidden="true"
+            />
+            <button
+              type="button"
+              className="form-password-toggle"
+              onClick={() => setShowPassword((v) => !v)}
+              tabIndex={-1}
+              aria-label={showPassword ? "隐藏密码" : "显示密码"}
+            >
+              {showPassword ? "🙈" : "👁"}
+            </button>
+          </div>
           {errors.password && <span className="form-error">{errors.password}</span>}
         </div>
 
         <div className="form-group">
           <label className="form-label" htmlFor="reg-confirm-password">
-            <img src={confirmPasswordIcon} alt="confirmPassword" />
+            确认密码
           </label>
-          <input
-            id="reg-confirm-password"
-            type="password"
-            className={`form-input ${errors.confirmPassword ? "form-input--error" : ""}`}
-            placeholder="再次输入密码"
-            value={form.confirmPassword}
-            onChange={(e) => updateField("confirmPassword", e.target.value)}
-            autoComplete="new-password"
-          />
+          <div className="form-input-wrapper">
+            <input
+              id="reg-confirm-password"
+              type={showConfirmPassword ? "text" : "password"}
+              className={`form-input form-input--with-icon form-input--with-toggle ${errors.confirmPassword ? "form-input--error" : ""}`}
+              placeholder="再次输入密码"
+              value={form.confirmPassword}
+              onChange={(e) => updateField("confirmPassword", e.target.value)}
+              autoComplete="new-password"
+            />
+            <img
+              className="form-input-icon"
+              src={confirmPasswordIcon}
+              alt=""
+              aria-hidden="true"
+            />
+            <button
+              type="button"
+              className="form-password-toggle"
+              onClick={() => setShowConfirmPassword((v) => !v)}
+              tabIndex={-1}
+              aria-label={showConfirmPassword ? "隐藏确认密码" : "显示确认密码"}
+            >
+              {showConfirmPassword ? "🙈" : "👁"}
+            </button>
+          </div>
           {errors.confirmPassword && (
             <span className="form-error">{errors.confirmPassword}</span>
           )}
@@ -212,10 +264,10 @@ function Register() {
 
         <button
           type="submit"
-          className="form-submit"
+          className={`form-submit ${loading ? "form-submit--loading" : ""}`}
           disabled={loading}
         >
-          {loading ? "注册中..." : "注册"}
+          {loading ? "注册中" : "注册"}
         </button>
       </form>
     </Auth>

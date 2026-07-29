@@ -1,12 +1,23 @@
 /* ===== Register Page ===== */
 .register__server-error {
+  display: flex;
+  align-items: center;
+  gap: 10px;
   background: #fef2f2;
   color: var(--color-error);
   padding: 12px 16px;
   border-radius: var(--radius-sm);
   font-size: 0.9rem;
   border: 1px solid #fecaca;
+  border-left: 4px solid var(--color-error);
   margin-bottom: 4px;
+  line-height: 1.4;
+}
+
+.register__server-error::before {
+  content: "⚠";
+  flex-shrink: 0;
+  font-size: 1rem;
 }
 
 .register__terms {
@@ -17,15 +28,17 @@
   color: var(--color-text-secondary);
   cursor: pointer;
   line-height: 1.5;
+  user-select: none;
 }
 
 .register__terms input[type="checkbox"] {
-  width: 16px;
-  height: 16px;
+  width: 17px;
+  height: 17px;
   accent-color: var(--color-primary);
   cursor: pointer;
   flex-shrink: 0;
   margin-top: 2px;
+  border-radius: 4px;
 }
 
 .register__terms-link {

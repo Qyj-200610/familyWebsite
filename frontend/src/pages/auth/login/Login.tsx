@@ -3,6 +3,8 @@ import { Link, useNavigate } from "react-router-dom";
 import Auth from "../Auth";
 import { authApi } from "../../../api";
 import { useAuthStore } from "../../../store/authStore";
+import emailIcon from "../../../svg/email.svg";
+import passwordIcon from "../../../svg/password.svg";
 import "./Login.css";
 
 interface LoginForm {
@@ -26,6 +28,7 @@ function Login() {
   const [errors, setErrors] = useState<FormErrors>({});
   const [loading, setLoading] = useState(false);
   const [serverError, setServerError] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
 
   const validate = (): boolean => {
     const errs: FormErrors = {};
@@ -94,16 +97,24 @@ function Login() {
           <label className="form-label" htmlFor="email">
             邮箱
           </label>
-          <input
-            id="email"
-            type="email"
-            className={`form-input ${errors.email ? "form-input--error" : ""}`}
-            placeholder="请输入邮箱地址"
-            value={form.email}
-            onChange={(e) => updateField("email", e.target.value)}
-            autoComplete="email"
-            autoFocus
-          />
+          <div className="form-input-wrapper">
+            <input
+              id="email"
+              type="email"
+              className={`form-input form-input--with-icon ${errors.email ? "form-input--error" : ""}`}
+              placeholder="请输入邮箱地址"
+              value={form.email}
+              onChange={(e) => updateField("email", e.target.value)}
+              autoComplete="email"
+              autoFocus
+            />
+            <img
+              className="form-input-icon"
+              src={emailIcon}
+              alt=""
+              aria-hidden="true"
+            />
+          </div>
           {errors.email && <span className="form-error">{errors.email}</span>}
         </div>
 
@@ -111,15 +122,32 @@ function Login() {
           <label className="form-label" htmlFor="password">
             密码
           </label>
-          <input
-            id="password"
-            type="password"
-            className={`form-input ${errors.password ? "form-input--error" : ""}`}
-            placeholder="请输入密码"
-            value={form.password}
-            onChange={(e) => updateField("password", e.target.value)}
-            autoComplete="current-password"
-          />
+          <div className="form-input-wrapper">
+            <input
+              id="password"
+              type={showPassword ? "text" : "password"}
+              className={`form-input form-input--with-icon form-input--with-toggle ${errors.password ? "form-input--error" : ""}`}
+              placeholder="请输入密码"
+              value={form.password}
+              onChange={(e) => updateField("password", e.target.value)}
+              autoComplete="current-password"
+            />
+            <img
+              className="form-input-icon"
+              src={passwordIcon}
+              alt=""
+              aria-hidden="true"
+            />
+            <button
+              type="button"
+              className="form-password-toggle"
+              onClick={() => setShowPassword((v) => !v)}
+              tabIndex={-1}
+              aria-label={showPassword ? "隐藏密码" : "显示密码"}
+            >
+              {showPassword ? "🙈" : "👁"}
+            </button>
+          </div>
           {errors.password && <span className="form-error">{errors.password}</span>}
         </div>
 
@@ -139,10 +167,10 @@ function Login() {
 
         <button
           type="submit"
-          className="form-submit"
+          className={`form-submit ${loading ? "form-submit--loading" : ""}`}
           disabled={loading}
         >
-          {loading ? "登录中..." : "登录"}
+          {loading ? "登录中" : "登录"}
         </button>
       </form>
 

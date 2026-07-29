@@ -1,11 +1,12 @@
 .register-success {
+  position: relative;
   display: flex;
   flex-direction: column;
   align-items: center;
   text-align: center;
 }
 
-/* Success icon — green checkmark circle */
+/* ===== Success icon ===== */
 .register-success__icon {
   width: 80px;
   height: 80px;
@@ -34,6 +35,7 @@
   }
 }
 
+/* ===== Message ===== */
 .register-success__message {
   color: var(--color-text-secondary);
   font-size: 0.95rem;
@@ -41,41 +43,150 @@
   margin: 0 0 32px;
 }
 
-/* Primary action button */
+/* ===== Primary action button ===== */
 .register-success__btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   min-width: 200px;
   padding: 14px 32px;
-  background: var(--color-primary, #5b8c5a);
+  background: linear-gradient(135deg, var(--color-primary), var(--color-primary-dark));
   color: #fff;
   font-size: 1rem;
   font-weight: 600;
   border: none;
-  border-radius: var(--radius-sm, 8px);
+  border-radius: var(--radius-sm);
   cursor: pointer;
-  transition: background 0.2s, transform 0.1s;
+  transition: transform 0.2s ease, box-shadow 0.3s ease;
+  box-shadow: 0 2px 8px rgba(61, 107, 60, 0.25);
 }
 
 .register-success__btn:hover {
-  background: var(--color-primary-dark, #4a7a49);
+  box-shadow: 0 6px 20px rgba(61, 107, 60, 0.35);
+  transform: translateY(-2px);
 }
 
 .register-success__btn:active {
-  transform: scale(0.98);
+  transform: scale(0.97) translateY(0);
+  box-shadow: 0 2px 8px rgba(61, 107, 60, 0.25);
 }
 
-/* Countdown hint */
+/* ===== Countdown hint ===== */
 .register-success__auto-hint {
   margin-top: 20px;
   font-size: 0.85rem;
-  color: var(--color-text-muted, #999);
+  color: var(--color-text-muted);
 }
 
 .register-success__countdown {
   display: inline-block;
   min-width: 1.5em;
   font-weight: 700;
-  color: var(--color-primary, #5b8c5a);
+  color: var(--color-primary);
+  background: rgba(91, 140, 90, 0.08);
+  border-radius: 4px;
+  padding: 0 4px;
+}
+
+/* ===== Confetti Particles ===== */
+.register-success__confetti {
+  position: absolute;
+  inset: -20px;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.register-success__confetti-dot {
+  position: absolute;
+  width: 6px;
+  height: 6px;
+  border-radius: 2px;
+  opacity: 0;
+}
+
+.register-success__confetti-dot--1 {
+  top: 20%;
+  left: 5%;
+  background: var(--color-accent);
+  width: 5px;
+  height: 10px;
+  border-radius: 2px;
+  animation: rs-confetti-1 2s ease-out 0.3s 3;
+}
+
+.register-success__confetti-dot--2 {
+  top: 10%;
+  right: 10%;
+  background: var(--color-primary-light);
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  animation: rs-confetti-2 2.2s ease-out 0.5s 3;
+}
+
+.register-success__confetti-dot--3 {
+  top: 30%;
+  left: 15%;
+  background: var(--color-primary);
+  width: 4px;
+  height: 8px;
+  border-radius: 1px;
+  animation: rs-confetti-3 1.8s ease-out 0.7s 3;
+}
+
+.register-success__confetti-dot--4 {
+  top: 5%;
+  right: 20%;
+  background: var(--color-accent-light);
+  width: 7px;
+  height: 4px;
+  border-radius: 1px;
+  animation: rs-confetti-2 2.5s ease-out 0.2s 3;
+}
+
+.register-success__confetti-dot--5 {
+  top: 40%;
+  left: 8%;
+  background: var(--color-primary-light);
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  animation: rs-confetti-1 1.9s ease-out 0.6s 3;
+}
+
+.register-success__confetti-dot--6 {
+  top: 15%;
+  right: 5%;
+  background: var(--color-accent);
+  width: 4px;
+  height: 9px;
+  border-radius: 2px;
+  animation: rs-confetti-3 2.1s ease-out 0.4s 3;
+}
+
+@keyframes rs-confetti-1 {
+  0% { transform: translateY(0) rotate(0deg) scale(1); opacity: 1; }
+  100% { transform: translateY(60px) rotate(360deg) scale(0.3); opacity: 0; }
+}
+
+@keyframes rs-confetti-2 {
+  0% { transform: translateY(0) rotate(0deg) scale(1); opacity: 1; }
+  100% { transform: translateY(50px) rotate(-400deg) scale(0.2); opacity: 0; }
+}
+
+@keyframes rs-confetti-3 {
+  0% { transform: translateY(0) rotate(0deg) scale(1); opacity: 1; }
+  100% { transform: translateY(70px) rotate(520deg) scale(0.25); opacity: 0; }
+}
+
+/* ===== Reduced Motion ===== */
+@media (prefers-reduced-motion: reduce) {
+  .register-success__confetti-dot {
+    animation: none;
+    display: none;
+  }
+
+  .register-success__icon {
+    animation: none;
+  }
 }
