@@ -1,5 +1,10 @@
 import client from "./client";
-import type { AuthResponse, LoginRequest, RegisterRequest } from "./types";
+import type {
+  AuthResponse,
+  LoginRequest,
+  RegisterRequest,
+  ResetPasswordRequest,
+} from "./types";
 
 // ============================================================
 // 认证 API
@@ -16,4 +21,8 @@ export const authApi = {
 
   /** POST /api/auth/logout — 退出登录 */
   logout: () => client.post("/auth/logout"),
+
+  /** POST /api/auth/reset-password — 重置密码 */
+  resetPassword: (data: ResetPasswordRequest) =>
+    client.post<null>("/auth/reset-password", data),
 };

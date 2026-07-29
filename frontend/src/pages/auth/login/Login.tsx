@@ -1,5 +1,5 @@
 import { useState, type FormEvent } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import Auth from "../Auth";
 import { authApi } from "../../../api";
 import { useAuthStore } from "../../../store/authStore";
@@ -132,9 +132,9 @@ function Login() {
             />
             <span>记住我</span>
           </label>
-          <a href="#" className="login__forgot">
+          <Link to="/forget-password" className="login__forgot">
             忘记密码？
-          </a>
+          </Link>
         </div>
 
         <button

@@ -19,10 +19,16 @@
 - [5. 用户模块 `/api/user`](#5-用户模块-apiuser)
   - [5.1 获取当前用户信息](#51-获取当前用户信息)
   - [5.2 更新用户信息](#52-更新用户信息)
-- [6. 相册模块 `/api/photos`](#6-相册模块-apiphotos)
+- [6. 相册模块 `/api/photos` 与 `/api/albums`](#6-相册模块-apiphotos-与-apialbums)
   - [6.1 获取照片列表](#61-获取照片列表)
   - [6.2 上传照片](#62-上传照片)
   - [6.3 删除照片](#63-删除照片)
+  - [6.4 创建相册](#64-创建相册)
+  - [6.5 获取相册列表](#65-获取相册列表)
+  - [6.6 获取相册详情](#66-获取相册详情)
+  - [6.7 删除相册](#67-删除相册)
+  - [6.8 上传照片到相册](#68-上传照片到相册)
+  - [6.9 获取相册内照片](#69-获取相册内照片)
 - [7. 美食模块 `/api/food`](#7-美食模块-apifood)
   - [7.1 提交点单](#71-提交点单)
 - [8. 错误码对照表](#8-错误码对照表)
@@ -38,7 +44,7 @@
 |------|------|
 | 协议 | HTTPS |
 | Base URL（开发，通过前端代理） | `http://localhost:5175/api` |
-| Base URL（后端直连） | `http://localhost:8000/api` |
+| Base URL（后端直连） | `http://localhost:8001/api` |
 | Base URL（生产） | `https://<your-domain>/api` |
 | 请求体格式 | `application/json; charset=utf-8` |
 | 认证方式 | Bearer Token（`Authorization: Bearer <token>`） |
@@ -358,9 +364,13 @@ Content-Type: multipart/form-data
 
 ---
 
-## 6. 相册模块 `/api/photos`
+## 6. 相册模块 `/api/photos` 与 `/api/albums`
 
 > 以下接口均需携带 `Authorization` 头。
+
+### 6.0 全局照片访问说明
+
+`GET /api/photos` 返回当前用户有权访问的所有照片：公开相册的照片、自己创建的相册的照片，以及未归属相册的照片。私有相册中属于其他用户的照片不会被返回。
 
 ### 6.1 获取照片列表
 
@@ -471,6 +481,132 @@ Authorization: Bearer <token>
 
 ---
 
+### 6.4 创建相册
+
+```
+POST /api/albums
+```
+
+**请求体**
+
+| 字段 | 类型 | 必填 | 说明 |
+|------|------|------|------|
+| `name` | `string` | 是 | 相册名称，1–100 字符 |
+| `isPublic` | `boolean` | 否 | 是否公开，默认 `true` |
+
+**响应体** — 返回创建的相册对象，`message` 为 `"相册创建成功"`。
+
+**业务错误**
+
+| code | 说明 |
+|------|------|
+| `3201` | 相册名称不能为空 |
+
+---
+
+### 6.5 获取相册列表
+
+```
+GET /api/albums
+```
+
+返回所有公开相册 + 当前用户的私有相册，按创建时间倒序。
+
+**响应体**
+
+```json
+{
+  "code": 0,
+  "message": "success",
+  "data": [
+    {
+      "id": 1,
+      "name": "家庭聚会",
+      "isPublic": true,
+      "createdBy": 1,
+      "creator": { "id": 1, "username": "小明" },
+      "photoCount": 5,
+      "coverPhoto": { ... },
+      "createdAt": "2026-07-15T12:00:00.000Z"
+    }
+  ]
+}
+```
+
+| 字段 | 类型 | 说明 |
+|------|------|------|
+| `id` | `number` | 相册 ID |
+| `name` | `string` | 相册名称 |
+| `isPublic` | `boolean` | 是否公开 |
+| `createdBy` | `number` | 创建者 ID |
+| `creator` | `object` | 创建者简要信息 |
+| `photoCount` | `number` | 照片数量 |
+| `coverPhoto` | `object` \| `null` | 封面照片（最新一张） |
+| `createdAt` | `string` | 创建时间（ISO 8601） |
+
+---
+
+### 6.6 获取相册详情
+
+```
+GET /api/albums/{album_id}
+```
+
+返回相册完整信息，包含照片列表。私有相册仅创建者可访问。
+
+**业务错误**
+
+| code | HTTP 状态码 | 说明 |
+|------|-------------|------|
+| `3202` | `404` | 相册不存在 |
+| `3203` | `403` | 无权访问该相册 |
+
+---
+
+### 6.7 删除相册
+
+```
+DELETE /api/albums/{album_id}
+```
+
+删除相册（仅创建者可操作）。关联照片的 `albumId` 将被设为 `null`，照片文件不会被删除。
+
+**业务错误**
+
+| code | HTTP 状态码 | 说明 |
+|------|-------------|------|
+| `3202` | `404` | 相册不存在 |
+| `3204` | `403` | 只能删除自己创建的相册 |
+
+---
+
+### 6.8 上传照片到相册
+
+```
+POST /api/albums/{album_id}/photos/upload
+```
+
+同 [6.2 上传照片](#62-上传照片)，但照片会关联到指定相册。
+
+**请求体**（multipart/form-data）
+
+| 字段 | 类型 | 必填 | 说明 |
+|------|------|------|------|
+| `file` | `File` | 是 | 照片文件 |
+| `description` | `string` | 否 | 照片描述 |
+
+---
+
+### 6.9 获取相册内照片
+
+```
+GET /api/albums/{album_id}/photos?skip=0&limit=50
+```
+
+获取指定相册内的照片列表（分页）。私有相册仅创建者可访问。
+
+---
+
 ## 7. 美食模块 `/api/food`
 
 > 以下接口均需携带 `Authorization` 头。
@@ -556,6 +692,10 @@ POST /api/food/orders
 | `3005` | 文件内容不是有效的图片格式 |
 | `3101` | 照片不存在 |
 | `3102` | 只能删除自己上传的照片 |
+| `3201` | 相册名称不能为空 |
+| `3202` | 相册不存在 |
+| `3203` | 无权访问该相册 |
+| `3204` | 只能操作自己创建的相册 |
 
 ### 8.5 美食点单错误 (`4xxx`)
 
@@ -622,8 +762,8 @@ interface UpdateUserRequest {
 
 // === 相册 ===
 
-/** 照片上传者简要信息 */
-interface PhotoUploader {
+/** 照片上传者 / 相册创建者简要信息 */
+interface UserBrief {
   id: number;
   username: string;
 }
@@ -637,8 +777,32 @@ interface Photo {
   contentType: string;
   description: string | null;
   uploadedBy: number;
-  uploader: PhotoUploader | null;
+  uploader: UserBrief | null;
+  albumId: number | null;
   createdAt: string;
+}
+
+/** 相册 */
+interface Album {
+  id: number;
+  name: string;
+  isPublic: boolean;
+  createdBy: number;
+  creator: UserBrief | null;
+  photoCount: number;
+  coverPhoto: Photo | null;
+  createdAt: string;
+}
+
+/** 相册详情（含照片列表） */
+interface AlbumDetail extends Album {
+  photos: Photo[];
+}
+
+/** POST /api/albums 创建相册 */
+interface AlbumCreateRequest {
+  name: string;
+  isPublic?: boolean;
 }
 
 // === 美食点单 ===

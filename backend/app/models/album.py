@@ -16,7 +16,7 @@ class Album(Base):
         Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False, comment="创建者 ID"
     )
     created_at: Mapped[datetime] = mapped_column(
-        DateTime(timezone=True), server_default=func.now(), nullable=False
+        DateTime(timezone=True), server_default=func.utc_timestamp(), nullable=False
     )
 
     # 关系

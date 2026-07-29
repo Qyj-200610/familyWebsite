@@ -1,7 +1,6 @@
 from datetime import datetime
-from typing import Optional
 
-from pydantic import BaseModel, EmailStr, Field
+from pydantic import BaseModel, ConfigDict, EmailStr, Field
 
 
 # ── Request Schemas ────────────────────────────────────────────
@@ -18,8 +17,13 @@ class LoginRequest(BaseModel):
 
 
 class UpdateUserRequest(BaseModel):
-    username: Optional[str] = Field(None, min_length=2, max_length=50)
-    avatar: Optional[str] = Field(None, max_length=500)
+    username: str | None = Field(None, min_length=2, max_length=50)
+    avatar: str | None = Field(None, max_length=500)
+
+
+class ResetPasswordRequest(BaseModel):
+    email: EmailStr = Field(..., max_length=255, description="注册邮箱")
+    new_password: str = Field(..., min_length=6, max_length=128, description="新密码")
 
 
 # ── Response Schemas ───────────────────────────────────────────
@@ -32,7 +36,7 @@ class UserResponse(BaseModel):
     last_login: datetime | None = Field(None, alias="lastLoginAt")
     created_at: datetime = Field(alias="createdAt")
 
-    model_config = {"from_attributes": True, "populate_by_name": True}
+    model_config = ConfigDict(from_attributes=True, populate_by_name=True)
 
 
 class AuthResponse(BaseModel):

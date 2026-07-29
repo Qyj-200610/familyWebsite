@@ -341,6 +341,31 @@
   color: #b8b5cc;
 }
 
+/* Night clock */
+.home__hero-clock {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 18px;
+}
+
+.home__hero-clock-label {
+  font-size: 0.72rem;
+  font-weight: 500;
+  color: rgba(200, 195, 220, 0.6);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.home__hero-clock-time {
+  font-size: 2.2rem;
+  font-weight: 300;
+  font-family: "SF Mono", "Cascadia Code", "Fira Code", "Consolas", monospace;
+  color: #e0ddf0;
+  letter-spacing: 0.04em;
+  text-shadow: 0 0 20px rgba(180, 170, 220, 0.3), 0 0 60px rgba(140, 130, 200, 0.15);
+}
+
 /* ---- Dawn (5:00–7:00) ---- */
 .home__hero--dawn .home__hero-bg {
   background: linear-gradient(
@@ -677,30 +702,37 @@
   );
 }
 
-.home__card:not(.home__card--disabled):hover {
+.home__card--family::after {
+  background: linear-gradient(
+    135deg,
+    rgba(91, 140, 90, 0.06) 0%,
+    transparent 60%
+  );
+}
+
+.home__card:hover {
   transform: translateY(-4px);
   box-shadow: 0 12px 28px rgba(0, 0, 0, 0.08), 0 4px 12px rgba(0, 0, 0, 0.04);
 }
 
-.home__card--album:not(.home__card--disabled):hover {
+.home__card--album:hover {
   border-color: rgba(91, 140, 90, 0.3);
 }
 
-.home__card--food:not(.home__card--disabled):hover {
+.home__card--food:hover {
   border-color: rgba(240, 160, 75, 0.3);
 }
 
-.home__card:not(.home__card--disabled):hover::after {
+.home__card--family:hover {
+  border-color: rgba(91, 140, 90, 0.4);
+}
+
+.home__card:hover::after {
   opacity: 1;
 }
 
-.home__card:not(.home__card--disabled):active {
+.home__card:active {
   transform: translateY(-1px);
-}
-
-.home__card--disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
 }
 
 /* 图标容器 */
@@ -715,7 +747,7 @@
   transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.home__card:not(.home__card--disabled):hover .home__card-icon-wrap {
+.home__card:hover .home__card-icon-wrap {
   transform: scale(1.08);
 }
 
@@ -727,8 +759,8 @@
   background: linear-gradient(135deg, #fef3e4, #fce8cc);
 }
 
-.home__card-icon-wrap--message {
-  background: linear-gradient(135deg, #f0eff4, #e4e2ec);
+.home__card-icon-wrap--family {
+  background: linear-gradient(135deg, #e8f0e7, #d0e6ce);
 }
 
 .home__card-icon {
@@ -764,21 +796,9 @@
               color 0.25s;
 }
 
-.home__card:not(.home__card--disabled):hover .home__card-arrow {
+.home__card:hover .home__card-arrow {
   transform: translateX(4px);
   color: var(--color-primary);
-}
-
-/* 即将上线标签 */
-.home__card-badge {
-  flex-shrink: 0;
-  font-size: 0.7rem;
-  color: var(--color-text-muted);
-  background: var(--color-bg);
-  padding: 3px 10px;
-  border-radius: 20px;
-  border: 1px solid var(--color-border);
-  white-space: nowrap;
 }
 
 /* ===== Entrance Animation ===== */
@@ -860,6 +880,10 @@
     font-size: 0.9rem;
   }
 
+  .home__hero-clock-time {
+    font-size: 1.7rem;
+  }
+
   .home__hero-decorations {
     display: none;
   }
@@ -908,6 +932,10 @@
 
   .home__hero-greeting {
     font-size: 1.2rem;
+  }
+
+  .home__hero-clock-time {
+    font-size: 1.4rem;
   }
 
   .home__section-title {

@@ -4,10 +4,12 @@ import Home from "./pages/home/Home.tsx";
 import Login from "./pages/auth/login/Login.tsx";
 import Register from "./pages/auth/register/Register.tsx";
 import RegisterSuccess from "./pages/auth/registerSuccess/RegisterSuccess.tsx";
+import ForgetPassword from "./pages/auth/forgetPassword/forgetPassword.tsx";
 import Setting from "./pages/user/setting/Setting.tsx";
 import PersonalCenter from "./pages/user/personalCenter/PersonalCenter.tsx";
 import PhotoAlbum from "./pages/photoAlbum/photoAlbum.tsx";
 import FoodOrder from "./pages/foodOrder/foodOrder.tsx";
+import FamilyTree from "./pages/familyTree/familyTree.tsx";
 import NotFound from "./pages/notFound/NotFound.tsx";
 import { setGlobalNavigate } from "./utils/navigate";
 
@@ -29,6 +31,10 @@ const router = createBrowserRouter([
     element: <RegisterSuccess />,
   },
   {
+    path: "/forget-password",
+    element: <ForgetPassword />,
+  },
+  {
     path: "/home",
     element: <Home />,
   },
@@ -47,6 +53,10 @@ const router = createBrowserRouter([
   {
     path: "/food-order",
     element: <FoodOrder />,
+  },
+  {
+    path: "/family-tree",
+    element: <FamilyTree />,
   },
   {
     path: "*",

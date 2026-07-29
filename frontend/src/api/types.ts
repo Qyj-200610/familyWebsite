@@ -37,6 +37,12 @@ export interface LoginRequest {
   password: string;
 }
 
+/** POST /api/auth/reset-password */
+export interface ResetPasswordRequest {
+  email: string;
+  newPassword: string;
+}
+
 /** 认证成功返回（登录 & 注册通用） */
 export interface AuthResponse {
   user: User;

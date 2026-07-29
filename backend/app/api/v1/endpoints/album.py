@@ -5,7 +5,7 @@ from app.api.deps import get_current_user
 from app.core.database import get_db
 from app.core.response import error_response, success_response
 from app.models.user import User
-from app.schemas.album import AlbumCreateRequest, AlbumDetailResponse, AlbumResponse
+from app.schemas.album import AlbumCreateRequest, AlbumResponse
 from app.schemas.photo import PhotoResponse
 from app.services.album import AlbumService
 from app.services.photo import PhotoService
@@ -31,16 +31,13 @@ _PHOTO_ERROR_MAP = {
 
 
 def _photo_count(album) -> int:
-    """Return the number of photos in *album* without triggering lazy-load."""
-    from sqlalchemy.orm.attributes import NO_VALUE
+    """Return the number of photos in *album*.
 
-    # Check via inspection — accessing album.photos on a non-eager-loaded
-    # async session would raise MissingGreenlet.
-    insp = __import__("sqlalchemy").inspect(album)
-    current = insp.attrs.photos.loaded_value
-    if current is NO_VALUE:  # relationship not eager-loaded → treat as empty
-        return 0
-    return len(current) if current else 0
+    The service layer always eager-loads ``album.photos`` via selectinload,
+    so we can safely use len().
+    """
+    photos = album.photos
+    return len(photos) if photos else 0
 
 
 def _album_to_response(album) -> dict:

@@ -1,0 +1,705 @@
+/* ===== Family Tree Page ===== */
+.ft-page {
+  min-height: 100vh;
+  background: linear-gradient(165deg, #faf8f5 0%, #fef9f0 40%, #f7f3ed 100%);
+  position: relative;
+  overflow-x: auto;
+}
+
+/* ---- Top decor bar ---- */
+.ft-page__top-decor {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(
+    90deg,
+    var(--color-primary) 0%,
+    var(--color-accent) 50%,
+    var(--color-primary-light) 100%
+  );
+  z-index: 200;
+}
+
+/* ===== Hero ===== */
+.ft-hero {
+  position: relative;
+  margin: 32px 32px 0;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  min-height: 140px;
+  display: flex;
+  align-items: center;
+}
+
+.ft-hero__bg {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    135deg,
+    #e8f0e7 0%,
+    #f0ebe0 30%,
+    #fef9f0 60%,
+    #eaf3e9 100%
+  );
+  z-index: 0;
+}
+
+.ft-hero__bg::after {
+  content: "";
+  position: absolute;
+  top: -50%;
+  right: -15%;
+  width: 350px;
+  height: 350px;
+  background: radial-gradient(circle, rgba(91, 140, 90, 0.1) 0%, transparent 70%);
+  border-radius: 50%;
+}
+
+.ft-hero__inner {
+  position: relative;
+  z-index: 1;
+  padding: 32px 44px;
+  width: 100%;
+  text-align: center;
+}
+
+.ft-hero__emoji {
+  display: inline-block;
+  font-size: 2.2rem;
+  margin-bottom: 6px;
+  animation: ftFloat 3s ease-in-out infinite;
+}
+
+@keyframes ftFloat {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-5px); }
+}
+
+.ft-hero__title {
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: var(--color-text);
+  margin-bottom: 4px;
+  letter-spacing: 0.04em;
+}
+
+.ft-hero__subtitle {
+  font-size: 0.9rem;
+  color: var(--color-text-muted);
+}
+
+/* ===== Intro ===== */
+.ft-intro {
+  margin: 24px 32px 0;
+}
+
+.ft-intro__card {
+  background: var(--color-surface);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--color-border);
+  overflow: hidden;
+}
+
+.ft-intro__header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 20px;
+  background: linear-gradient(135deg, rgba(91, 140, 90, 0.05), rgba(240, 160, 75, 0.03));
+  border-bottom: 1px solid var(--color-border);
+}
+
+.ft-intro__icon { font-size: 1.1rem; }
+
+.ft-intro__header h3 {
+  flex: 1;
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--color-text);
+}
+
+.ft-intro__close {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.05);
+  color: var(--color-text-muted);
+  font-size: 0.7rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s, color 0.2s;
+}
+
+.ft-intro__close:hover {
+  background: rgba(0, 0, 0, 0.1);
+  color: var(--color-text);
+}
+
+.ft-intro__body {
+  padding: 14px 20px;
+}
+
+.ft-intro__body p {
+  font-size: 0.88rem;
+  color: var(--color-text-secondary);
+  line-height: 1.7;
+  margin-bottom: 12px;
+}
+
+.ft-intro__legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.ft-intro__legend-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.82rem;
+  color: var(--color-text-muted);
+}
+
+.ft-intro__dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.ft-intro__dot--male {
+  background: linear-gradient(135deg, #5b8c5a, #6da86b);
+}
+
+.ft-intro__dot--female {
+  background: linear-gradient(135deg, #e8987a, #f0a04b);
+}
+
+.ft-intro__dot--empty {
+  background: #d4d0c8;
+  border: 2px dashed #b0aca5;
+}
+
+.ft-intro__reopen-wrap {
+  display: flex;
+  justify-content: center;
+  margin-top: 12px;
+}
+
+.ft-intro__reopen {
+  font-size: 0.82rem;
+  color: var(--color-primary);
+  background: rgba(91, 140, 90, 0.06);
+  border: 1px solid rgba(91, 140, 90, 0.15);
+  padding: 6px 16px;
+  border-radius: 20px;
+  transition: background 0.2s, box-shadow 0.2s;
+}
+
+.ft-intro__reopen:hover {
+  background: rgba(91, 140, 90, 0.12);
+  box-shadow: 0 2px 8px rgba(91, 140, 90, 0.1);
+}
+
+/* ===== Tree Canvas ===== */
+.ft-tree-section {
+  margin: 28px 32px 40px;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.ft-tree__canvas {
+  display: flex;
+  justify-content: center;
+  min-width: max-content;
+  padding: 44px 56px 64px;
+}
+
+/* ============================================================
+   Tree layout — each .ft-tree is a subtree root
+   ============================================================
+
+   .ft-tree
+     .ft-tree__node              ← couple card + toggle
+     .ft-tree__offspring         ← vertical line + children area
+       .ft-tree__vline           ← vertical line from parent to children
+       .ft-tree__children-row
+         .ft-tree__hbar          ← horizontal bar across siblings
+         .ft-tree__children      ← flex row
+           .ft-tree__child       ← one per child
+             .ft-tree__drop      ← vertical drop to child
+             .ft-tree            ← recursive
+*/
+
+.ft-tree {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* ---- Node: couple card + toggle ---- */
+.ft-tree__node {
+  position: relative;
+}
+
+/* ---- Toggle button ---- */
+.ft-tree__toggle {
+  position: absolute;
+  bottom: -6px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  font-size: 0.6rem;
+  font-weight: 700;
+  color: var(--color-text-muted);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: var(--shadow-sm);
+  transition: transform 0.2s, box-shadow 0.2s, color 0.2s;
+  z-index: 10;
+  cursor: pointer;
+  line-height: 1;
+}
+
+.ft-tree__toggle:hover {
+  transform: translateX(-50%) scale(1.2);
+  box-shadow: var(--shadow-md);
+  color: var(--color-primary);
+}
+
+/* ---- Offspring area ---- */
+.ft-tree__offspring {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-top: 4px;
+}
+
+/* 竖线：从 toggle 下方到横bar中点 */
+.ft-tree__vline {
+  width: 2px;
+  height: 36px;
+  background: linear-gradient(
+    180deg,
+    rgba(91, 140, 90, 0.55),
+    rgba(145, 180, 145, 0.25)
+  );
+  border-radius: 1px;
+  flex-shrink: 0;
+}
+
+.ft-tree__children-row {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+}
+
+/* 横bar */
+.ft-tree__hbar {
+  width: 100%;
+  height: 2px;
+  background: linear-gradient(
+    90deg,
+    rgba(145, 180, 145, 0.25),
+    rgba(91, 140, 90, 0.5) 50%,
+    rgba(145, 180, 145, 0.25)
+  );
+  border-radius: 1px;
+  flex-shrink: 0;
+}
+
+/* 子节点横向排列 */
+.ft-tree__children {
+  display: flex;
+  justify-content: center;
+}
+
+/* 每个子节点列 */
+.ft-tree__child {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 0 36px;
+}
+
+/* 子节点下落竖线 */
+.ft-tree__drop {
+  width: 2px;
+  height: 24px;
+  background: rgba(91, 140, 90, 0.35);
+  border-radius: 1px;
+  flex-shrink: 0;
+}
+
+/* 单子节点：remove extra padding */
+.ft-tree__child--first.ft-tree__child--last {
+  padding: 0;
+}
+
+/* ============================================================
+   Couple Card
+   ============================================================ */
+
+.ft-couple {
+  display: flex;
+  align-items: center;
+  gap: 0;
+}
+
+/* 戒指连接器 */
+.ft-couple__ring {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  flex-shrink: 0;
+  position: relative;
+}
+
+.ft-couple__ring::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 50%;
+  height: 1.5px;
+  background: rgba(240, 160, 75, 0.4);
+  border-radius: 1px;
+}
+
+.ft-couple__ring-icon {
+  position: relative;
+  z-index: 1;
+  background: var(--color-bg);
+  padding: 0 4px;
+  font-size: 1.1rem;
+  animation: ftRingPulse 2.5s ease-in-out infinite;
+}
+
+@keyframes ftRingPulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.18); }
+}
+
+/* ============================================================
+   Person Card
+   ============================================================ */
+
+.ft-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  background: var(--color-surface);
+  border-radius: var(--radius-lg);
+  padding: 24px 32px 22px;
+  box-shadow: var(--shadow-sm);
+  border: 1.5px solid var(--color-border);
+  min-width: 130px;
+  transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
+}
+
+.ft-card:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-md);
+  border-color: rgba(91, 140, 90, 0.25);
+}
+
+/* 根节点高亮 */
+.ft-card--root {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 6px rgba(91, 140, 90, 0.06);
+  padding: 28px 38px 26px;
+}
+
+/* ---- Info ---- */
+.ft-card__info {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.ft-card__name {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--color-text);
+  letter-spacing: 0.04em;
+}
+
+.ft-card__title {
+  font-size: 0.82rem;
+  color: var(--color-text-muted);
+  font-weight: 400;
+}
+
+.ft-card--root .ft-card__name {
+  font-size: 1.3rem;
+}
+
+.ft-card--root .ft-card__title {
+  font-size: 0.88rem;
+}
+
+/* ============================================================
+   Avatar Placeholder
+   ============================================================ */
+
+.ft-avatar {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  position: relative;
+  box-shadow: 0 3px 14px rgba(0, 0, 0, 0.1);
+  transition: box-shadow 0.3s;
+}
+
+.ft-avatar--large {
+  width: 84px;
+  height: 84px;
+}
+
+.ft-avatar--male {
+  background: linear-gradient(135deg, #5b8c5a, #6da86b);
+}
+
+.ft-avatar--female {
+  background: linear-gradient(135deg, #e8987a, #f0a04b);
+}
+
+/* 首字母 */
+.ft-avatar__initial {
+  color: #fff;
+  font-weight: 700;
+  font-size: 1.7rem;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.18);
+  transition: opacity 0.25s;
+}
+
+.ft-avatar--large .ft-avatar__initial {
+  font-size: 2rem;
+}
+
+/* 上传提示图标（hover 显示） */
+.ft-avatar__upload-hint {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+  background: rgba(0, 0, 0, 0.35);
+  color: #fff;
+  opacity: 0;
+  transition: opacity 0.25s;
+  cursor: pointer;
+  pointer-events: none;
+}
+
+.ft-avatar:hover .ft-avatar__upload-hint {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.ft-avatar:hover .ft-avatar__initial {
+  opacity: 0.4;
+}
+
+.ft-avatar:hover {
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+}
+
+/* ===== Footer ===== */
+.ft-footer {
+  text-align: center;
+  padding: 24px 24px 40px;
+  margin: 0 32px;
+}
+
+.ft-footer p {
+  font-size: 0.88rem;
+  color: var(--color-text-muted);
+  letter-spacing: 0.05em;
+}
+
+/* ===== Entrance Animation ===== */
+@keyframes ftFadeInUp {
+  from { opacity: 0; transform: translateY(18px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.ft-hero         { animation: ftFadeInUp 0.5s ease both; }
+.ft-intro        { animation: ftFadeInUp 0.5s 0.1s ease both; }
+.ft-tree-section { animation: ftFadeInUp 0.5s 0.2s ease both; }
+
+/* ===== Responsive ===== */
+@media (max-width: 900px) {
+  .ft-hero {
+    margin: 16px 12px 0;
+  }
+
+  .ft-hero__inner {
+    padding: 24px 16px;
+  }
+
+  .ft-hero__emoji  { font-size: 1.7rem; }
+  .ft-hero__title  { font-size: 1.3rem; }
+  .ft-hero__subtitle { font-size: 0.82rem; }
+
+  .ft-intro {
+    margin: 14px 12px 0;
+  }
+
+  .ft-intro__body {
+    padding: 12px 16px;
+  }
+
+  .ft-intro__legend {
+    gap: 10px;
+  }
+
+  .ft-tree-section {
+    margin: 20px 4px 32px;
+  }
+
+  .ft-tree__canvas {
+    padding: 28px 24px 40px;
+    justify-content: flex-start;
+  }
+
+  .ft-card {
+    padding: 16px 18px 14px;
+    min-width: 100px;
+    gap: 10px;
+  }
+
+  .ft-card--root {
+    padding: 20px 24px 18px;
+  }
+
+  .ft-avatar {
+    width: 52px;
+    height: 52px;
+  }
+
+  .ft-avatar--large {
+    width: 60px;
+    height: 60px;
+  }
+
+  .ft-avatar__initial {
+    font-size: 1.25rem;
+  }
+
+  .ft-avatar--large .ft-avatar__initial {
+    font-size: 1.4rem;
+  }
+
+  .ft-card__name {
+    font-size: 0.9rem;
+  }
+
+  .ft-card--root .ft-card__name {
+    font-size: 1.05rem;
+  }
+
+  .ft-tree__child {
+    padding: 0 18px;
+  }
+
+  .ft-tree__vline { height: 26px; }
+  .ft-tree__drop  { height: 18px; }
+
+  .ft-couple__ring {
+    width: 32px;
+  }
+
+  .ft-couple__ring-icon {
+    font-size: 0.9rem;
+  }
+
+  .ft-footer {
+    margin: 0 12px;
+    padding: 20px 16px 32px;
+  }
+}
+
+@media (max-width: 480px) {
+  .ft-hero__inner {
+    padding: 16px 12px;
+  }
+
+  .ft-hero__emoji { font-size: 1.4rem; }
+  .ft-hero__title { font-size: 1.1rem; }
+
+  .ft-card {
+    padding: 12px 12px 10px;
+    min-width: 70px;
+    gap: 7px;
+  }
+
+  .ft-card--root {
+    padding: 14px 16px 12px;
+  }
+
+  .ft-avatar {
+    width: 40px;
+    height: 40px;
+  }
+
+  .ft-avatar--large {
+    width: 48px;
+    height: 48px;
+  }
+
+  .ft-avatar__initial {
+    font-size: 1rem;
+  }
+
+  .ft-avatar--large .ft-avatar__initial {
+    font-size: 1.15rem;
+  }
+
+  .ft-card__name {
+    font-size: 0.8rem;
+  }
+
+  .ft-card--root .ft-card__name {
+    font-size: 0.9rem;
+  }
+
+  .ft-tree__child {
+    padding: 0 10px;
+  }
+
+  .ft-tree__vline { height: 20px; }
+  .ft-tree__drop  { height: 14px; }
+
+  .ft-tree__toggle {
+    width: 18px;
+    height: 18px;
+    font-size: 0.5rem;
+  }
+
+  .ft-couple__ring {
+    width: 20px;
+  }
+
+  .ft-couple__ring-icon {
+    font-size: 0.7rem;
+  }
+}

@@ -1,6 +1,7 @@
 from datetime import datetime, timezone
 
 from sqlalchemy import select
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.security import create_access_token, hash_password, verify_password
@@ -14,12 +15,11 @@ class UserService:
     @staticmethod
     async def create_user(db: AsyncSession, data: RegisterRequest) -> User:
         """Create a new user and return it."""
-        # Check email uniqueness
+        # Best-effort fast-path uniqueness check
         result = await db.execute(select(User).where(User.email == data.email))
         if result.scalar_one_or_none():
             raise ValueError("EMAIL_EXISTS")
 
-        # Check username uniqueness
         result = await db.execute(select(User).where(User.username == data.username))
         if result.scalar_one_or_none():
             raise ValueError("USERNAME_TAKEN")
@@ -30,7 +30,16 @@ class UserService:
             hashed_password=hash_password(data.password),
         )
         db.add(user)
-        await db.flush()
+        try:
+            await db.flush()
+        except IntegrityError as e:
+            await db.rollback()
+            err_msg = str(e.orig).lower() if e.orig else ""
+            if "email" in err_msg:
+                raise ValueError("EMAIL_EXISTS") from e
+            if "username" in err_msg:
+                raise ValueError("USERNAME_TAKEN") from e
+            raise
         await db.refresh(user)
 
         return user
@@ -75,3 +84,20 @@ class UserService:
         await db.flush()
         await db.refresh(user)
         return user
+
+    # ── Password Reset ────────────────────────────────────────
+
+    @staticmethod
+    async def reset_password(db: AsyncSession, email: str, new_password: str) -> None:
+        """Reset a user's password by email.
+
+        Raises:
+            ValueError: USER_NOT_FOUND if the email is not registered.
+        """
+        result = await db.execute(select(User).where(User.email == email))
+        user = result.scalar_one_or_none()
+        if not user:
+            raise ValueError("USER_NOT_FOUND")
+
+        user.hashed_password = hash_password(new_password)
+        await db.flush()

@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 
 
 # ── Request Schemas ────────────────────────────────────────────
@@ -20,7 +20,7 @@ class AlbumCreatorResponse(BaseModel):
     id: int
     username: str
 
-    model_config = {"from_attributes": True}
+    model_config = ConfigDict(from_attributes=True)
 
 
 class AlbumResponse(BaseModel):
@@ -33,9 +33,4 @@ class AlbumResponse(BaseModel):
     photo_count: int = Field(0, alias="photoCount")
     created_at: datetime = Field(alias="createdAt")
 
-    model_config = {"from_attributes": True, "populate_by_name": True}
-
-
-class AlbumDetailResponse(AlbumResponse):
-    """相册详情响应（含照片列表）"""
-    photos: list = Field(default_factory=list)
+    model_config = ConfigDict(from_attributes=True, populate_by_name=True)

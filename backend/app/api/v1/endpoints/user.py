@@ -97,7 +97,22 @@ async def upload_avatar(
 
     # ── 更新用户头像字段 ──
     avatar_url = f"/uploads/avatars/{filename}"
-    user = await UserService.update_user(db, current_user, UpdateUserRequest(avatar=avatar_url))
+    try:
+        user = await UserService.update_user(db, current_user, UpdateUserRequest(avatar=avatar_url))
+    except Exception:
+        # DB update failed — clean up the file we just wrote
+        filepath.unlink(missing_ok=True)
+        raise
+
+    # ── 删除旧头像文件（best-effort） ──
+    if current_user.avatar and current_user.avatar.startswith("/uploads/avatars/"):
+        old_filename = current_user.avatar[len("/uploads/avatars/"):]
+        old_filepath = avatar_dir / old_filename
+        if old_filepath != filepath:
+            try:
+                old_filepath.unlink(missing_ok=True)
+            except OSError:
+                pass
 
     return success_response(
         UserResponse.model_validate(user).model_dump(mode="json", by_alias=True),

@@ -1,4 +1,5 @@
 import asyncio
+import html
 import logging
 import smtplib
 from datetime import datetime, timezone
@@ -24,7 +25,7 @@ class FoodService:
             rows += f"""
             <tr>
                 <td style="padding:10px 12px;border-bottom:1px solid #eee;">{i}</td>
-                <td style="padding:10px 12px;border-bottom:1px solid #eee;">{it['dish_name']}</td>
+                <td style="padding:10px 12px;border-bottom:1px solid #eee;">{html.escape(it['dish_name'])}</td>
                 <td style="padding:10px 12px;border-bottom:1px solid #eee;text-align:center;">×{it['quantity']}</td>
             </tr>"""
 
@@ -33,7 +34,7 @@ class FoodService:
             note_section = f"""
             <tr>
                 <td colspan="3" style="padding:12px;background:#fafafa;border-top:1px solid #ddd;">
-                    <strong>📝 备注：</strong>{note}
+                    <strong>📝 备注：</strong>{html.escape(note)}
                 </td>
             </tr>"""
 
@@ -50,7 +51,7 @@ class FoodService:
     <tr>
         <td style="padding:20px 24px;">
             <p style="margin:0 0 12px;color:#555;">
-                👤 <strong>点单人：</strong>{username}
+                👤 <strong>点单人：</strong>{html.escape(username)}
             </p>
             <p style="margin:0 0 12px;color:#555;">
                 📋 <strong>共 {item_count} 道菜品</strong>

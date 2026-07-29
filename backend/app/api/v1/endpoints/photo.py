@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, File, Form, HTTPException, UploadFile
+from fastapi import APIRouter, Depends, File, Form, UploadFile
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.deps import get_current_user
@@ -44,8 +44,10 @@ async def get_photos(
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
-    """获取照片列表（按上传时间倒序，分页）。"""
-    photos = await PhotoService.get_photos(db, skip=skip, limit=limit)
+    """获取照片列表（按上传时间倒序，分页）。仅返回公开相册或本人相册的照片。"""
+    photos = await PhotoService.get_photos(
+        db, skip=skip, limit=limit, current_user_id=current_user.id
+    )
     return success_response([_photo_to_response(p) for p in photos])
 
 

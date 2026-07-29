@@ -1,9 +1,8 @@
-from sqlalchemy import select, func
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
 from app.models.album import Album
-from app.models.photo import Photo
 from app.models.user import User
 
 
@@ -44,7 +43,7 @@ class AlbumService:
             select(Album)
             .options(selectinload(Album.photos))
             .where(
-                (Album.is_public == True) | (Album.created_by == current_user.id)
+                (Album.is_public) | (Album.created_by == current_user.id)
             )
             .order_by(Album.created_at.desc())
         )

@@ -1,13 +1,6 @@
 from datetime import datetime
 
-from pydantic import BaseModel, Field
-
-
-# ── Request Schemas ────────────────────────────────────────────
-
-
-class PhotoUploadRequest(BaseModel):
-    description: str | None = Field(None, description="照片描述（可选）")
+from pydantic import BaseModel, ConfigDict, Field
 
 
 # ── Response Schemas ────────────────────────────────────────────
@@ -18,7 +11,7 @@ class PhotoUploaderResponse(BaseModel):
     id: int
     username: str
 
-    model_config = {"from_attributes": True}
+    model_config = ConfigDict(from_attributes=True)
 
 
 class PhotoResponse(BaseModel):
@@ -33,4 +26,4 @@ class PhotoResponse(BaseModel):
     album_id: int | None = Field(None, alias="albumId")
     created_at: datetime = Field(alias="createdAt")
 
-    model_config = {"from_attributes": True, "populate_by_name": True}
+    model_config = ConfigDict(from_attributes=True, populate_by_name=True)

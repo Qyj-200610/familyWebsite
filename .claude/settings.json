@@ -1,8 +1,8 @@
 {
   "permissions": {
     "allow": [
-      "Bash(mysql -u root -p200610Qyj -e \"USE family_website; SHOW TABLES; SELECT id, username, email FROM users;\")",
-      "Bash(mysql -u root -p200610Qyj -e \"USE family_website; DESCRIBE users; SELECT * FROM users WHERE id=1;\")"
+      "Bash(mysql -u root -p\"$MYSQL_ROOT_PASSWORD\" -e \"USE family_website; SHOW TABLES; SELECT id, username, email FROM users;\")",
+      "Bash(mysql -u root -p\"$MYSQL_ROOT_PASSWORD\" -e \"USE family_website; DESCRIBE users; SELECT * FROM users WHERE id=1;\")"
     ]
   }
 }

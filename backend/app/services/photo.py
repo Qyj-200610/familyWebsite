@@ -4,8 +4,10 @@ from pathlib import Path
 from fastapi import UploadFile
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import selectinload
 
 from app.core.config import settings
+from app.models.album import Album
 from app.models.photo import Photo
 from app.models.user import User
 from app.utils.image import detect_image_type
@@ -80,7 +82,12 @@ class PhotoService:
             album_id=album_id,
         )
         db.add(photo)
-        await db.flush()
+        try:
+            await db.flush()
+        except Exception:
+            # DB write failed — clean up the file we just wrote
+            filepath.unlink(missing_ok=True)
+            raise
         await db.refresh(photo)
 
         return photo
@@ -92,11 +99,31 @@ class PhotoService:
         limit: int = 50,
         *,
         album_id: int | None = None,
+        current_user_id: int | None = None,
     ) -> list[Photo]:
-        """Get a paginated list of photos, newest first. Optionally filter by album."""
-        stmt = select(Photo).order_by(Photo.created_at.desc())
+        """Get a paginated list of photos, newest first.
+
+        When ``current_user_id`` is provided, filters out photos in private
+        albums that don't belong to the user.
+        """
+        stmt = (
+            select(Photo)
+            .outerjoin(Album, Photo.album_id == Album.id)
+            .options(selectinload(Photo.uploader))
+            .order_by(Photo.created_at.desc())
+        )
+
         if album_id is not None:
             stmt = stmt.where(Photo.album_id == album_id)
+
+        if current_user_id is not None:
+            # Only return photos from public albums, user's own albums, or album-less photos
+            stmt = stmt.where(
+                (Album.is_public)
+                | (Album.created_by == current_user_id)
+                | (Photo.album_id == None)
+            )
+
         result = await db.execute(stmt.offset(skip).limit(limit))
         return list(result.scalars().all())
 
@@ -108,14 +135,6 @@ class PhotoService:
 
     @staticmethod
     async def delete_photo(db: AsyncSession, photo: Photo) -> None:
-        """Delete a photo record and its file from disk."""
-        # 删除磁盘文件
-        filepath = Path(settings.UPLOAD_DIR) / "photos" / photo.filename
-        try:
-            filepath.unlink(missing_ok=True)
-        except OSError:
-            pass  # 文件不存在或无法删除时忽略
-
-        # 删除数据库记录
+        """Delete a photo record (the after_delete event cleans up the disk file)."""
         await db.delete(photo)
         await db.flush()

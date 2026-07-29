@@ -30,7 +30,7 @@ function App() {
               温暖的瞬间
             </h2>
             <p className="cover__desc">
-              记录家庭生活的点滴美好 — 相册、美食、留言，
+              记录家庭生活的点滴美好 — 相册、美食、家谱，
               <br />
               与你最爱的人分享每一天。
             </p>
@@ -55,7 +55,7 @@ function App() {
                 <span>🍽️</span>
               </div>
               <div className="cover__illustration-circle cover__illustration-circle--xs cover__illustration-circle--bottom-right">
-                <span>💬</span>
+                <span>🌳</span>
               </div>
             </div>
           </div>
@@ -78,9 +78,9 @@ function App() {
               <p>在线点菜，享受家庭美食时光</p>
             </div>
             <div className="cover__feature-card">
-              <span className="cover__feature-icon">💬</span>
-              <h4>家庭留言</h4>
-              <p>随时随地给家人留言，传递温暖与关怀</p>
+              <span className="cover__feature-icon">🌳</span>
+              <h4>家谱图</h4>
+              <p>查看家族谱系，了解根源与传承</p>
             </div>
           </div>
         </div>

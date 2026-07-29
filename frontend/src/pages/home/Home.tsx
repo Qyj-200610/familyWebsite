@@ -54,9 +54,23 @@ function Home() {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
+  const [clockTime, setClockTime] = useState(new Date());
+
   const greeting = useMemo(() => getGreeting(), []);
   const timePeriod = useMemo(() => getTimePeriod(), []);
   const heroDecorations = useMemo(() => getHeroDecorations(timePeriod), [timePeriod]);
+
+  // 每秒更新时钟
+  useEffect(() => {
+    const timer = setInterval(() => setClockTime(new Date()), 1000);
+    return () => clearInterval(timer);
+  }, []);
+
+  /** 格式化时间 HH:MM:SS */
+  const formatClock = (d: Date): string => {
+    const pad = (n: number) => String(n).padStart(2, "0");
+    return `${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
+  };
 
   // 点击外部关闭下拉菜单
   useEffect(() => {
@@ -145,7 +159,7 @@ function Home() {
                   className="home__dropdown-item home__dropdown-item--danger"
                   onClick={handleLogout}
                 >
-                  <img src={exitLoginIcon} alt="exitLogin" />
+                  <img src={exitLoginIcon} alt="退出登录" />
                   退出登录
                 </button>
               </div>
@@ -172,6 +186,12 @@ function Home() {
               <p className="home__hero-desc">
                 每一个平凡的日子，都是生活馈赠的礼物 ✨
               </p>
+              {timePeriod === "night" && (
+                <div className="home__hero-clock">
+                  <span className="home__hero-clock-label">当前时间</span>
+                  <span className="home__hero-clock-time">{formatClock(clockTime)}</span>
+                </div>
+              )}
               <div className="home__hero-decorations" aria-hidden="true">
                 <span className="home__hero-deco home__hero-deco--1">{heroDecorations[0]}</span>
                 <span className="home__hero-deco home__hero-deco--2">{heroDecorations[1]}</span>
@@ -210,16 +230,16 @@ function Home() {
                 <span className="home__card-arrow">→</span>
               </Link>
 
-              <div className="home__card home__card--disabled">
-                <span className="home__card-icon-wrap home__card-icon-wrap--message">
-                  <span className="home__card-icon">💬</span>
+              <Link to="/family-tree" className="home__card home__card--family">
+                <span className="home__card-icon-wrap home__card-icon-wrap--family">
+                  <span className="home__card-icon">🌳</span>
                 </span>
                 <div className="home__card-body">
-                  <h3>家庭留言</h3>
-                  <p>留下想说的话，即将上线</p>
+                  <h3>家谱图</h3>
+                  <p>根深叶茂，源远流长 — 查看我们的家族谱系</p>
                 </div>
-                <span className="home__card-badge">敬请期待</span>
-              </div>
+                <span className="home__card-arrow">→</span>
+              </Link>
             </div>
           </section>
         </div>

@@ -9,6 +9,7 @@ from app.schemas.user import (
     AuthResponse,
     LoginRequest,
     RegisterRequest,
+    ResetPasswordRequest,
     UserResponse,
 )
 from app.services.user import UserService
@@ -56,3 +57,17 @@ async def login(data: LoginRequest, db: AsyncSession = Depends(get_db)):
 async def logout(current_user: User = Depends(get_current_user)):
     """Logout — the frontend clears the token client-side."""
     return success_response(None, "已退出登录")
+
+
+@router.post("/reset-password")
+async def reset_password(data: ResetPasswordRequest, db: AsyncSession = Depends(get_db)):
+    """Reset a user's password — verifies the email is registered, then updates."""
+    try:
+        await UserService.reset_password(db, data.email, data.new_password)
+        return success_response(None, "密码已重置，请使用新密码登录")
+    except ValueError as e:
+        error_map = {
+            "USER_NOT_FOUND": (1201, "该邮箱未注册"),
+        }
+        code, msg = error_map.get(str(e), (1200, "密码重置失败"))
+        return error_response(code, msg)

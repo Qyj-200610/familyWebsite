@@ -1,6 +1,6 @@
 # Family Website — 家庭门户网站
 
-一个全栈家庭门户网站，包含相册、美食点单、留言等功能模块。
+一个全栈家庭门户网站，包含相册、美食点单、家谱图等功能模块。
 
 ## 技术栈
 
@@ -28,6 +28,7 @@ familyWebsite/
 │       │       └── endpoints/
 │       │           ├── auth.py  # /api/auth/*
 │       │           ├── user.py  # /api/user/*
+│       │           ├── album.py # /api/albums/*
 │       │           ├── photo.py # /api/photos/*
 │       │           └── food.py  # /api/food/*
 │       ├── core/
@@ -37,13 +38,16 @@ familyWebsite/
 │       │   └── response.py      # 统一响应格式 {code, message, data}
 │       ├── models/
 │       │   ├── user.py          # User 模型 + Base 声明式基类
+│       │   ├── album.py         # Album 模型
 │       │   └── photo.py         # Photo 模型
 │       ├── schemas/
 │       │   ├── user.py          # 用户请求/响应 Pydantic 模型
+│       │   ├── album.py         # 相册请求/响应 Pydantic 模型
 │       │   ├── photo.py         # 照片请求/响应 Pydantic 模型
 │       │   └── food.py          # 点单请求 Pydantic 模型
 │       ├── services/
 │       │   ├── user.py          # UserService — 用户业务逻辑
+│       │   ├── album.py         # AlbumService — 相册业务逻辑
 │       │   ├── photo.py         # PhotoService — 照片业务逻辑
 │       │   └── food.py          # FoodService — 邮件通知
 │       └── utils/
@@ -69,11 +73,13 @@ familyWebsite/
 │       ├── svg/                 # SVG 图标（用于表单、按钮等）
 │       ├── docs/                # 前端文档
 │       │   ├── interface.md     # API 接口规范
+│       │   ├── FAMILY.md        # 家族谱系数据规格
 │       │   └── TODOLIST.md      # 待办事项
 │       └── pages/
 │           ├── home/            # 首页（已登录，含日程侧边栏）
 │           ├── auth/            # 登录/注册/注册成功（含 Auth 布局组件）
 │           ├── dailyRoutine/    # 日常日程侧边栏组件
+│           ├── familyTree/      # 家谱图（递归子树、折叠展开）
 │           ├── photoAlbum/      # 家庭相册（上传、浏览、删除）
 │           ├── foodOrder/       # 美食点单（筛选、购物车、邮件提交通知）
 │           ├── user/
@@ -101,7 +107,7 @@ uvicorn app.main:app --reload --port 8001
 ```bash
 cd frontend
 npm install
-npm run dev  # 启动在 localhost:5175，代理 /api → localhost:8000
+npm run dev  # 启动在 localhost:5175，代理 /api → localhost:8001
 ```
 
 ### 数据库
