@@ -2,7 +2,7 @@ import logging
 from datetime import datetime
 from pathlib import Path
 
-from sqlalchemy import DateTime, ForeignKey, Integer, String, Text, event, func
+from sqlalchemy import BigInteger, DateTime, ForeignKey, String, Text, event, func
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.models.user import Base
@@ -13,17 +13,17 @@ logger = logging.getLogger(__name__)
 class Photo(Base):
     __tablename__ = "photos"
 
-    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
-    filename: Mapped[str] = mapped_column(String(255), nullable=False, comment="存储文件名 (UUID)")
-    original_filename: Mapped[str] = mapped_column(String(500), nullable=False, comment="原始上传文件名")
-    file_size: Mapped[int] = mapped_column(Integer, nullable=False, comment="文件大小 (bytes)")
+    id: Mapped[int] = mapped_column(BigInteger, primary_key=True, autoincrement=True)
+    filename: Mapped[str] = mapped_column(String(200), nullable=False, comment="存储文件名 (UUID)")
+    original_filename: Mapped[str] = mapped_column(String(200), nullable=False, comment="原始上传文件名")
+    file_size: Mapped[int] = mapped_column(BigInteger, nullable=False, comment="文件大小 (bytes)")
     content_type: Mapped[str] = mapped_column(String(50), nullable=False, comment="MIME 类型")
     description: Mapped[str | None] = mapped_column(Text, nullable=True, default=None, comment="照片描述")
     uploaded_by: Mapped[int] = mapped_column(
-        Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False, comment="上传者 ID"
+        BigInteger, ForeignKey("users.id", ondelete="CASCADE"), nullable=False, comment="上传者 ID"
     )
     album_id: Mapped[int | None] = mapped_column(
-        Integer, ForeignKey("albums.id", ondelete="SET NULL"), nullable=True, default=None, comment="所属相册 ID"
+        BigInteger, ForeignKey("albums.id", ondelete="SET NULL"), nullable=True, default=None, comment="所属相册 ID"
     )
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.utc_timestamp(), nullable=False

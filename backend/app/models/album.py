@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from sqlalchemy import Boolean, DateTime, ForeignKey, Integer, String, func
+from sqlalchemy import BigInteger, Boolean, DateTime, ForeignKey, String, func
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.models.user import Base
@@ -9,11 +9,11 @@ from app.models.user import Base
 class Album(Base):
     __tablename__ = "albums"
 
-    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    id: Mapped[int] = mapped_column(BigInteger, primary_key=True, autoincrement=True)
     name: Mapped[str] = mapped_column(String(100), nullable=False, comment="相册名称")
     is_public: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False, comment="是否公开")
     created_by: Mapped[int] = mapped_column(
-        Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False, comment="创建者 ID"
+        BigInteger, ForeignKey("users.id", ondelete="CASCADE"), nullable=False, comment="创建者 ID"
     )
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.utc_timestamp(), nullable=False

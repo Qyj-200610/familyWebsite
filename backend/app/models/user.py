@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from sqlalchemy import DateTime, Integer, String, func
+from sqlalchemy import BigInteger, DateTime, String, func
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 
 
@@ -11,17 +11,14 @@ class Base(DeclarativeBase):
 class User(Base):
     __tablename__ = "users"
 
-    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    id: Mapped[int] = mapped_column(BigInteger, primary_key=True, autoincrement=True)
     username: Mapped[str] = mapped_column(String(50), unique=True, index=True, nullable=False)
-    email: Mapped[str] = mapped_column(String(255), unique=True, index=True, nullable=False)
-    hashed_password: Mapped[str] = mapped_column(String(255), nullable=False)
-    avatar: Mapped[str | None] = mapped_column(String(500), nullable=True, default=None)
-    last_login: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True, default=None)
+    email: Mapped[str] = mapped_column(String(100), unique=True, index=True, nullable=False)
+    hashed_password: Mapped[str] = mapped_column("password", String(100), nullable=False)
+    avatar: Mapped[str | None] = mapped_column(String(255), nullable=True, default=None)
+    last_login: Mapped[datetime | None] = mapped_column("last_login_at", DateTime(timezone=True), nullable=True, default=None)
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.utc_timestamp(), nullable=False
-    )
-    updated_at: Mapped[datetime] = mapped_column(
-        DateTime(timezone=True), server_default=func.utc_timestamp(), onupdate=func.utc_timestamp(), nullable=False
     )
 
     def __repr__(self) -> str:
