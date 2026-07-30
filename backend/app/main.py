@@ -1,6 +1,12 @@
+import asyncio
 import logging
+import sys
 from contextlib import asynccontextmanager
 from pathlib import Path
+
+# Fix for aiomysql SSL on Windows: ProactorEventLoop doesn't handle SSL properly
+if sys.platform == "win32":
+    asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
 
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware

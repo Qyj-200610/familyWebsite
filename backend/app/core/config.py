@@ -32,6 +32,9 @@ class Settings(BaseSettings):
         "https://family-website-frontend-six.vercel.app",
     ]
 
+    # Database SSL — PlanetScale requires SSL; set to False for local MySQL
+    DATABASE_SSL: bool = True
+
     # File upload
     UPLOAD_DIR: str = str(Path(__file__).resolve().parent.parent.parent / "uploads")
     AVATAR_MAX_SIZE: int = 2 * 1024 * 1024  # 2 MB

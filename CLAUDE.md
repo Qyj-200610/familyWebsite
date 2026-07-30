@@ -57,6 +57,11 @@ familyWebsite/
 │   ├── .env.example             # VITE_API_BASE_URL 说明
 │   ├── index.html
 │   ├── vite.config.ts           # Vite 配置 + API 代理
+│   ├── docs/                     # 前端文档
+│   │   ├── interface.md          # API 接口规范
+│   │   ├── FAMILY.md             # 家族谱系数据规格
+│   │   ├── TODOLIST.md           # 待办事项
+│   │   └── COMPLETED.md          # 已完成功能记录
 │   └── src/
 │       ├── main.tsx             # React 入口
 │       ├── App.tsx              # 首页（未登录时的 Landing 展示页）
@@ -77,11 +82,6 @@ familyWebsite/
 │       ├── components/
 │       │   └── PageNav/         # 共享导航栏组件（头像、下拉菜单、退出登录）
 │       ├── svg/                 # SVG 图标（用于表单、按钮等）
-│       ├── docs/                # 前端文档
-│       │   ├── interface.md     # API 接口规范
-│       │   ├── FAMILY.md        # 家族谱系数据规格
-│       │   ├── TODOLIST.md      # 待办事项
-│       │   └── COMPLETED.md     # 已完成功能记录
 │       └── pages/
 │           ├── home/            # 首页（已登录，含 Hero 横幅 + 快捷入口 + 日程侧边栏）
 │           ├── auth/            # 登录/注册/注册成功/忘记密码（含 Auth 布局组件）

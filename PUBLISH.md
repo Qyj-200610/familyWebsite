@@ -1,4 +1,4 @@
-# React + FastAPI + MySQL 免费部署方案
+# React + FastAPI + TiDB Cloud 免费部署方案
 
 ## 部署架构
 
@@ -8,12 +8,12 @@
 |------|------|------|
 | 前端静态资源 | **Vercel** | React 打包页面，GitHub 自动部署，全球加速 |
 | 后端 API | **Render** | FastAPI 服务，自动部署 + 进程守护 |
-| 数据库 | **Aiven MySQL** | MySQL 8.0，独立持久化，SSL 连接，不受后端重启影响 |
+| 数据库 | **TiDB Cloud Developer Tier** | MySQL 5.7 兼容，独立持久化，SSL 连接，不受后端重启影响 |
 
 ## 数据流转
 
 ```
-用户浏览器 → Vercel（前端页面 + 反向代理） → Render（FastAPI） → Aiven MySQL
+用户浏览器 → Vercel（前端页面 + 反向代理） → Render（FastAPI） → TiDB Cloud
              ← ← ← ← ← ← ←  ← ← ← ← ← ← ← ← 返回结果 ← ← ← ←
 ```
 
