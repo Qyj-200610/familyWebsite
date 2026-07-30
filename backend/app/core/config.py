@@ -45,12 +45,19 @@ class Settings(BaseSettings):
     @field_validator("CORS_ORIGINS", mode="before")
     @classmethod
     def _parse_cors_origins(cls, v: object) -> list[str]:
-        """Parse a comma-separated string from .env into a list."""
-        if isinstance(v, str):
-            return [origin.strip() for origin in v.split(",") if origin.strip()]
+        """Parse CORS_ORIGINS — supports JSON array (pydantic-settings ≥2.14) or comma-separated string."""
         if isinstance(v, list):
             return v
-        raise ValueError(f"CORS_ORIGINS must be a comma-separated string or list, got {type(v)}")
+        if isinstance(v, str):
+            v = v.strip()
+            if v.startswith("[") and v.endswith("]"):
+                import json
+                try:
+                    return json.loads(v)
+                except json.JSONDecodeError:
+                    pass  # fall through to comma-split
+            return [origin.strip() for origin in v.split(",") if origin.strip()]
+        raise ValueError(f"CORS_ORIGINS must be a JSON array or comma-separated string, got {type(v)}")
 
 
 settings = Settings()

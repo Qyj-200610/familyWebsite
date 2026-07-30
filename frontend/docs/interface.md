@@ -720,9 +720,9 @@ Authorization: Bearer <token>    <!-- 可选 -->
   "message": "success",
   "data": {
     "members": [
-      { "name": "Lhf", "isOnline": true },
-      { "name": "Lqb", "isOnline": false },
-      { "name": "Qyj", "isOnline": true }
+      { "name": "Lhf", "online": true, "avatar": "/uploads/avatars/xxx.jpg" },
+      { "name": "Lqb", "online": false, "avatar": null },
+      { "name": "Qyj", "online": true, "avatar": "/uploads/avatars/yyy.jpg" }
     ]
   }
 }
@@ -732,7 +732,8 @@ Authorization: Bearer <token>    <!-- 可选 -->
 |------|------|------|
 | `data.members` | `array` | 家族成员列表 |
 | `members[].name` | `string` | 成员姓名（与家谱图节点 name 对应） |
-| `members[].isOnline` | `boolean` | 是否在线（已登录用户 username 匹配成员名时为 true） |
+| `members[].online` | `boolean` | 是否在线（已登录用户 username 匹配成员名时为 true） |
+| `members[].avatar` | `string` \| `null` | 成员头像 URL（从 User 表匹配），未注册时为 null |
 
 > 当前家族成员名单（后端和前端需保持同步）：Lhf, Lqb, Lqq, Qd, Qyj, Ljy, Lln, Lyj
 
@@ -914,7 +915,8 @@ interface SubmitOrderRequest {
 /** 单个家族成员在线状态 */
 interface FamilyMemberStatus {
   name: string;
-  isOnline: boolean;
+  online: boolean;
+  avatar: string | null;
 }
 
 /** GET /api/family/status */

@@ -10,6 +10,7 @@ import PersonalCenter from "./pages/user/personalCenter/PersonalCenter.tsx";
 import PhotoAlbum from "./pages/photoAlbum/photoAlbum.tsx";
 import FoodOrder from "./pages/foodOrder/foodOrder.tsx";
 import FamilyTree from "./pages/familyTree/familyTree.tsx";
+import VideoPage from "./pages/familyTree/video/video.tsx";
 import NotFound from "./pages/notFound/NotFound.tsx";
 import { setGlobalNavigate } from "./utils/navigate";
 
@@ -57,6 +58,10 @@ const router = createBrowserRouter([
   {
     path: "/family-tree",
     element: <FamilyTree />,
+  },
+  {
+    path: "/family-tree/video",
+    element: <VideoPage />,
   },
   {
     path: "*",

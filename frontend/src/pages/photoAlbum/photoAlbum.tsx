@@ -109,7 +109,7 @@ function PhotoAlbum() {
 
   useEffect(() => {
     if (isAuthenticated) {
-      queueMicrotask(() => fetchAlbums());
+      fetchAlbums();
     }
   }, [isAuthenticated, fetchAlbums]);
 

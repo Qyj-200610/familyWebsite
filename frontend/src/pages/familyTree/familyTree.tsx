@@ -1,8 +1,10 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useAuthStore } from "../../store/authStore";
 import { navigateTo } from "../../utils/navigate";
 import PageNav from "../../components/PageNav/PageNav";
 import { familyApi } from "../../api";
+import { uploadUrl } from "../../api/client";
+import type { FamilyMemberStatus } from "../../api/types";
 import "./familyTree.css";
 
 // ============================================================
@@ -81,36 +83,75 @@ const FAMILY_DATA: Person = {
 };
 
 // ============================================================
-// 头像占位组件（预留照片上传位置）
+// 头像组件 — 显示用户真实头像 / 占位渐变圆圈
 // ============================================================
 
-function AvatarPlaceholder({
+function Avatar({
   name,
   title,
   gender,
   large,
+  avatarUrl,
+  online,
+  onAvatarClick,
 }: {
   name: string;
   title?: string;
   gender: "male" | "female";
   large?: boolean;
+  avatarUrl: string | null | undefined;
+  online?: boolean;
+  onAvatarClick?: () => void;
 }) {
-  const tooltip = title
-    ? `${name}（${title}）— 点击上传照片（待实现）`
-    : `${name} — 点击上传照片（待实现）`;
+  const hasPhoto = !!avatarUrl;
+
+  const tooltip = (() => {
+    const label = title ? `${name}（${title}）` : name;
+    if (online) return `${label} — 在线，点击预览视频`;
+    return `${label} — 离线`;
+  })();
 
   return (
     <div
-      className={`ft-avatar ${large ? "ft-avatar--large" : ""} ${gender === "male" ? "ft-avatar--male" : "ft-avatar--female"
-        }`}
+      className={`ft-avatar ${large ? "ft-avatar--large" : ""} ${
+        gender === "male" ? "ft-avatar--male" : "ft-avatar--female"
+      } ft-avatar--clickable`}
       title={tooltip}
+      onClick={onAvatarClick}
+      role="button"
+      tabIndex={0}
+      onKeyDown={(e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          onAvatarClick?.();
+        }
+      }}
     >
-      {/* 照片（暂无时显示首字母） */}
-      <span className="ft-avatar__initial">{name.charAt(0)}</span>
+      {/* 真实头像或首字母占位 */}
+      {hasPhoto ? (
+        <img
+          className="ft-avatar__img"
+          src={uploadUrl(avatarUrl)}
+          alt={name}
+          onError={(e) => {
+            // 图片加载失败时回退到首字母占位
+            (e.target as HTMLImageElement).style.display = "none";
+            const fallback = (e.target as HTMLImageElement)
+              .nextElementSibling as HTMLElement | null;
+            if (fallback) fallback.style.display = "flex";
+          }}
+        />
+      ) : null}
+      <span
+        className="ft-avatar__initial"
+        style={{ display: hasPhoto ? "none" : "flex" }}
+      >
+        {name.charAt(0)}
+      </span>
 
-      {/* 预留上传图标 */}
-      <span className="ft-avatar__upload-hint" title="上传照片">
-        📷
+      {/* hover 显示摄像头图标 */}
+      <span className="ft-avatar__camera-hint" title={online ? "开启摄像头" : "当前离线"}>
+        {online ? "📹" : "🔒"}
       </span>
     </div>
   );
@@ -123,20 +164,30 @@ function AvatarPlaceholder({
 function PersonCard({
   person,
   isRoot,
-  online,
+  member,
+  onAvatarClick,
 }: {
   person: Person;
   isRoot?: boolean;
-  online?: boolean;
+  member?: FamilyMemberStatus;
+  onAvatarClick?: (name: string) => void;
 }) {
+  const online = member?.online ?? false;
+  const avatarUrl = member?.avatar ?? null;
+
   return (
     <div className={`ft-card ${isRoot ? "ft-card--root" : ""}`}>
-      {/* 照片占位区 */}
-      <AvatarPlaceholder
+      {/* 头像 */}
+      <Avatar
         name={person.name}
         title={person.title}
         gender={person.gender}
         large={isRoot}
+        avatarUrl={avatarUrl}
+        online={online}
+        onAvatarClick={
+          onAvatarClick ? () => onAvatarClick(person.name) : undefined
+        }
       />
 
       {/* 姓名 + 状态指示器 */}
@@ -144,7 +195,9 @@ function PersonCard({
         <div className="ft-card__name-row">
           <span className="ft-card__name">{person.name}</span>
           <span
-            className={`ft-card__status ${online ? "ft-card__status--online" : "ft-card__status--offline"}`}
+            className={`ft-card__status ${
+              online ? "ft-card__status--online" : "ft-card__status--offline"
+            }`}
             title={online ? `${person.name} 在线` : `${person.name} 离线`}
           />
         </div>
@@ -159,15 +212,21 @@ function PersonCard({
 
 function CoupleCard({
   person,
-  statusMap,
+  memberMap,
+  onAvatarClick,
 }: {
   person: Person;
-  statusMap: Record<string, boolean>;
+  memberMap: Record<string, FamilyMemberStatus>;
+  onAvatarClick?: (name: string) => void;
 }) {
   return (
     <div className="ft-couple">
       {/* 本人 */}
-      <PersonCard person={person} online={statusMap[person.name]} />
+      <PersonCard
+        person={person}
+        member={memberMap[person.name]}
+        onAvatarClick={onAvatarClick}
+      />
 
       {/* 配偶（如果有） */}
       {person.spouse && (
@@ -179,17 +238,32 @@ function CoupleCard({
 
           {/* 配偶卡片 */}
           <div className="ft-card ft-card--spouse">
-            <AvatarPlaceholder
+            <Avatar
               name={person.spouse.name}
               title={person.spouse.title}
               gender={person.spouse.gender}
+              avatarUrl={memberMap[person.spouse.name]?.avatar ?? null}
+              online={memberMap[person.spouse.name]?.online ?? false}
+              onAvatarClick={
+                onAvatarClick
+                  ? () => onAvatarClick(person.spouse!.name)
+                  : undefined
+              }
             />
             <div className="ft-card__info">
               <div className="ft-card__name-row">
                 <span className="ft-card__name">{person.spouse.name}</span>
                 <span
-                  className={`ft-card__status ${statusMap[person.spouse.name] ? "ft-card__status--online" : "ft-card__status--offline"}`}
-                  title={statusMap[person.spouse.name] ? `${person.spouse.name} 在线` : `${person.spouse.name} 离线`}
+                  className={`ft-card__status ${
+                    memberMap[person.spouse.name]?.online
+                      ? "ft-card__status--online"
+                      : "ft-card__status--offline"
+                  }`}
+                  title={
+                    memberMap[person.spouse.name]?.online
+                      ? `${person.spouse.name} 在线`
+                      : `${person.spouse.name} 离线`
+                  }
                 />
               </div>
             </div>
@@ -206,10 +280,12 @@ function CoupleCard({
 
 function SubTree({
   person,
-  statusMap,
+  memberMap,
+  onAvatarClick,
 }: {
   person: Person;
-  statusMap: Record<string, boolean>;
+  memberMap: Record<string, FamilyMemberStatus>;
+  onAvatarClick?: (name: string) => void;
 }) {
   const { children } = person;
   const [collapsed, setCollapsed] = useState(false);
@@ -219,7 +295,11 @@ function SubTree({
     <div className="ft-tree">
       {/* 当前节点：夫妻卡片 */}
       <div className="ft-tree__node">
-        <CoupleCard person={person} statusMap={statusMap} />
+        <CoupleCard
+          person={person}
+          memberMap={memberMap}
+          onAvatarClick={onAvatarClick}
+        />
 
         {/* 折叠按钮 */}
         {hasChildren && (
@@ -248,15 +328,21 @@ function SubTree({
               {children.map((child, i) => (
                 <div
                   key={child.id}
-                  className={`ft-tree__child ${i === 0 ? "ft-tree__child--first" : ""
-                    } ${i === children.length - 1
+                  className={`ft-tree__child ${
+                    i === 0 ? "ft-tree__child--first" : ""
+                  } ${
+                    i === children.length - 1
                       ? "ft-tree__child--last"
                       : ""
-                    }`}
+                  }`}
                 >
                   {/* 每个子节点上方的下落竖线 */}
                   <div className="ft-tree__drop" />
-                  <SubTree person={child} statusMap={statusMap} />
+                  <SubTree
+                    person={child}
+                    memberMap={memberMap}
+                    onAvatarClick={onAvatarClick}
+                  />
                 </div>
               ))}
             </div>
@@ -271,32 +357,79 @@ function SubTree({
 // 页面主体
 // ============================================================
 
+// ============================================================
+// Toast 类型
+// ============================================================
+
+interface ToastState {
+  visible: boolean;
+  name: string;
+  online: boolean;
+}
+
 function FamilyTree() {
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
   const [introOpen, setIntroOpen] = useState(true);
-  const [statusMap, setStatusMap] = useState<Record<string, boolean>>({});
+  const [memberMap, setMemberMap] = useState<
+    Record<string, FamilyMemberStatus>
+  >({});
+  const [toast, setToast] = useState<ToastState>({
+    visible: false,
+    name: "",
+    online: false,
+  });
 
+  // 未登录跳转
   useEffect(() => {
     if (!isAuthenticated) {
       navigateTo("/login");
     }
   }, [isAuthenticated]);
 
-  // 拉取家族成员在线状态
+  // 拉取家族成员状态（在线状态 + 头像）
   useEffect(() => {
     familyApi
       .getStatus()
       .then((res) => {
-        const map: Record<string, boolean> = {};
+        const map: Record<string, FamilyMemberStatus> = {};
         res.members.forEach((m) => {
-          map[m.name] = m.online;
+          map[m.name] = m;
         });
-        setStatusMap(map);
+        setMemberMap(map);
       })
       .catch(() => {
         // 静默失败 — 接口不可用时全部显示离线
       });
   }, []);
+
+  // Toast 自动消失
+  useEffect(() => {
+    if (!toast.visible) return;
+    const timer = setTimeout(() => {
+      setToast((prev) => ({ ...prev, visible: false }));
+    }, 2800);
+    return () => clearTimeout(timer);
+  }, [toast.visible]);
+
+  // 头像点击处理：离线提示 / 在线跳转视频页
+  const handleAvatarClick = useCallback(
+    (name: string) => {
+      const online = memberMap[name]?.online ?? false;
+
+      if (!online) {
+        // 离线 → 弹出离线提示 toast
+        setToast({ visible: true, name, online: false });
+        return;
+      }
+
+      // 在线 → 弹出连接中 toast，短暂延迟后跳转
+      setToast({ visible: true, name, online: true });
+      setTimeout(() => {
+        navigateTo(`/family-tree/video?name=${encodeURIComponent(name)}`);
+      }, 800);
+    },
+    [memberMap],
+  );
 
   return (
     <div className="ft-page">
@@ -337,7 +470,8 @@ function FamilyTree() {
               <p>
                 本家谱目前记录<strong>外婆（Lhf）</strong>这一分支，自祖辈到同辈共三代。
                 点击节点旁的 <strong>－</strong> 可收起分支，<strong>＋</strong> 可展开。
-                每个成员头像处留有照片上传位置，后续可点击 📷 上传个人照片。
+                头像自动使用每位成员在系统中设置的个人头像。
+                鼠标悬停或点击任意成员头像：<strong>在线</strong>成员（🟢）可开启摄像头视频预览，<strong>离线</strong>成员（🔴）会提示当前离线。
               </p>
               <div className="ft-intro__legend">
                 <span className="ft-intro__legend-item">
@@ -350,21 +484,39 @@ function FamilyTree() {
                 </span>
                 <span className="ft-intro__legend-item">
                   <span className="ft-intro__dot ft-intro__dot--empty" />
-                  暂无照片
+                  暂无头像
                 </span>
                 <span className="ft-intro__legend-item">
                   💍 夫妻关系
                 </span>
                 <span className="ft-intro__legend-item">
-                  <span className="ft-card__status ft-card__status--online" style={{ display: "inline-block", width: 10, height: 10, verticalAlign: "middle", marginRight: 2 }} />
-                  {" "}在线
+                  <span
+                    className="ft-card__status ft-card__status--online"
+                    style={{
+                      display: "inline-block",
+                      width: 10,
+                      height: 10,
+                      verticalAlign: "middle",
+                      marginRight: 2,
+                    }}
+                  />{" "}
+                  在线
                 </span>
                 <span className="ft-intro__legend-item">
-                  <span className="ft-card__status ft-card__status--offline" style={{ display: "inline-block", width: 10, height: 10, verticalAlign: "middle", marginRight: 2 }} />
-                  {" "}离线
+                  <span
+                    className="ft-card__status ft-card__status--offline"
+                    style={{
+                      display: "inline-block",
+                      width: 10,
+                      height: 10,
+                      verticalAlign: "middle",
+                      marginRight: 2,
+                    }}
+                  />{" "}
+                  离线
                 </span>
                 <span className="ft-intro__legend-item">
-                  📷 上传照片（待实现）
+                  📹 视频预览 · 🔒 离线提示
                 </span>
               </div>
             </div>
@@ -386,9 +538,33 @@ function FamilyTree() {
       {/* 家谱树主体 */}
       <section className="ft-tree-section">
         <div className="ft-tree__canvas">
-          <SubTree person={FAMILY_DATA} statusMap={statusMap} />
+          <SubTree
+            person={FAMILY_DATA}
+            memberMap={memberMap}
+            onAvatarClick={handleAvatarClick}
+          />
         </div>
       </section>
+
+      {/* Toast 通知 */}
+      {toast.visible && (
+        <div
+          className={`ft-toast ${toast.online ? "ft-toast--connecting" : "ft-toast--offline"}`}
+          role="alert"
+        >
+          {toast.online ? (
+            <>
+              <span className="ft-toast__spinner" />
+              <span>正在连接 <strong>{toast.name}</strong> 的视频…</span>
+            </>
+          ) : (
+            <>
+              <span className="ft-toast__icon">🔒</span>
+              <span><strong>{toast.name}</strong> 当前离线，无法开启视频预览</span>
+            </>
+          )}
+        </div>
+      )}
 
       {/* 底部 */}
       <footer className="ft-footer">

@@ -517,34 +517,103 @@
   font-size: 2rem;
 }
 
-/* 上传提示图标（hover 显示） */
-.ft-avatar__upload-hint {
+/* 真实头像图片 */
+.ft-avatar__img {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+  display: block;
+}
+
+/* 摄像头/锁定提示图标（hover 显示） */
+.ft-avatar__camera-hint {
   position: absolute;
   inset: 0;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.2rem;
-  background: rgba(0, 0, 0, 0.35);
+  font-size: 1.3rem;
+  background: rgba(0, 0, 0, 0.4);
   color: #fff;
   opacity: 0;
   transition: opacity 0.25s;
-  cursor: pointer;
   pointer-events: none;
 }
 
-.ft-avatar:hover .ft-avatar__upload-hint {
+/* 可点击头像 */
+.ft-avatar--clickable {
+  cursor: pointer;
+}
+
+.ft-avatar--clickable:hover .ft-avatar__camera-hint {
   opacity: 1;
-  pointer-events: auto;
 }
 
-.ft-avatar:hover .ft-avatar__initial {
-  opacity: 0.4;
+.ft-avatar--clickable:hover {
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.25);
 }
 
-.ft-avatar:hover {
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+.ft-avatar--clickable:active {
+  transform: scale(0.95);
+}
+
+/* ============================================================
+   Toast 通知
+   ============================================================ */
+
+.ft-toast {
+  position: fixed;
+  top: 88px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 28px;
+  border-radius: 28px;
+  font-size: 0.92rem;
+  color: var(--color-text);
+  z-index: 900;
+  animation: ftToastIn 0.35s ease both, ftToastOut 0.3s 2.2s ease both;
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.15);
+  pointer-events: none;
+}
+
+.ft-toast--connecting {
+  background: linear-gradient(135deg, #eaf7ea, #f0faf0);
+  border: 1px solid rgba(91, 140, 90, 0.3);
+}
+
+.ft-toast--offline {
+  background: linear-gradient(135deg, #fef5f0, #fff7f0);
+  border: 1px solid rgba(240, 160, 75, 0.35);
+}
+
+.ft-toast__spinner {
+  width: 18px;
+  height: 18px;
+  border: 2.5px solid rgba(91, 140, 90, 0.2);
+  border-top-color: #5b8c5a;
+  border-radius: 50%;
+  animation: ftSpin 0.8s linear infinite;
+  flex-shrink: 0;
+}
+
+.ft-toast__icon {
+  font-size: 1.1rem;
+  flex-shrink: 0;
+}
+
+@keyframes ftToastIn {
+  from { opacity: 0; transform: translateX(-50%) translateY(-16px); }
+  to   { opacity: 1; transform: translateX(-50%) translateY(0); }
+}
+
+@keyframes ftToastOut {
+  from { opacity: 1; transform: translateX(-50%) translateY(0); }
+  to   { opacity: 0; transform: translateX(-50%) translateY(-12px); }
 }
 
 /* ===== Footer ===== */
@@ -558,6 +627,209 @@
   font-size: 0.88rem;
   color: var(--color-text-muted);
   letter-spacing: 0.05em;
+}
+
+/* ============================================================
+   Webcam Modal
+   ============================================================ */
+
+.ft-webcam__backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  animation: ftFadeIn 0.25s ease both;
+  padding: 24px;
+}
+
+@keyframes ftFadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+.ft-webcam__card {
+  position: relative;
+  background: var(--color-surface);
+  border-radius: var(--radius-lg);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.25);
+  width: 1040px;
+  height: 660px;
+  max-width: 95vw;
+  max-height: 90vh;
+  min-width: 400px;
+  min-height: 300px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  animation: ftFadeInUp 0.3s ease both;
+}
+
+/* ---- Header (可拖拽) ---- */
+.ft-webcam__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--color-border);
+  background: linear-gradient(135deg, rgba(91, 140, 90, 0.06), transparent);
+  cursor: grab;
+  user-select: none;
+}
+
+.ft-webcam__header:active {
+  cursor: grabbing;
+}
+
+.ft-webcam__title {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--color-text);
+  margin: 0;
+}
+
+.ft-webcam__close {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.06);
+  color: var(--color-text-muted);
+  font-size: 0.85rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s, color 0.2s;
+  flex-shrink: 0;
+}
+
+.ft-webcam__close:hover {
+  background: rgba(0, 0, 0, 0.12);
+  color: var(--color-text);
+}
+
+/* ---- Body ---- */
+.ft-webcam__body {
+  padding: 0;
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #1a1a1a;
+  position: relative;
+}
+
+.ft-webcam__status {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  color: #ccc;
+  padding: 40px 20px;
+}
+
+.ft-webcam__status p {
+  font-size: 0.9rem;
+  color: #aaa;
+}
+
+.ft-webcam__spinner {
+  width: 36px;
+  height: 36px;
+  border: 3px solid rgba(255, 255, 255, 0.15);
+  border-top-color: #5b8c5a;
+  border-radius: 50%;
+  animation: ftSpin 0.8s linear infinite;
+}
+
+@keyframes ftSpin {
+  to { transform: rotate(360deg); }
+}
+
+.ft-webcam__video-wrap {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #000;
+}
+
+.ft-webcam__video {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+}
+
+/* ---- Error ---- */
+.ft-webcam__error {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 48px 28px;
+  text-align: center;
+  color: #ccc;
+}
+
+.ft-webcam__error-icon {
+  font-size: 2.4rem;
+}
+
+.ft-webcam__error p {
+  font-size: 0.9rem;
+  color: #cfcfcf;
+  line-height: 1.6;
+  max-width: 360px;
+}
+
+/* ---- Footer ---- */
+.ft-webcam__footer {
+  display: flex;
+  justify-content: center;
+  padding: 14px 20px;
+  border-top: 1px solid var(--color-border);
+}
+
+.ft-webcam__btn {
+  padding: 10px 32px;
+  border-radius: 24px;
+  background: linear-gradient(135deg, #5b8c5a, #6da86b);
+  color: #fff;
+  font-size: 0.9rem;
+  font-weight: 600;
+  transition: opacity 0.2s, transform 0.15s;
+}
+
+.ft-webcam__btn:hover {
+  opacity: 0.9;
+  transform: scale(1.03);
+}
+
+/* ---- Resize handle ---- */
+.ft-webcam__resize-handle {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: flex-end;
+  padding: 0 3px 3px 0;
+  color: var(--color-text-muted);
+  cursor: nwse-resize;
+  opacity: 0.5;
+  transition: opacity 0.2s, color 0.2s;
+  user-select: none;
+}
+
+.ft-webcam__resize-handle:hover {
+  opacity: 1;
+  color: var(--color-primary);
 }
 
 /* ===== Entrance Animation ===== */

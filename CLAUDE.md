@@ -33,7 +33,7 @@ familyWebsite/
 │       │           ├── food.py  # /api/food/*
 │       │           └── family.py # /api/family/* (在线状态)
 │       ├── core/
-│       │   ├── config.py        # Pydantic Settings（读取 .env，含 CORS_ORIGINS 逗号分隔解析）
+│       │   ├── config.py        # Pydantic Settings（读取 .env，CORS_ORIGINS 支持 JSON 数组/逗号分隔）
 │       │   ├── security.py      # JWT + bcrypt 工具
 │       │   ├── database.py      # SQLAlchemy async engine & session
 │       │   └── response.py      # 统一响应格式 {code, message, data}
@@ -87,6 +87,7 @@ familyWebsite/
 │           ├── auth/            # 登录/注册/注册成功/忘记密码（含 Auth 布局组件）
 │           ├── dailyRoutine/    # 日常日程侧边栏（模板编辑、勾选完成、localStorage 持久化）
 │           ├── familyTree/      # 家谱图（递归子树、折叠展开、在线状态指示器）
+│           │   └── video/        # 视频预览页（摄像头、投屏、录屏）
 │           ├── photoAlbum/      # 家庭相册（创建/删除相册，上传/浏览/删除照片）
 │           ├── foodOrder/       # 美食点单（分类筛选、购物车、邮件提交通知）
 │           ├── user/

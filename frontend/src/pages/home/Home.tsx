@@ -186,12 +186,10 @@ function Home() {
               <p className="home__hero-desc">
                 每一个平凡的日子，都是生活馈赠的礼物 ✨
               </p>
-              {timePeriod === "night" && (
-                <div className="home__hero-clock">
-                  <span className="home__hero-clock-label">当前时间</span>
-                  <span className="home__hero-clock-time">{formatClock(clockTime)}</span>
-                </div>
-              )}
+              <div className="home__hero-clock">
+                <span className="home__hero-clock-label">当前时间</span>
+                <span className="home__hero-clock-time">{formatClock(clockTime)}</span>
+              </div>
               <div className="home__hero-decorations" aria-hidden="true">
                 <span className="home__hero-deco home__hero-deco--1">{heroDecorations[0]}</span>
                 <span className="home__hero-deco home__hero-deco--2">{heroDecorations[1]}</span>

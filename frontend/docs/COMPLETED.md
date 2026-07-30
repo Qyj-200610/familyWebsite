@@ -238,7 +238,7 @@ cd frontend && npm run dev
 
 ---
 
-## Debug 修复 (2026-07-30)
+## Debug 修复 (2026-07-30 · 第一次)
 
 ### 后端 Bug 修复
 - [x] **user.py** — 头像上传后旧文件永不删除：`current_user.avatar` 在 `update_user` 后已被刷新为新值，修复为提前捕获旧路径
@@ -274,3 +274,32 @@ cd frontend && npm run dev
 ### 验证结果
 - [x] **TypeScript** — `tsc -b --noEmit` 零错误
 - [x] **Vite 生产构建** — `vite build` 成功，125 modules
+
+---
+
+## Debug 修复 (2026-07-30 · 第二次 — 全项目 debug)
+
+### 后端 Bug 修复
+- [x] **schemas/food.py** — 文件丢失，从 git 历史恢复
+- [x] **schemas/user.py** — `ResetPasswordRequest.new_password` 缺少 `alias="newPassword"`，导致前端发送 `newPassword` 时无法正确解析 → 添加 alias + `populate_by_name=True`
+- [x] **aiomysql** — Python 环境中缺少 `aiomysql` 包 → `pip install -r requirements.txt`
+
+### 前端 Bug 修复
+- [x] **photoAlbum.tsx** — `queueMicrotask(() => fetchAlbums())` 不必要 → 改为直接调用 `fetchAlbums()`
+
+### 项目配置修复
+- [x] **.gitignore** — 项目缺少 `.gitignore`，导致 `backend/.env`（含真实 SMTP 凭据）被 git 追踪 → 创建 `.gitignore`，排除 `.env`、`__pycache__`、`node_modules`、`uploads` 等
+- [x] **.env.example** — CORS_ORIGINS 注释写"逗号分隔"但实际为 JSON 数组格式 → 更新注释说明支持两种格式，并将示例 URL 脱敏
+
+### 文档更新
+- [x] **interface.md** — 修复家族在线状态 API 文档：
+  - 字段名 `isOnline` → `online`（与后端实际返回一致）
+  - 添加缺失的 `avatar` 字段
+  - 同步 TypeScript 类型定义
+- [x] **FAMILY.md** — 新增视频预览/离线提示功能说明，标记视频功能为已完成
+- [x] **CLAUDE.md** — 新增 video 页面目录结构，更新 CORS_ORIGINS 注释描述
+
+### 联通性验证
+- [x] 后端启动正常 → `GET /api/health` 返回 `{"code":0,"data":{"status":"healthy"}}`
+- [x] 前端 Vite 代理正常 → `curl localhost:5175/api/health` 正确转发到后端
+- [x] TypeScript 零错误 + Vite 生产构建成功

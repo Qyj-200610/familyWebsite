@@ -23,7 +23,9 @@ class UpdateUserRequest(BaseModel):
 
 class ResetPasswordRequest(BaseModel):
     email: EmailStr = Field(..., max_length=255, description="注册邮箱")
-    new_password: str = Field(..., min_length=6, max_length=128, description="新密码")
+    new_password: str = Field(..., min_length=6, max_length=128, alias="newPassword", description="新密码")
+
+    model_config = ConfigDict(populate_by_name=True)
 
 
 # ── Response Schemas ───────────────────────────────────────────

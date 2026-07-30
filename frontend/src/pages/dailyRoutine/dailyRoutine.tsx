@@ -90,6 +90,19 @@ function saveCollapsed(v: boolean): void {
   localStorage.setItem(LS_COLLAPSED_KEY, v ? "1" : "0");
 }
 
+/** 清理过期的 dr_state_* 键（只保留今天的） */
+function cleanupOldStateKeys(): void {
+  const todayKey = getTodayKey();
+  const keysToRemove: string[] = [];
+  for (let i = 0; i < localStorage.length; i++) {
+    const key = localStorage.key(i);
+    if (key && key.startsWith("dr_state_") && key !== todayKey) {
+      keysToRemove.push(key);
+    }
+  }
+  keysToRemove.forEach((key) => localStorage.removeItem(key));
+}
+
 /* ===== Component ===== */
 
 function DailyRoutine() {
@@ -114,8 +127,9 @@ function DailyRoutine() {
   const doneCount = doneSet.size;
   const total = template.length;
 
-  // On mount: if today's doneSet was created from a different template length, re-sync
+  // On mount: clean old state keys + re-sync doneSet if template length changed
   useEffect(() => {
+    cleanupOldStateKeys();
     const valid = new Set<number>();
     doneSet.forEach((i) => {
       if (i >= 0 && i < template.length) valid.add(i);

@@ -113,6 +113,7 @@ export interface OrderItem {
 export interface FamilyMemberStatus {
   name: string;
   online: boolean;
+  avatar: string | null;
 }
 
 /** GET /api/family/status */

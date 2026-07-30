@@ -341,7 +341,7 @@
   color: #b8b5cc;
 }
 
-/* Night clock */
+/* Clock — all time periods */
 .home__hero-clock {
   display: flex;
   flex-direction: column;
@@ -352,7 +352,7 @@
 .home__hero-clock-label {
   font-size: 0.72rem;
   font-weight: 500;
-  color: rgba(200, 195, 220, 0.6);
+  color: var(--color-text-muted);
   letter-spacing: 0.12em;
   text-transform: uppercase;
 }
@@ -361,8 +361,17 @@
   font-size: 2.2rem;
   font-weight: 300;
   font-family: "SF Mono", "Cascadia Code", "Fira Code", "Consolas", monospace;
-  color: #e0ddf0;
+  color: var(--color-text);
   letter-spacing: 0.04em;
+}
+
+/* Night clock — lighter text for dark background */
+.home__hero--night .home__hero-clock-label {
+  color: rgba(200, 195, 220, 0.6);
+}
+
+.home__hero--night .home__hero-clock-time {
+  color: #e0ddf0;
   text-shadow: 0 0 20px rgba(180, 170, 220, 0.3), 0 0 60px rgba(140, 130, 200, 0.15);
 }
 
