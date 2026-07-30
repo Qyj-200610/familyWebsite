@@ -4,9 +4,21 @@ import sys
 from contextlib import asynccontextmanager
 from pathlib import Path
 
-# Fix for aiomysql SSL on Windows: ProactorEventLoop doesn't handle SSL properly
+# Fix for aiomysql SSL on Windows — see:
+#   - aiomysql uses socket.dup() for SSL upgrade, which fails under ProactorEventLoop
+#   - uvicorn's asyncio loop factory hardcodes ProactorEventLoop on Windows
+#     (uvicorn/loops/asyncio.py: "if sys.platform == 'win32' → ProactorEventLoop")
+# Solution: (1) set the event-loop policy to Selector, AND (2) patch uvicorn's
+# hardcoded factory so plain `uvicorn app.main:app` works without --reload.
 if sys.platform == "win32":
     asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
+
+    def _patched_asyncio_loop_factory(use_subprocess: bool = False):  # noqa: ARG001
+        from collections.abc import Callable
+        return asyncio.SelectorEventLoop  # type: ignore[return-value]
+
+    import uvicorn.loops.asyncio as _uv_asyncio
+    _uv_asyncio.asyncio_loop_factory = _patched_asyncio_loop_factory  # type: ignore[assignment]
 
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware

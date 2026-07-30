@@ -27,7 +27,10 @@ class Settings(BaseSettings):
     SMTP_NOTIFICATION_EMAIL: str = ""  # 接收订单通知的邮箱
 
     # CORS — 前端域名白名单（可通过 .env 逗号分隔覆盖，如 CORS_ORIGINS="http://a.com,https://b.com"）
-    CORS_ORIGINS: list[str] = [
+    # 使用 str | list[str] 联合类型而非纯 list[str]：
+    # pydantic-settings 对纯 list 类型会在 .env 加载阶段强制 JSON 解析，导致逗号分隔字符串报错；
+    # 联合类型使其在 JSON 解析失败时回退到原始字符串，交由 field_validator 处理转换。
+    CORS_ORIGINS: str | list[str] = [
         "http://localhost:5175",
         "https://family-website-frontend-six.vercel.app",
     ]
@@ -48,13 +51,14 @@ class Settings(BaseSettings):
     @field_validator("CORS_ORIGINS", mode="before")
     @classmethod
     def _parse_cors_origins(cls, v: object) -> list[str]:
-        """Parse CORS_ORIGINS — supports JSON array (pydantic-settings ≥2.14) or comma-separated string."""
+        """Parse CORS_ORIGINS — supports JSON array or comma-separated string."""
         if isinstance(v, list):
             return v
         if isinstance(v, str):
             v = v.strip()
             if v.startswith("[") and v.endswith("]"):
                 import json
+
                 try:
                     return json.loads(v)
                 except json.JSONDecodeError:
