@@ -11,7 +11,7 @@ import type {
 // ============================================================
 
 export const authApi = {
-  /** POST /api/auth/register — 注册（不自动登录） */
+  /** POST /api/auth/register — 注册（不自动登录，返回 null） */
   register: (data: RegisterRequest) =>
     client.post<null>("/auth/register", data),
 

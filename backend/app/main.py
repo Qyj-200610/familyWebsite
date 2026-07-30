@@ -2,15 +2,15 @@ import logging
 from contextlib import asynccontextmanager
 from pathlib import Path
 
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 
 from app.api.v1.router import router as v1_router
 from app.core.config import settings
 from app.core.database import engine
-from app.models.album import Album  # noqa: F401 — 确保模型被导入以便建表
-from app.models.photo import Photo  # noqa: F401 — 确保模型被导入以便建表
+from app.core.response import error_response
+from app.models import Album, Photo  # noqa: F401 — 确保模型被导入以便建表
 from app.models.user import Base
 
 logger = logging.getLogger(__name__)
@@ -57,3 +57,11 @@ _upload_dir.mkdir(parents=True, exist_ok=True)
 (_upload_dir / "avatars").mkdir(parents=True, exist_ok=True)
 (_upload_dir / "photos").mkdir(parents=True, exist_ok=True)
 app.mount("/uploads", StaticFiles(directory=str(_upload_dir)), name="uploads")
+
+
+# ── 全局异常处理：确保所有未捕获异常返回 JSON 格式 ──
+@app.exception_handler(Exception)
+async def global_exception_handler(_request: Request, exc: Exception):
+    logger.exception("Unhandled exception")
+    return error_response(500, "服务器内部错误")
+

@@ -1,14 +1,14 @@
 # COMPLETED — 后端已完成功能
 
-> 最后更新：2026-07-26（debug 后更新）
+> 最后更新：2026-07-30（全项目 debug + 文档更新）
 
 ---
 
 ## 项目初始化
 
 - [x] FastAPI 应用骨架（`app/main.py`）
-- [x] 配置管理（pydantic-settings, `.env` 加载）
-- [x] 目录结构规范：`core/`, `models/`, `schemas/`, `services/`, `api/`
+- [x] 配置管理（pydantic-settings, `.env` 加载，`CORS_ORIGINS` 逗号分隔解析）
+- [x] 目录结构规范：`core/`, `models/`, `schemas/`, `services/`, `api/`, `utils/`
 
 ---
 
@@ -16,29 +16,45 @@
 
 | 文件 | 说明 |
 |------|------|
-| `app/core/config.py` | pydantic-settings 配置 — `DATABASE_URL`, `JWT_SECRET`, `JWT_ALGORITHM`, `JWT_EXPIRE_MINUTES` |
+| `app/core/config.py` | pydantic-settings 配置 — `DATABASE_URL`, `JWT_SECRET`, `JWT_ALGORITHM`, `JWT_EXPIRE_MINUTES`, `CORS_ORIGINS`, 文件上传限制 |
 | `app/core/database.py` | SQLAlchemy 2.0 async engine + `async_session_factory` + `get_db` 依赖注入（自动 commit/rollback） |
 | `app/core/security.py` | bcrypt 密码哈希（passlib）+ JWT 创建/解码（python-jose） |
 | `app/core/response.py` | 统一响应工具 — `success_response(data, message)` / `error_response(code, message, status_code)` |
-| `app/models/user.py` | User ORM 模型 — `id`, `username`, `email`, `hashed_password`, `avatar`, `created_at`, `updated_at` |
-| `app/schemas/user.py` | Pydantic Schema — `RegisterRequest`, `LoginRequest`, `UpdateUserRequest`, `UserResponse`, `AuthResponse` |
-| `app/services/user.py` | 用户业务逻辑 — `create_user`, `authenticate_user`, `get_user_by_id`, `update_user` |
-| `app/api/deps.py` | `get_current_user` 依赖注入 — JWT 解析 + 用户查询，自动抛出 401 |
+| `app/main.py` | FastAPI 应用入口 — CORS 中间件、路由挂载、StaticFiles（/uploads）、lifespan（启动建表 / 关闭释放引擎）、全局异常处理器（JSON 500） |
+| `app/models/user.py` | User ORM 模型 |
+| `app/models/album.py` | Album ORM 模型 — 与 Photo 一对多（`ondelete="SET NULL"`） |
+| `app/models/photo.py` | Photo ORM 模型 — `after_delete` 事件清理磁盘文件 |
+| `app/schemas/user.py` | Pydantic Schema — `RegisterRequest`, `LoginRequest`, `ResetPasswordRequest`, `UpdateUserRequest`, `UserResponse`, `AuthResponse` |
+| `app/schemas/album.py` | Pydantic Schema — `AlbumCreateRequest`, `AlbumResponse`（含 coverPhoto、photos） |
+| `app/schemas/photo.py` | Pydantic Schema — `PhotoResponse` |
+| `app/schemas/food.py` | Pydantic Schema — `SubmitOrderRequest` |
+| `app/services/user.py` | 用户业务逻辑 — `create_user`, `authenticate_user`, `get_user_by_id`, `update_user`, `reset_password` |
+| `app/services/album.py` | 相册业务逻辑 — `create_album`, `get_albums`, `get_album_by_id`, `delete_album`（含服务层名称验证） |
+| `app/services/photo.py` | 照片业务逻辑 — `upload_photo`（扩展名 + Content-Type + 魔数三重验证）、`get_photos`、`get_photo_by_id`、`delete_photo` |
+| `app/services/food.py` | 美食业务逻辑 — 邮件通知（QQ SMTP，Header UTF-8 编码中文主题） |
+| `app/utils/image.py` | 图片魔数检测 — 支持 JPEG/PNG/WebP |
+| `app/api/deps.py` | `get_current_user` 依赖注入 — JWT 解析 + 用户查询，自动抛出 401；`get_optional_user` — 可选认证，返回 None |
 | `app/api/v1/router.py` | API v1 路由聚合 + `GET /api/health` 健康检查 |
-| `app/api/v1/endpoints/auth.py` | 认证端点 — register / login / logout |
-| `app/api/v1/endpoints/user.py` | 用户端点 — get me / update me |
+| `app/api/v1/endpoints/auth.py` | 认证端点 — register / login / logout / reset-password |
+| `app/api/v1/endpoints/user.py` | 用户端点 — get me / update me / upload avatar（含旧文件清理） |
+| `app/api/v1/endpoints/album.py` | 相册端点 — 创建/列表/详情/删除 + 相册内照片上传/分页 |
+| `app/api/v1/endpoints/photo.py` | 照片端点 — 按 ID 获取/删除照片 |
+| `app/api/v1/endpoints/food.py` | 美食端点 — 提交点单 |
+| `app/api/v1/endpoints/family.py` | 家谱端点 — 在线状态（可选认证，使用 `get_optional_user` 依赖） |
 
 ---
 
 ## 认证模块 `/api/auth`
 
-- [x] **注册** `POST /api/auth/register` — 校验邮箱/用户名唯一性，创建用户，**不再自动登录**（需手动前往登录页）
+- [x] **注册** `POST /api/auth/register` — 校验邮箱/用户名唯一性，创建用户，**不自动登录**（需手动前往登录页）
 - [x] **登录** `POST /api/auth/login` — 邮箱+密码认证，返回 JWT token + 用户信息
-- [x] **退出** `POST /api/auth/logout` — 需 Bearer Token，前端清除 token（当前为无状态 JWT，token 在服务端不主动失效）
+- [x] **退出** `POST /api/auth/logout` — 需 Bearer Token，前端清除 token
+- [x] **重置密码** `POST /api/auth/reset-password` — 通过注册邮箱重置密码（家庭场景，无需邮件验证）
 - [x] 错误码体系：
   - `1001` — 该邮箱已被注册
   - `1002` — 用户名已被占用
   - `1101` — 邮箱或密码错误
+  - `1201` — 该邮箱未注册
 
 ---
 
@@ -46,14 +62,49 @@
 
 - [x] **获取个人信息** `GET /api/user/me` — 需认证
 - [x] **更新个人信息** `PATCH /api/user/me` — 用户名/头像更新，含唯一性校验
+- [x] **上传头像** `POST /api/user/me/avatar` — JPEG/PNG/WebP，最大 2 MB，扩展名 + Content-Type + 魔数三重验证，旧文件自动清理
+
+---
+
+## 相册模块 `/api/albums`
+
+- [x] **创建相册** `POST /api/albums` — 名称 + 公开/私有
+- [x] **相册列表** `GET /api/albums` — 公开相册 + 自己的私有相册，最新优先
+- [x] **相册详情** `GET /api/albums/{id}` — 含照片列表，私有相册仅创建者可访问
+- [x] **删除相册** `DELETE /api/albums/{id}` — 仅创建者可操作，照片 album_id 置 NULL（不删除文件）
+- [x] **上传照片到相册** `POST /api/albums/{id}/photos/upload` — JPEG/PNG/WebP，最大 10 MB
+- [x] **相册照片列表** `GET /api/albums/{id}/photos` — 分页查询
+
+## 照片模块 `/api/photos`
+
+- [x] **获取照片** `GET /api/photos/{id}` — 含上传者信息
+- [x] **删除照片** `DELETE /api/photos/{id}` — 仅上传者或相册创建者可删除，自动清理磁盘文件
+
+## 美食模块 `/api/food`
+
+- [x] **提交点单** `POST /api/food/orders` — 发送邮件通知（QQ SMTP），UTF-8 Header 编码中文主题
+
+## 家谱模块 `/api/family`
+
+- [x] **在线状态** `GET /api/family/status` — 可选认证，已登录用户匹配家族成员名则标记在线
 
 ---
 
 ## 系统模块
 
 - [x] **健康检查** `GET /api/health` — 不依赖数据库，始终返回 `healthy`
-- [x] **CORS 中间件** — 允许 `localhost:5175` 跨域请求
+- [x] **CORS 中间件** — 允许 `localhost:5175` 和 `https://family-website-frontend-six.vercel.app` 跨域请求
 - [x] **Lifespan 管理** — 启动时自动建表（DB 不可用时仅 warn，不阻止服务启动），关闭时释放连接池
+- [x] **全局异常处理** — 未捕获异常返回 JSON `{code: 500, message: "服务器内部错误"}`
+
+---
+
+## 文件上传
+
+- [x] **头像** — `uploads/avatars/`，最大 2 MB，JPEG/PNG/WebP，旧文件自动清理
+- [x] **照片** — `uploads/photos/`，最大 10 MB，JPEG/PNG/WebP，`after_delete` 事件自动清理
+- [x] **三重验证** — 文件扩展名 + Content-Type + 魔数检测（魔数类型必须属于允许列表）
+- [x] **FastAPI StaticFiles** — `/uploads` 路径挂载上传目录
 
 ---
 
@@ -64,11 +115,25 @@
 - [x] Bearer Token 从请求头提取（HTTPBearer）
 - [x] 注册/更新时用户名和邮箱唯一性检查
 - [x] Pydantic 请求体自动校验（邮箱格式、字段长度等）
+- [x] 图片魔数检测防止伪造文件类型
 
 ---
 
-## 调试记录 (2026-07-26)
+## 调试记录
 
-- [x] 修复：登录错误码从 `1003` 改为 `1101`，与 [interface.md](../../frontend/docs/interface.md) 错误码对照表保持一致
-- [x] 修复：确认注册接口返回 `data: null` 的设计（需手动登录），更新接口文档以匹配
-- [x] 修复：填充空白的 `backend/docs/TODOLIST.md` 和 `backend/docs/COMPLETED.md`
+### 2026-07-30 — 全项目 Debug
+- [x] 修复：头像上传后旧文件永不删除（`current_user.avatar` 在 `update_user` 后被刷新）
+- [x] 修复：照片魔数检测未核对类型是否在允许列表中
+- [x] 修复：`_auth_response` 移除不必要的 `async`
+- [x] 修复：`AlbumResponse` schema 新增 `coverPhoto` 和 `photos` 字段
+- [x] 修复：`models/__init__.py` 导出所有模型
+- [x] 修复：`get_photo_by_id` 添加显式 `selectinload`
+- [x] 修复：`AlbumService.create_album` 添加服务层名称验证
+- [x] 新增：全局异常处理器（JSON 500）
+- [x] 新增：`get_optional_user` 依赖（可选认证）
+- [x] 重构：`family.py` 使用标准依赖注入
+
+### 2026-07-26 — 修复
+- [x] 修复：登录错误码从 `1003` 改为 `1101`
+- [x] 修复：确认注册接口返回 `data: null` 的设计
+- [x] 修复：填充空白的 `backend/docs/`

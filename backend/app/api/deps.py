@@ -35,3 +35,25 @@ async def get_current_user(
         raise HTTPException(status_code=401, detail="用户不存在")
 
     return user
+
+
+async def get_optional_user(
+    credentials: HTTPAuthorizationCredentials | None = Depends(security_scheme),
+    db: AsyncSession = Depends(get_db),
+) -> User | None:
+    """Like ``get_current_user``, but returns ``None`` instead of raising 401.
+
+    Use this for endpoints where authentication is optional (e.g. family status).
+    """
+    if credentials is None:
+        return None
+
+    payload = decode_access_token(credentials.credentials)
+    if payload is None:
+        return None
+
+    user_id = payload.get("sub")
+    if user_id is None:
+        return None
+
+    return await UserService.get_user_by_id(db, int(user_id))

@@ -20,32 +20,5 @@
   font-size: 1rem;
 }
 
-.register__terms {
-  display: flex;
-  align-items: flex-start;
-  gap: 8px;
-  font-size: 0.85rem;
-  color: var(--color-text-secondary);
-  cursor: pointer;
-  line-height: 1.5;
-  user-select: none;
-}
 
-.register__terms input[type="checkbox"] {
-  width: 17px;
-  height: 17px;
-  accent-color: var(--color-primary);
-  cursor: pointer;
-  flex-shrink: 0;
-  margin-top: 2px;
-  border-radius: 4px;
-}
 
-.register__terms-link {
-  color: var(--color-primary);
-  font-weight: 500;
-}
-
-.register__terms-link:hover {
-  text-decoration: underline;
-}

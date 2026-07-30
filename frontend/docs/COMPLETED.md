@@ -1,6 +1,6 @@
 # COMPLETED — 已完成功能
 
-> 最后更新：2026-07-26（前后端联通测试 + 文档更新 + 全项目 debug 修复）
+> 最后更新：2026-07-30（全项目 debug + 文档更新）
 
 ---
 
@@ -16,10 +16,13 @@
 
 | 文件 | 说明 |
 |------|------|
-| `client.ts` | Axios 实例封装 — 请求拦截器注入 Bearer Token、响应拦截器解包统一响应格式 + 401 自动清登录态跳转 + 超时处理 |
-| `types.ts` | 前端 API 类型定义 — `ApiResponse<T>`, `User`, `RegisterRequest`, `LoginRequest`, `AuthResponse`, `UpdateUserRequest` |
-| `auth.ts` | 认证 API — `register(RegisterRequest)`, `login(LoginRequest)`, `logout()` — 统一使用类型化请求对象 |
-| `user.ts` | 用户 API — `getMe()`, `updateMe(data)` |
+| `client.ts` | Axios 实例封装 — 请求拦截器注入 Bearer Token、响应拦截器解包统一响应格式 + 401 自动清登录态跳转 + 超时处理；`uploadUrl()` 工具函数处理生产/开发环境 URL |
+| `types.ts` | 前端 API 类型定义 — `ApiResponse<T>`, `User`, `RegisterRequest`, `LoginRequest`, `AuthResponse`, `UpdateUserRequest`, `FamilyMemberStatus`, `FamilyStatusResponse` |
+| `auth.ts` | 认证 API — `register()`, `login()`, `logout()`, `resetPassword()` |
+| `user.ts` | 用户 API — `getMe()`, `updateMe()`, `uploadAvatar()` |
+| `photo.ts` | 相册 + 照片 API — `albumApi` (创建/列表/详情/删除), `photoApi` (上传/删除/分页) |
+| `food.ts` | 美食 API — `submitOrder()` 提交点单并发送邮件通知 |
+| `family.ts` | 家谱 API — `getStatus()` 获取家族成员在线状态（2026-07-30 新增） |
 | `index.ts` | 统一导出入口 |
 
 ## 工具模块 (`src/utils/`)
@@ -27,6 +30,13 @@
 | 文件 | 说明 |
 |------|------|
 | `navigate.ts` | SPA 导航工具 — 避免 axios 拦截器与 router 的循环依赖；提供 `navigateTo(path)` 供非组件代码使用，未初始化时降级为 `window.location.href` |
+
+## 项目配置
+
+| 文件 | 说明 |
+|------|------|
+| `.env.example` | 环境变量模板 — `VITE_API_BASE_URL` 说明（开发留空走代理，生产填写完整 URL） |
+| `src/env.d.ts` | TypeScript 类型声明 — `ImportMetaEnv` 接口，为 `VITE_API_BASE_URL` 提供类型提示 |
 
 ---
 
@@ -43,7 +53,8 @@
 ### 封面页 (App.tsx)
 - [x] Nav 导航栏（Logo + 登录/注册入口）
 - [x] Hero 区域（标题、描述、CTA 按钮）
-- [x] 功能一览卡片（家庭相册/日程管理/家庭留言）
+- [x] 功能一览卡片（家庭相册/美食专栏/家谱图）
+- [x] 已登录用户自动重定向到 /home
 - [x] Footer
 
 ### 登录页 (Login.tsx)
@@ -52,15 +63,21 @@
 - [x] 调用 `authApi.login()` 对接后端 `/api/auth/login`
 - [x] 登录成功 → 存储 user/token → 跳转 `/home`
 - [x] loading 状态 + 服务端错误展示
-- [x] "记住我"复选框 — `remember=true` → localStorage 持久化，`remember=false` → sessionStorage（刷新不丢）
-- [x] 第三方登录入口 UI（微信/手机号，功能待实现）
+- [x] "记住我"复选框 — `remember=true` → localStorage 持久化，`remember=false` → sessionStorage
 
 ### 注册页 (Register.tsx)
-- [x] 用户名 + 邮箱 + 密码 + 确认密码 + 同意协议表单
-- [x] 前端验证（用户名 >= 2 位、邮箱格式、密码 >= 6 位、两次密码一致、必须勾选协议）
+- [x] 用户名 + 邮箱 + 密码 + 确认密码表单
+- [x] 前端验证（用户名 >= 2 位、邮箱格式、密码 >= 6 位、两次密码一致）
 - [x] 调用 `authApi.register()` 对接后端 `/api/auth/register`
-- [x] 注册成功 → 存储 user/token → 跳转 `/home`
+- [x] 注册成功 → 跳转 `/register-success`（不自动登录）
 - [x] loading 状态 + 服务端错误展示
+
+### 注册成功页 (RegisterSuccess.tsx)
+- [x] 倒计时自动跳转登录页
+
+### 忘记密码页 (ForgetPassword.tsx)
+- [x] 邮箱 → 新密码 + 确认密码表单
+- [x] 调用 `authApi.resetPassword()` 对接后端 `/api/auth/reset-password`
 
 ### Auth 布局组件 (Auth.tsx)
 - [x] 左侧装饰面板（Logo + 插图 + tagline）
@@ -69,8 +86,58 @@
 
 ### 主页 (Home.tsx)
 - [x] 认证守卫 — 未登录自动跳转 `/login`
-- [x] 导航栏（Logo + 用户名 + 退出按钮，退出时调用 `authApi.logout()` 通知后端）
-- [x] 欢迎区域 + 功能预览卡片（相册/日程/留言标记为"即将上线"）
+- [x] 导航栏（Logo + 头像 + 下拉菜单）
+- [x] Hero 横幅 — 动态问候语 + 时间段主题 + 时钟
+- [x] 快捷入口卡片（家庭相册/美食专栏/家谱图）
+- [x] 日程侧边栏（DailyRoutine 组件）
+
+### 家庭相册 (PhotoAlbum.tsx)
+- [x] 创建/删除相册
+- [x] 上传照片到相册（JPEG/PNG/WebP，最大 10 MB）
+- [x] 照片网格浏览
+- [x] 照片删除
+- [x] 公开/私有相册权限控制
+
+### 美食点单 (FoodOrder.tsx)
+- [x] 菜品分类筛选
+- [x] 购物车
+- [x] 邮件提交通知（QQ SMTP）
+
+### 家谱图 (FamilyTree.tsx)
+- [x] 递归子树渲染
+- [x] 折叠/展开节点
+- [x] 在线状态指示器（绿点/红点 + 脉冲动画）
+- [x] 状态图例
+
+### 个人中心 (PersonalCenter.tsx)
+- [x] 用户头像 + 用户名 + 邮箱展示
+- [x] 加入时间 + 最近登录时间
+- [x] 统计卡片（照片/点单/留言/家庭成员计数）
+- [x] 最近活动占位
+
+### 设置 (Setting.tsx)
+- [x] 头像上传（JPEG/PNG/WebP，最大 2 MB，魔数检测）
+- [x] 用户名编辑
+- [x] 侧边栏导航（个人资料/外观设置/通知偏好）
+- [x] 主题切换按钮（待实现）
+- [x] 通知偏好占位
+
+### 日程侧边栏 (DailyRoutine.tsx)
+- [x] 模板编辑
+- [x] 勾选完成
+- [x] localStorage 持久化
+
+### 404 页面 (NotFound.tsx)
+- [x] 友好的 404 提示 + 返回首页链接
+- [x] 已登录用户 2 秒后自动跳转 /home
+
+---
+
+## 共享组件 (`src/components/`)
+
+| 组件 | 说明 |
+|------|------|
+| `PageNav` | 共享导航栏 — 头像、下拉菜单（个人中心/设置）、退出登录，支持自定义 Logo 和 homePath |
 
 ---
 
@@ -78,10 +145,17 @@
 
 | 路径 | 页面 | 说明 |
 |------|------|------|
-| `/` | App (封面) | 公开 |
+| `/` | App (封面) | 公开，已登录自动重定向 |
 | `/login` | Login | 公开 |
 | `/register` | Register | 公开 |
+| `/register-success` | RegisterSuccess | 公开 |
+| `/forget-password` | ForgetPassword | 公开 |
 | `/home` | Home | 需认证 |
+| `/photo-album` | PhotoAlbum | 需认证 |
+| `/food-order` | FoodOrder | 需认证 |
+| `/family-tree` | FamilyTree | 需认证 |
+| `/setting` | Setting | 需认证 |
+| `/personal-center` | PersonalCenter | 需认证 |
 | `/*` | NotFound | 404 |
 
 ---
@@ -89,11 +163,11 @@
 ## 认证流程闭环
 
 ```
-注册：Register 表单 → authApi.register(RegisterRequest) → POST /api/auth/register
-     → 返回 {user, token} → authStore.setAuth(user, token, remember=true)
-     → localStorage 持久化 → navigate('/home')
+注册：Register 表单 → authApi.register() → POST /api/auth/register
+     → 返回 data: null → navigate('/register-success')
+     → 用户手动前往登录页
 
-登录：Login 表单 → authApi.login(LoginRequest) → POST /api/auth/login
+登录：Login 表单 → authApi.login() → POST /api/auth/login
      → 返回 {user, token} → authStore.setAuth(user, token, remember)
      → remember ? localStorage : sessionStorage → navigate('/home')
 
@@ -103,7 +177,7 @@
 鉴权：每次请求 → 请求拦截器自动附加 Bearer Token
      → 后端返回 401 → 响应拦截器 → authStore.logout() 清 storage → navigateTo('/login')
 
-退出：Home → authApi.logout() → POST /api/auth/logout（通知后端销毁 token）
+退出：authApi.logout() → POST /api/auth/logout
      → authStore.logout() → 清 localStorage + sessionStorage → navigate('/')
 ```
 
@@ -113,40 +187,43 @@
 
 | 文件 | 说明 |
 |------|------|
-| `app/main.py` | FastAPI 应用入口 — CORS 中间件、路由挂载、lifespan（启动建表 / 关闭释放引擎）；启动时 DB 不可用不会阻止服务启动 |
-| `app/core/config.py` | pydantic-settings 配置管理（`.env` 自动加载） |
-| `app/core/database.py` | SQLAlchemy async engine + session factory + `get_db` 依赖注入 |
-| `app/core/security.py` | bcrypt 密码哈希 + JWT 创建/解码 |
-| `app/core/response.py` | 统一 `success(data)` / `error(code, message)` 响应工具 |
+| `app/main.py` | FastAPI 应用入口 — CORS 中间件、路由挂载、lifespan（启动建表 / 关闭释放引擎）、全局异常处理（JSON 500） |
+| `app/core/config.py` | pydantic-settings 配置管理（`.env` 自动加载，CORS_ORIGINS 逗号分隔解析） |
+| `app/core/database.py` | SQLAlchemy 2.0 async engine + session factory + `get_db` 依赖注入 |
+| `app/core/security.py` | bcrypt 密码哈希（passlib）+ JWT 创建/解码（python-jose） |
+| `app/core/response.py` | 统一 `success_response()` / `error_response()` 响应工具 |
 | `app/models/user.py` | User ORM 模型 |
-| `app/schemas/user.py` | Pydantic 请求/响应 Schema |
-| `app/services/user.py` | 用户业务逻辑（注册、认证、查询、更新） |
+| `app/models/album.py` | Album ORM 模型（与 Photo 一对多，删除时 SET NULL） |
+| `app/models/photo.py` | Photo ORM 模型（after_delete 事件清理磁盘文件） |
+| `app/schemas/user.py` | 用户请求/响应 Pydantic Schema |
+| `app/schemas/album.py` | 相册请求/响应 Pydantic Schema（含 coverPhoto、photos） |
+| `app/schemas/photo.py` | 照片请求/响应 Pydantic Schema |
+| `app/schemas/food.py` | 点单请求 Pydantic Schema |
+| `app/services/user.py` | 用户业务逻辑（注册、认证、查询、更新、重置密码） |
+| `app/services/album.py` | 相册业务逻辑（创建、列表、查询、删除） |
+| `app/services/photo.py` | 照片业务逻辑（上传验证含魔数检测、分页、删除） |
+| `app/services/food.py` | 美食业务逻辑（订单邮件通知，UTF-8 Header 编码） |
 | `app/api/v1/router.py` | API v1 路由聚合 + `GET /api/health` 健康检查端点 |
-| `app/api/v1/endpoints/auth.py` | 认证端点（register/login/logout） |
-| `app/api/v1/endpoints/user.py` | 用户端点（get me / update me） |
-| `app/api/deps.py` | `get_current_user` 依赖注入（JWT 解析 + 用户查询） |
+| `app/api/v1/endpoints/auth.py` | 认证端点（register/login/logout/reset-password） |
+| `app/api/v1/endpoints/user.py` | 用户端点（get me / update me / upload avatar） |
+| `app/api/v1/endpoints/album.py` | 相册端点（创建/列表/详情/删除 + 照片上传/分页） |
+| `app/api/v1/endpoints/photo.py` | 照片端点（按 ID 获取/删除照片） |
+| `app/api/v1/endpoints/food.py` | 美食端点（提交点单） |
+| `app/api/v1/endpoints/family.py` | 家谱端点（在线状态，可选认证） |
+| `app/api/deps.py` | `get_current_user` / `get_optional_user` 依赖注入 |
+| `app/utils/image.py` | 图片魔数检测（JPEG/PNG/WebP） |
 
-## 前后端联通测试 (2026-07-26)
+---
 
-### 测试结果
-
-| 测试项 | 状态 | 说明 |
-|--------|------|------|
-| 后端启动 | ✅ | FastAPI 在 `localhost:8000` 正常运行 |
-| 健康检查 (直连) | ✅ | `GET /api/health` → `{"code":0,"message":"ok","data":{"status":"healthy"}}` |
-| 前端启动 | ✅ | Vite 在 `localhost:5175` 正常运行 |
-| 健康检查 (代理) | ✅ | `GET http://localhost:5175/api/health` → 代理成功转发到后端 |
-| POST 代理 | ✅ | `POST http://localhost:5175/api/auth/login` → 后端 Pydantic 校验正常返回 |
-| Swagger 文档 | ✅ | `http://localhost:8000/docs` 可访问 |
-| OpenAPI Schema | ✅ | 所有 6 个端点（health + register + login + logout + get me + update me）正确注册 |
+## 前后端联通测试
 
 ### 启动命令
 
 ```bash
-# 后端
-cd backend && uvicorn app.main:app --reload --port 8000
+# 后端（端口 8001）
+cd backend && uvicorn app.main:app --reload --port 8001
 
-# 前端
+# 前端（端口 5175）
 cd frontend && npm run dev
 ```
 
@@ -156,34 +233,44 @@ cd frontend && npm run dev
 浏览器 (localhost:5175)
     │
     ├── 页面 → Vite Dev Server → React SPA
-    └── /api/* → Vite 代理 → FastAPI (localhost:8000) → MySQL (3306)
+    └── /api/* → Vite 代理 → FastAPI (localhost:8001) → MySQL (3306)
 ```
 
-## 文档更新 (2026-07-26)
+---
 
-- [x] **README.md** — 补充后端技术栈、完整目录结构、启动步骤、连通性验证、架构图
-- [x] **docs/interface.md** — 修正 Base URL（3000 → 5175/8000）、新增健康检查端点、修正章节编号、移除重复的 `RegisterRequest` 类型
-- [x] **docs/TODOLIST.md** — 标记前后端接口文档为已完成
-- [x] **后端 `main.py`** — 启动时 DB 不可用不再阻止服务启动（仅 warn），便于开发调试
-- [x] **后端 `router.py`** — 新增 `GET /api/health` 健康检查端点（不依赖数据库）
+## Debug 修复 (2026-07-30)
 
-## Debug 修复 (2026-07-26)
+### 后端 Bug 修复
+- [x] **user.py** — 头像上传后旧文件永不删除：`current_user.avatar` 在 `update_user` 后已被刷新为新值，修复为提前捕获旧路径
+- [x] **photo.py** — 照片验证仅检测魔数非空，未核对类型是否在允许列表中（与头像验证不一致）
+- [x] **main.py** — 新增全局异常处理器，未捕获异常返回 JSON `{code: 500, message}` 而非 HTML
+- [x] **auth.py** — `_auth_response` 移除不必要的 `async`（无 await 操作）
+- [x] **album.py schema** — `AlbumResponse` 新增 `coverPhoto` 和 `photos` 可选字段
+- [x] **models/__init__.py** — 导出 `Album` 和 `Photo`（之前仅导出 `User`）
+- [x] **photo.py service** — `get_photo_by_id` 添加显式 `selectinload(Photo.uploader)`
+- [x] **album.py service** — `create_album` 添加服务层名称非空验证
+- [x] **family.py** — 重构为使用标准 `get_optional_user` 依赖（替代手动 JWT 解码 + 内联 import）
 
-### 第一轮 — 功能 Bug
-- [x] **Home.tsx** — `handleLogout` 恢复 `authApi.logout()` 调用（之前被注释掉，后端接口已就绪）
-- [x] **PersonalCenter.tsx** — `handleLogout` 添加 `authApi.logout()` 调用
-- [x] **Setting.tsx** — `handleLogout` 添加 `authApi.logout()` 调用
-- [x] **后端 auth.py** — 登录错误码从 `1003` 改为 `1101`，与 [interface.md](interface.md) 错误码对照表保持一致
-- [x] **docs/interface.md** — 修正注册接口响应文档：后端不再返回 user+token，改为返回 `data: null` + 提示消息
+### 前端 Bug 修复
+- [x] **client.ts** — 响应拦截器移除不必要的 `return null`（后端始终返回 JSON），消除类型不匹配
+- [x] **Home.tsx** — 问候语/时间段从冻结在挂载时刻改为随 `clockTime` 更新
+- [x] **App.tsx** — 已登录用户访问 `/` 自动重定向到 `/home`
+- [x] **Setting.tsx** — 侧边栏 `<a href="#">` 改为 `<button onClick>` 避免污染浏览器 URL
+- [x] **familyTree.tsx** — 使用 `familyApi` 模块替代直接调用 `client`
+- [x] **family.ts** (新) — 创建家谱 API 模块
+- [x] **PersonalCenter.tsx** — CSS 文件重命名为 `PersonalCenter.css`（修复 "PersonCenter" 拼写）
+- [x] **handleLogout** (4 处) — 空 catch 改为 `console.error` 记录失败原因
+- [x] **deps.py** — 新增 `get_optional_user` 依赖（可选认证，不抛 401）
 
-### 第二轮 — 健壮性 & 代码质量
-- [x] **backend/config.py** — `.env` 路径解析改为相对 config 文件定位（`backend/.env`），CWD 作为降级；避免从非 backend/ 目录启动时找不到配置
-- [x] **RegisterSuccess.tsx** — 倒计时定时器重构：将 `clearInterval` 从 `setState` 回调中移出，改用 `useRef` + 独立 `useEffect` 监听 `countdown` 触发跳转，符合 React 纯函数式 state 更新规范
-- [x] **client.ts** — 响应拦截器增加空响应体保护：`response.data` 为 null/undefined 时直接返回 `null`，避免解构 `{}` 导致 code/message 为 undefined 产生误导性错误提示
-- [x] **router.tsx** — 统一所有懒加载组件导入路径的 `.tsx` 后缀（3 处缺少后缀的 import 补全）
+### 文档更新
+- [x] 删除重复的 `frontend/src/docs/` 目录
+- [x] `frontend/docs/COMPLETED.md` — 全面更新（本文）
+- [x] `backend/docs/COMPLETED.md` — 新增相册/照片/美食/家谱端点
+- [x] `backend/docs/TODOLIST.md` — 标记家庭相册 API 为已完成
+- [x] `interface.md` — 新增重置密码端点文档
+- [x] `README.md` — 更新文档列表
+- [x] `CLAUDE.md` — 修正文档目录路径
 
 ### 验证结果
 - [x] **TypeScript** — `tsc -b --noEmit` 零错误
-- [x] **Python 编译** — 全部 20 个 `.py` 文件 `py_compile` 通过
-- [x] **Python 导入** — 全部核心模块（config, security, database, models, schemas, services, deps）成功导入
-- [x] **Vite 生产构建** — `vite build` 成功，109 modules，374 KB JS + 28 KB CSS
+- [x] **Vite 生产构建** — `vite build` 成功，125 modules

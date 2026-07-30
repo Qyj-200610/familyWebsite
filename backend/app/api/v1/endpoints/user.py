@@ -95,6 +95,9 @@ async def upload_avatar(
     filepath = avatar_dir / filename
     filepath.write_bytes(content)
 
+    # ── 记录旧头像路径（必须在 update_user 之前，因为 update 会刷新 current_user） ──
+    old_avatar = current_user.avatar
+
     # ── 更新用户头像字段 ──
     avatar_url = f"/uploads/avatars/{filename}"
     try:
@@ -105,8 +108,8 @@ async def upload_avatar(
         raise
 
     # ── 删除旧头像文件（best-effort） ──
-    if current_user.avatar and current_user.avatar.startswith("/uploads/avatars/"):
-        old_filename = current_user.avatar[len("/uploads/avatars/"):]
+    if old_avatar and old_avatar.startswith("/uploads/avatars/"):
+        old_filename = old_avatar[len("/uploads/avatars/"):]
         old_filepath = avatar_dir / old_filename
         if old_filepath != filepath:
             try:

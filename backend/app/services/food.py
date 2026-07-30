@@ -3,6 +3,7 @@ import html
 import logging
 import smtplib
 from datetime import datetime, timezone
+from email.header import Header
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 
@@ -94,7 +95,10 @@ class FoodService:
 
         def _sync_send() -> None:
             msg = MIMEMultipart("alternative")
-            msg["Subject"] = f"【美食专栏】新订单 — {username} · {sum(it['quantity'] for it in items)}道菜品"
+            msg["Subject"] = Header(
+                f"【美食专栏】新订单 — {username} · {sum(it['quantity'] for it in items)}道菜品",
+                "utf-8",
+            ).encode()
             msg["From"] = settings.SMTP_USER
             msg["To"] = settings.SMTP_NOTIFICATION_EMAIL
 

@@ -1,6 +1,6 @@
 # TODOLIST — 待办事项
 
-> 最后更新：2026-07-28（全项目 debug 并同步文档）
+> 最后更新：2026-07-30（同步项目进度，更新文档）
 
 ---
 
@@ -33,13 +33,9 @@
 - [x] **日常日程侧边栏** — 首页左侧日程组件，可折叠、标记完成、显示进度
   - 涉及文件：[dailyRoutine.tsx](../src/pages/dailyRoutine/dailyRoutine.tsx)
 
-- [ ] **忘记密码页面** — [Login.tsx:135](../src/pages/auth/login/Login.tsx#L135) 链接当前为 `#`
-  - 新建 `/forgot-password` 页面
-  - 新建 `/reset-password` 页面（带 token 参数）
-
-- [ ] **用户协议 & 隐私政策页面** — [Register.tsx:198-205](../src/pages/auth/register/Register.tsx#L198-L205) 链接当前为 `#`
-  - 新建 `/terms` 页面
-  - 新建 `/privacy` 页面
+- [x] **忘记密码页面** — [Login.tsx:135](../src/pages/auth/login/Login.tsx#L135) 链接已指向 `/forget-password`
+  - 涉及文件：[forgetPassword.tsx](../src/pages/auth/forgetPassword/forgetPassword.tsx)
+  - 实现为合并页面（邮箱 + 新密码直接重置，家庭场景无需邮件验证）
 
 - [ ] **Token 过期自动刷新** — 考虑在 `client.ts` 的响应拦截器中接入 refresh token 逻辑
 
@@ -52,8 +48,6 @@
 - [ ] **家庭留言** — 留言板/聊天功能
 - [ ] **通用组件库** — `src/components/` 下抽取可复用组件（Button, Input, Modal, Toast 等；目前已有 Auth 布局组件）
 - [ ] **主题切换** — 深色模式 / 跟随系统（Setting 页面 UI 已预留但 disabled）
-- [ ] **修改密码** — 后端接口 + 前端页面（Setting 页面 UI 已预留但 disabled）
-- [ ] **邮箱修改** — Setting 页面邮箱字段当前 disabled
 - [ ] **单元测试** — vitest + React Testing Library
 - [ ] **E2E 测试** — Playwright
 - [ ] **个人中心统计数据** — 照片数、点单数、留言数、家庭成员数（当前硬编码为 0）

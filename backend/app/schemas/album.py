@@ -32,5 +32,7 @@ class AlbumResponse(BaseModel):
     creator: AlbumCreatorResponse | None = None
     photo_count: int = Field(0, alias="photoCount")
     created_at: datetime = Field(alias="createdAt")
+    cover_photo: dict | None = Field(None, alias="coverPhoto")
+    photos: list | None = None
 
     model_config = ConfigDict(from_attributes=True, populate_by_name=True)

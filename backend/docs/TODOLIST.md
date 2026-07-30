@@ -1,6 +1,6 @@
 # TODOLIST — 后端待办事项
 
-> 最后更新：2026-07-26（debug 后更新）
+> 最后更新：2026-07-30（全项目 debug 后更新）
 
 ---
 
@@ -23,9 +23,9 @@
 
 ## 🟡 中优先级（功能完善）
 
-- [ ] **忘记密码 / 重置密码** — 对应前端 `/forgot-password` 和 `/reset-password` 页面
-  - `POST /api/auth/forgot-password` — 发送重置邮件
-  - `POST /api/auth/reset-password` — 验证 token + 更新密码
+- [ ] **忘记密码邮件验证** — 当前重置密码仅需邮箱+新密码（家庭场景的简化实现）
+  - `POST /api/auth/forgot-password` — 发送重置邮件（含重置链接/token）
+  - `POST /api/auth/reset-password` — 验证重置 token + 更新密码（增强版）
   - 涉及：邮件服务集成、重置 token 生成与过期
 
 - [ ] **邮箱验证** — 注册后发送验证邮件
@@ -44,7 +44,9 @@
 
 ## 🟢 低优先级（后续迭代）
 
-- [ ] **家庭相册 API** — 照片上传、时间线查询、相册 CRUD
+- [x] **家庭相册 API** — 照片上传、时间线查询、相册 CRUD ✅ 已完成
+- [x] **邮件通知** — 美食点单 QQ SMTP 邮件通知 ✅ 已完成
+- [x] **家谱在线状态** — 家族成员在线状态查询 ✅ 已完成（使用标准 `get_optional_user` 依赖注入）
 - [ ] **日程管理 API** — 家庭共享日历、事件 CRUD、提醒通知
 - [ ] **家庭留言 API** — 留言板 / 实时聊天
 - [ ] **家庭成员关系** — 邀请、加入家庭组、角色权限
@@ -55,9 +57,9 @@
 
 ## ⚪ 技术债务
 
+- [x] **全局异常处理** — 统一捕获未处理异常，返回标准 `error_response` 格式 ✅ 已完成
 - [ ] **配置校验** — `Settings` 类添加 `@field_validator` 确保必填项非空、URL 格式正确
 - [ ] **日志系统** — 结构化日志（structlog / loguru），区分开发/生产
-- [ ] **异常处理中间件** — 统一捕获未处理异常，返回标准 `error_response` 格式
 - [ ] **数据库连接池** — 显式配置 pool_size、max_overflow 参数
 - [ ] **异步任务队列** — Celery / ARQ 处理邮件发送等耗时操作
 - [ ] **单元测试** — pytest + pytest-asyncio + httpx (TestClient)

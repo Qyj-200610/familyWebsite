@@ -40,23 +40,31 @@ def _photo_count(album) -> int:
     return len(photos) if photos else 0
 
 
+def _latest_photo(album):
+    """Return the most recent photo from *album* (as the cover), or None."""
+    photos = album.photos
+    if not photos:
+        return None
+    return max(photos, key=lambda p: p.created_at)
+
+
 def _album_to_response(album) -> dict:
     """Convert an Album ORM object to a response dict."""
     cover_photo = None
     n_photos = _photo_count(album)
     if n_photos > 0:
-        latest = sorted(album.photos, key=lambda p: p.created_at, reverse=True)
+        latest = _latest_photo(album)
         cover_photo = PhotoResponse(
-            id=latest[0].id,
-            filename=latest[0].filename,
-            original_filename=latest[0].original_filename,
-            file_size=latest[0].file_size,
-            content_type=latest[0].content_type,
-            description=latest[0].description,
-            uploaded_by=latest[0].uploaded_by,
-            uploader={"id": latest[0].uploader.id, "username": latest[0].uploader.username} if latest[0].uploader else None,
-            album_id=latest[0].album_id,
-            created_at=latest[0].created_at,
+            id=latest.id,
+            filename=latest.filename,
+            original_filename=latest.original_filename,
+            file_size=latest.file_size,
+            content_type=latest.content_type,
+            description=latest.description,
+            uploaded_by=latest.uploaded_by,
+            uploader={"id": latest.uploader.id, "username": latest.uploader.username} if latest.uploader else None,
+            album_id=latest.album_id,
+            created_at=latest.created_at,
         ).model_dump(mode="json", by_alias=True)
 
     return AlbumResponse(

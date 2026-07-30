@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuthStore } from "../../store/authStore";
-import { authApi } from "../../api";
+import { authApi, uploadUrl } from "../../api";
 import exitLoginIcon from "../../svg/exitLogin.svg";
 import "./PageNav.css";
 
@@ -37,8 +37,8 @@ function PageNav({
   const handleLogout = async () => {
     try {
       await authApi.logout();
-    } catch {
-      /* ignore */
+    } catch (e) {
+      console.error("Logout failed:", e);
     }
     logout();
     navigate("/");
@@ -61,7 +61,7 @@ function PageNav({
           >
             <span className="pagenav__avatar">
               {user?.avatar ? (
-                <img src={user.avatar} alt={user.username} />
+                <img src={uploadUrl(user.avatar)} alt={user.username} />
               ) : (
                 <span className="pagenav__avatar-placeholder">{avatarLetter}</span>
               )}

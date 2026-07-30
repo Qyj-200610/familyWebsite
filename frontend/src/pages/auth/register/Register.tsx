@@ -16,7 +16,6 @@ interface RegisterForm {
   email: string;
   password: string;
   confirmPassword: string;
-  agreeTerms: boolean;
 }
 
 interface FormErrors {
@@ -24,7 +23,6 @@ interface FormErrors {
   email?: string;
   password?: string;
   confirmPassword?: string;
-  agreeTerms?: string;
 }
 
 function Register() {
@@ -34,7 +32,6 @@ function Register() {
     email: "",
     password: "",
     confirmPassword: "",
-    agreeTerms: false,
   });
   const [errors, setErrors] = useState<FormErrors>({});
   const [loading, setLoading] = useState(false);
@@ -67,10 +64,6 @@ function Register() {
       errs.confirmPassword = "请确认密码";
     } else if (form.password !== form.confirmPassword) {
       errs.confirmPassword = "两次密码不一致";
-    }
-
-    if (!form.agreeTerms) {
-      errs.agreeTerms = "请阅读并同意用户协议";
     }
 
     setErrors(errs);
@@ -238,29 +231,6 @@ function Register() {
             <span className="form-error">{errors.confirmPassword}</span>
           )}
         </div>
-
-        <label className="register__terms">
-          <input
-            type="checkbox"
-            checked={form.agreeTerms}
-            onChange={(e) => updateField("agreeTerms", e.target.checked)}
-          />
-          <span>
-            我已阅读并同意{" "}
-            <a href="#" className="register__terms-link">
-              用户协议
-            </a>{" "}
-            和{" "}
-            <a href="#" className="register__terms-link">
-              隐私政策
-            </a>
-          </span>
-        </label>
-        {errors.agreeTerms && (
-          <span className="form-error" style={{ marginTop: -14 }}>
-            {errors.agreeTerms}
-          </span>
-        )}
 
         <button
           type="submit"

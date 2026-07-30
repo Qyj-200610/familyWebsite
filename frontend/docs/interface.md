@@ -1,7 +1,7 @@
 # 家庭门户网站 — 前后端接口规范
 
-> **版本**: v1.0.0  
-> **最后更新**: 2026-07-26  
+> **版本**: v1.2.0  
+> **最后更新**: 2026-07-30（新增家谱在线状态端点 + 类型定义）  
 > **技术栈**: React 19 + TypeScript + Vite + Axios  
 
 ---
@@ -16,6 +16,7 @@
   - [4.1 注册](#41-注册)
   - [4.2 登录](#42-登录)
   - [4.3 退出登录](#43-退出登录)
+  - [4.4 重置密码](#44-重置密码)
 - [5. 用户模块 `/api/user`](#5-用户模块-apiuser)
   - [5.1 获取当前用户信息](#51-获取当前用户信息)
   - [5.2 更新用户信息](#52-更新用户信息)
@@ -31,8 +32,10 @@
   - [6.9 获取相册内照片](#69-获取相册内照片)
 - [7. 美食模块 `/api/food`](#7-美食模块-apifood)
   - [7.1 提交点单](#71-提交点单)
-- [8. 错误码对照表](#8-错误码对照表)
-- [9. TypeScript 类型定义](#9-typescript-类型定义)
+- [8. 家谱模块 `/api/family`](#8-家谱模块-apifamily)
+  - [8.1 获取家族成员在线状态](#81-获取家族成员在线状态)
+- [9. 错误码对照表](#9-错误码对照表)
+- [10. TypeScript 类型定义](#10-typescript-类型定义)
 
 ---
 
@@ -273,6 +276,46 @@ Authorization: Bearer <token>
   "data": null
 }
 ```
+
+---
+
+### 4.4 重置密码
+
+通过注册邮箱重置密码（家庭场景简化版，无需邮件验证）。
+
+```
+POST /api/auth/reset-password
+```
+
+**请求体**
+
+| 字段 | 类型 | 必填 | 说明 |
+|------|------|------|------|
+| `email` | `string` | 是 | 注册时使用的邮箱 |
+| `newPassword` | `string` | 是 | 新密码，6–32 个字符 |
+
+```json
+{
+  "email": "xiaoming@example.com",
+  "newPassword": "newpass123"
+}
+```
+
+**响应体**
+
+```json
+{
+  "code": 0,
+  "message": "密码已重置，请使用新密码登录",
+  "data": null
+}
+```
+
+**业务错误**
+
+| code | 说明 |
+|------|------|
+| `1201` | 该邮箱未注册 |
 
 ---
 
@@ -649,9 +692,55 @@ POST /api/food/orders
 
 ---
 
-## 8. 错误码对照表
+## 8. 家谱模块 `/api/family`
 
-### 8.1 通用错误
+> 此端点支持可选认证。未登录时所有成员显示离线。
+
+### 8.1 获取家族成员在线状态
+
+```
+GET /api/family/status
+```
+
+**请求头**
+
+```http
+Authorization: Bearer <token>    <!-- 可选 -->
+```
+
+**请求体**
+
+无。
+
+**响应体**
+
+```json
+{
+  "code": 0,
+  "message": "success",
+  "data": {
+    "members": [
+      { "name": "Lhf", "isOnline": true },
+      { "name": "Lqb", "isOnline": false },
+      { "name": "Qyj", "isOnline": true }
+    ]
+  }
+}
+```
+
+| 字段 | 类型 | 说明 |
+|------|------|------|
+| `data.members` | `array` | 家族成员列表 |
+| `members[].name` | `string` | 成员姓名（与家谱图节点 name 对应） |
+| `members[].isOnline` | `boolean` | 是否在线（已登录用户 username 匹配成员名时为 true） |
+
+> 当前家族成员名单（后端和前端需保持同步）：Lhf, Lqb, Lqq, Qd, Qyj, Ljy, Lln, Lyj
+
+---
+
+## 9. 错误码对照表
+
+### 9.1 通用错误
 
 | code | 说明 |
 |------|------|
@@ -663,7 +752,7 @@ POST /api/food/orders
 | `429` | 请求过于频繁 |
 | `500` | 服务器内部错误 |
 
-### 8.2 认证错误 (`1xxx`)
+### 9.2 认证错误 (`1xxx`)
 
 | code | 说明 |
 |------|------|
@@ -674,14 +763,14 @@ POST /api/food/orders
 | `1102` | 账号已被禁用 |
 | `1103` | 登录过于频繁，请稍后再试 |
 
-### 8.3 用户错误 (`2xxx`)
+### 9.3 用户错误 (`2xxx`)
 
 | code | 说明 |
 |------|------|
 | `2001` | 用户不存在 |
 | `2002` | 用户名已被占用（更新资料时） |
 
-### 8.4 相册错误 (`3xxx`)
+### 9.4 相册错误 (`3xxx`)
 
 | code | 说明 |
 |------|------|
@@ -697,7 +786,7 @@ POST /api/food/orders
 | `3203` | 无权访问该相册 |
 | `3204` | 只能操作自己创建的相册 |
 
-### 8.5 美食点单错误 (`4xxx`)
+### 9.5 美食点单错误 (`4xxx`)
 
 | code | 说明 |
 |------|------|
@@ -706,7 +795,7 @@ POST /api/food/orders
 
 ---
 
-## 9. TypeScript 类型定义
+## 10. TypeScript 类型定义
 
 以下类型与前端 [`types.ts`](../src/api/types.ts) 保持一致，可直接用于项目中：
 
@@ -818,6 +907,19 @@ interface OrderItem {
 interface SubmitOrderRequest {
   items: OrderItem[];
   note?: string;
+}
+
+// === 家谱在线状态 ===
+
+/** 单个家族成员在线状态 */
+interface FamilyMemberStatus {
+  name: string;
+  isOnline: boolean;
+}
+
+/** GET /api/family/status */
+interface FamilyStatusResponse {
+  members: FamilyMemberStatus[];
 }
 ```
 

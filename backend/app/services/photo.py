@@ -40,7 +40,8 @@ class PhotoService:
         if len(content) > PhotoService.MAX_FILE_SIZE:
             raise ValueError("FILE_TOO_LARGE")
 
-        if not detect_image_type(content):
+        detected = detect_image_type(content)
+        if detected is None or detected not in PhotoService.ALLOWED_CONTENT_TYPES:
             raise ValueError("INVALID_IMAGE")
 
         return ".jpg" if suffix == ".jpeg" else suffix
@@ -130,7 +131,9 @@ class PhotoService:
     @staticmethod
     async def get_photo_by_id(db: AsyncSession, photo_id: int) -> Photo | None:
         """Get a single photo by ID."""
-        result = await db.execute(select(Photo).where(Photo.id == photo_id))
+        result = await db.execute(
+            select(Photo).options(selectinload(Photo.uploader)).where(Photo.id == photo_id)
+        )
         return result.scalar_one_or_none()
 
     @staticmethod

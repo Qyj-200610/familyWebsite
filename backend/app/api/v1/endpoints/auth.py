@@ -15,7 +15,7 @@ from app.schemas.user import (
 from app.services.user import UserService
 
 
-async def _auth_response(user: User, token: str):
+def _auth_response(user: User, token: str):
     """Build the standard auth response with user + token."""
     return success_response(
         AuthResponse(
@@ -50,7 +50,7 @@ async def login(data: LoginRequest, db: AsyncSession = Depends(get_db)):
     if result is None:
         return error_response(1101, "邮箱或密码错误")
     user, token = result
-    return await _auth_response(user, token)
+    return _auth_response(user, token)
 
 
 @router.post("/logout")

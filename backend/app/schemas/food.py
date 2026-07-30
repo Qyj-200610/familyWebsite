@@ -1,14 +1,14 @@
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 
 
 class OrderItemSchema(BaseModel):
     """单条点单菜品 — 前端使用 camelCase 发送，此处通过 alias 映射。"""
 
-    dish_id: int = Field(alias="dishId")
+    dish_id: int = Field(ge=1, alias="dishId")
     dish_name: str = Field(alias="dishName")
     quantity: int = Field(..., ge=1)
 
-    model_config = {"populate_by_name": True}
+    model_config = ConfigDict(populate_by_name=True)
 
 
 class SubmitOrderRequest(BaseModel):

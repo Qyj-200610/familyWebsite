@@ -3,11 +3,36 @@ import { useAuthStore } from "../store/authStore";
 import { navigateTo } from "../utils/navigate";
 
 // ============================================================
+// 环境相关 URL 配置
+// ============================================================
+
+// 开发时 VITE_API_BASE_URL 留空 → 走 Vite 代理（/api → localhost:8001）
+// 生产环境在 Vercel 面板设置 VITE_API_BASE_URL 为后端完整地址，如 https://api.example.com/api
+const API_BASE: string = import.meta.env.VITE_API_BASE_URL || "/api";
+
+/** 上传文件的基础路径（从 API_BASE 推导，替换 /api → /uploads） */
+export const UPLOADS_BASE: string = API_BASE.replace(/\/api$/, "/uploads");
+
+/**
+ * 将后端返回的相对上传路径（如 /uploads/avatars/xxx.jpg）解析为完整 URL。
+ * - 开发时保持相对路径（走 Vite 代理）
+ * - 生产时拼接后端域名
+ */
+export const uploadUrl = (path: string | null | undefined): string => {
+  if (!path) return "";
+  if (path.startsWith("http://") || path.startsWith("https://")) return path;
+  if (path.startsWith("/uploads/")) {
+    return path.replace(/^\/uploads/, UPLOADS_BASE);
+  }
+  return path;
+};
+
+// ============================================================
 // Axios 实例 — 统一配置、Token 注入、错误处理
 // ============================================================
 
 const instance = axios.create({
-  baseURL: "/api",
+  baseURL: API_BASE,
   timeout: 10_000,
   headers: { "Content-Type": "application/json; charset=utf-8" },
 });
@@ -31,10 +56,6 @@ instance.interceptors.request.use((config) => {
 instance.interceptors.response.use(
   // 2xx：判断业务 code
   (response) => {
-    // 空响应体（204 No Content 等）直接返回
-    if (!response.data) {
-      return null;
-    }
     const { code, message, data } = response.data;
     if (code === 0) {
       // 成功 → 直接返回 data 载荷，调用方无需重复 .data

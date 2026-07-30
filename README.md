@@ -23,7 +23,7 @@
 | 前端开发服务器 | 5175 |
 | 后端 API 服务器 | 8001 |
 
-> 前端 Vite 开发服务器通过代理将 `/api/*` 请求转发到后端 `http://localhost:8000`，开发时无需额外配置 CORS。
+> 前端 Vite 开发服务器通过代理将 `/api/*` 请求转发到后端 `http://localhost:8001`，开发时无需额外配置 CORS。
 
 ## 目录
 
@@ -40,6 +40,7 @@ familyWebsite/
 │   │   └── main.tsx      # 入口文件
 │   ├── docs/
 │   │   ├── interface.md  # 前后端接口规范
+│   │   ├── FAMILY.md     # 家族谱系数据规格
 │   │   ├── TODOLIST.md   # 待办事项
 │   │   └── COMPLETED.md  # 已完成功能
 │   ├── public/
@@ -128,12 +129,14 @@ curl http://localhost:5175/api/health
 ## 功能
 
 - [x] 项目初始化（前后端脚手架）
-- [x] 用户认证（注册、登录、退出、Token 持久化、"记住我"）
-- [x] 用户信息（获取/更新个人信息）
-- [ ] 忘记密码 / 重置密码
+- [x] 用户认证（注册、登录、退出、忘记密码/重置密码、Token 持久化、"记住我"）
+- [x] 用户信息（获取/更新个人信息、头像上传）
+- [x] 忘记密码 / 重置密码
+- [x] 家庭相册（创建/删除相册、上传/浏览/删除照片）
+- [x] 美食点单（菜品浏览、购物车、邮件通知）
+- [x] 家谱图（家族成员树、在线状态指示器）
+- [x] 日程管理（每日模板、勾选完成、localStorage 持久化）
 - [ ] 第三方登录（微信、手机号）
-- [ ] 家庭相册
-- [ ] 日程管理
 - [ ] 家庭留言
 
 ## API 接口
@@ -153,6 +156,7 @@ curl http://localhost:5175/api/health
 | POST | `/auth/register` | 注册 | 无 |
 | POST | `/auth/login` | 登录 | 无 |
 | POST | `/auth/logout` | 退出登录 | Bearer Token |
+| POST | `/auth/reset-password` | 重置密码 | 无 |
 
 ### 用户
 
@@ -160,6 +164,13 @@ curl http://localhost:5175/api/health
 | --- | --- | --- | --- |
 | GET | `/user/me` | 获取当前用户信息 | Bearer Token |
 | PATCH | `/user/me` | 更新用户信息 | Bearer Token |
+| POST | `/user/me/avatar` | 上传头像 | Bearer Token |
+
+### 家谱
+
+| 方法 | 路径 | 说明 | 认证 |
+| --- | --- | --- | --- |
+| GET | `/family/status` | 获取家族成员在线状态 | 可选 |
 
 > 完整的接口规范（含请求/响应格式、错误码、TypeScript 类型）见 [frontend/docs/interface.md](frontend/docs/interface.md)
 
@@ -183,6 +194,29 @@ curl http://localhost:5175/api/health
 待定
 
 ## Changelog
+
+### 2026-07-30 — 全项目 Debug + 文档同步
+
+**后端：**
+- 修复头像上传后旧文件永不删除的问题
+- 修复照片魔数检测未核对类型是否在允许列表中
+- 新增全局异常处理器（未捕获异常返回 JSON 500）
+- 新增 `get_optional_user` 可选认证依赖
+- 重构 `family.py` 使用标准依赖注入
+- 修复 `AlbumResponse` schema 缺少 `coverPhoto`/`photos` 字段
+- 修复 `models/__init__.py` 导出所有模型
+
+**前端：**
+- 修复问候语/时间段冻结在挂载时刻的问题
+- 已登录用户访问 `/` 自动重定向到 `/home`
+- 创建家谱 API 模块 (`family.ts`) 替代直接调用 `client`
+- 修复 `PersonalCenter.css` 拼写（原 `PersonCenter.css`）
+- 4 处 `handleLogout` 空 catch 改为 `console.error`
+- 新增 `env.d.ts` 类型声明 + `.env.example` 环境变量模板
+
+**文档：**
+- `interface.md` 新增家谱在线状态端点 + TypeScript 类型
+- 所有文档同步至最新项目状态
 
 ### 2026-07-26 — 全项目 Debug（两轮）
 

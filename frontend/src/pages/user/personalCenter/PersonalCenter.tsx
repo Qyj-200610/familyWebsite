@@ -1,8 +1,8 @@
 import { useEffect, useState, useRef } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useAuthStore } from "../../../store/authStore";
-import { authApi } from "../../../api";
-import "./PersonCenter.css";
+import { authApi, uploadUrl } from "../../../api";
+import "./PersonalCenter.css";
 
 function PersonalCenter() {
   const navigate = useNavigate();
@@ -30,8 +30,8 @@ function PersonalCenter() {
   const handleLogout = async () => {
     try {
       await authApi.logout();
-    } catch {
-      // 即使后端调用失败也清除本地状态
+    } catch (e) {
+      console.error("Logout failed:", e);
     }
     logout();
     navigate("/");
@@ -74,7 +74,7 @@ function PersonalCenter() {
             >
               <span className="pc__avatar">
                 {user?.avatar ? (
-                  <img src={user.avatar} alt={user.username} />
+                  <img src={uploadUrl(user.avatar)} alt={user.username} />
                 ) : (
                   <span className="pc__avatar-placeholder">{avatarLetter}</span>
                 )}
@@ -129,7 +129,7 @@ function PersonalCenter() {
             <div className="pc__hero-inner">
               <span className="pc__hero-avatar">
                 {user?.avatar ? (
-                  <img src={user.avatar} alt={user.username} />
+                  <img src={uploadUrl(user.avatar)} alt={user.username} />
                 ) : (
                   <span className="pc__hero-avatar-placeholder">{avatarLetter}</span>
                 )}

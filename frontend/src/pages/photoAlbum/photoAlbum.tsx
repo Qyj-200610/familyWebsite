@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuthStore } from "../../store/authStore";
-import { albumApi, photoApi } from "../../api";
+import { albumApi, photoApi, uploadUrl } from "../../api";
 import type { Album, AlbumDetail, Photo } from "../../api/types";
 import PageNav from "../../components/PageNav/PageNav";
 
@@ -263,7 +263,7 @@ function PhotoAlbum() {
   const openViewer = (photo: Photo) => { setViewerPhoto(photo); setViewerOpen(true); };
   const closeViewer = () => { setViewerOpen(false); setViewerPhoto(null); };
 
-  const getPhotoUrl = (filename: string) => `/uploads/photos/${filename}`;
+  const getPhotoUrl = (filename: string) => uploadUrl(`/uploads/photos/${filename}`);
 
   if (!isAuthenticated) return null;
 

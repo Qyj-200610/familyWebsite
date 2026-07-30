@@ -1,7 +1,7 @@
 import { useEffect, useState, useRef } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useAuthStore } from "../../../store/authStore";
-import { authApi, userApi } from "../../../api";
+import { authApi, userApi, uploadUrl } from "../../../api";
 import "./Setting.css";
 
 /** 允许的头像格式 */
@@ -46,8 +46,8 @@ function Setting() {
   const handleLogout = async () => {
     try {
       await authApi.logout();
-    } catch {
-      // 即使后端调用失败也清除本地状态
+    } catch (e) {
+      console.error("Logout failed:", e);
     }
     logout();
     navigate("/");
@@ -165,7 +165,7 @@ function Setting() {
             >
               <span className="setting__avatar">
                 {user?.avatar ? (
-                  <img src={user.avatar} alt={user.username} />
+                  <img src={uploadUrl(user.avatar)} alt={user.username} />
                 ) : (
                   <span className="setting__avatar-placeholder">{avatarLetter}</span>
                 )}
@@ -212,18 +212,27 @@ function Setting() {
           <aside className="setting__sidebar">
             <div className="setting__sidebar-label">设置</div>
             <nav className="setting__sidebar-nav">
-              <a href="#profile" className="setting__sidebar-link setting__sidebar-link--active">
+              <button
+                className="setting__sidebar-link setting__sidebar-link--active"
+                onClick={() => document.getElementById("profile")?.scrollIntoView({ behavior: "smooth" })}
+              >
                 <span className="setting__sidebar-icon">👤</span>
                 个人资料
-              </a>
-              <a href="#appearance" className="setting__sidebar-link">
+              </button>
+              <button
+                className="setting__sidebar-link"
+                onClick={() => document.getElementById("appearance")?.scrollIntoView({ behavior: "smooth" })}
+              >
                 <span className="setting__sidebar-icon">🎨</span>
                 外观设置
-              </a>
-              <a href="#notification" className="setting__sidebar-link">
+              </button>
+              <button
+                className="setting__sidebar-link"
+                onClick={() => document.getElementById("notification")?.scrollIntoView({ behavior: "smooth" })}
+              >
                 <span className="setting__sidebar-icon">🔔</span>
                 通知偏好
-              </a>
+              </button>
             </nav>
           </aside>
 
@@ -241,7 +250,7 @@ function Setting() {
                   <div className="setting__avatar-edit">
                     <span className={`setting__avatar setting__avatar--lg ${uploading ? "setting__avatar--uploading" : ""}`}>
                       {user?.avatar ? (
-                        <img src={user.avatar} alt={user.username} />
+                        <img src={uploadUrl(user.avatar)} alt={user.username} />
                       ) : (
                         <span className="setting__avatar-placeholder">{avatarLetter}</span>
                       )}

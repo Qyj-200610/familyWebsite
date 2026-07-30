@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useAuthStore } from "../../store/authStore";
 import { navigateTo } from "../../utils/navigate";
 import PageNav from "../../components/PageNav/PageNav";
+import { familyApi } from "../../api";
 import "./familyTree.css";
 
 // ============================================================
@@ -122,9 +123,11 @@ function AvatarPlaceholder({
 function PersonCard({
   person,
   isRoot,
+  online,
 }: {
   person: Person;
   isRoot?: boolean;
+  online?: boolean;
 }) {
   return (
     <div className={`ft-card ${isRoot ? "ft-card--root" : ""}`}>
@@ -136,10 +139,15 @@ function PersonCard({
         large={isRoot}
       />
 
-      {/* 姓名 + 称谓 */}
+      {/* 姓名 + 状态指示器 */}
       <div className="ft-card__info">
-        <span className="ft-card__name">{person.name}</span>
-        <span className="ft-card__title">（{person.title}）</span>
+        <div className="ft-card__name-row">
+          <span className="ft-card__name">{person.name}</span>
+          <span
+            className={`ft-card__status ${online ? "ft-card__status--online" : "ft-card__status--offline"}`}
+            title={online ? `${person.name} 在线` : `${person.name} 离线`}
+          />
+        </div>
       </div>
     </div>
   );
@@ -149,11 +157,17 @@ function PersonCard({
 // 夫妻组合卡片（本人 + 配偶并排）
 // ============================================================
 
-function CoupleCard({ person }: { person: Person }) {
+function CoupleCard({
+  person,
+  statusMap,
+}: {
+  person: Person;
+  statusMap: Record<string, boolean>;
+}) {
   return (
     <div className="ft-couple">
       {/* 本人 */}
-      <PersonCard person={person} />
+      <PersonCard person={person} online={statusMap[person.name]} />
 
       {/* 配偶（如果有） */}
       {person.spouse && (
@@ -171,8 +185,13 @@ function CoupleCard({ person }: { person: Person }) {
               gender={person.spouse.gender}
             />
             <div className="ft-card__info">
-              <span className="ft-card__name">{person.spouse.name}</span>
-              <span className="ft-card__title">（{person.spouse.title}）</span>
+              <div className="ft-card__name-row">
+                <span className="ft-card__name">{person.spouse.name}</span>
+                <span
+                  className={`ft-card__status ${statusMap[person.spouse.name] ? "ft-card__status--online" : "ft-card__status--offline"}`}
+                  title={statusMap[person.spouse.name] ? `${person.spouse.name} 在线` : `${person.spouse.name} 离线`}
+                />
+              </div>
             </div>
           </div>
         </>
@@ -185,7 +204,13 @@ function CoupleCard({ person }: { person: Person }) {
 // 递归子树
 // ============================================================
 
-function SubTree({ person }: { person: Person }) {
+function SubTree({
+  person,
+  statusMap,
+}: {
+  person: Person;
+  statusMap: Record<string, boolean>;
+}) {
   const { children } = person;
   const [collapsed, setCollapsed] = useState(false);
   const hasChildren = children && children.length > 0;
@@ -194,7 +219,7 @@ function SubTree({ person }: { person: Person }) {
     <div className="ft-tree">
       {/* 当前节点：夫妻卡片 */}
       <div className="ft-tree__node">
-        <CoupleCard person={person} />
+        <CoupleCard person={person} statusMap={statusMap} />
 
         {/* 折叠按钮 */}
         {hasChildren && (
@@ -231,7 +256,7 @@ function SubTree({ person }: { person: Person }) {
                 >
                   {/* 每个子节点上方的下落竖线 */}
                   <div className="ft-tree__drop" />
-                  <SubTree person={child} />
+                  <SubTree person={child} statusMap={statusMap} />
                 </div>
               ))}
             </div>
@@ -249,6 +274,7 @@ function SubTree({ person }: { person: Person }) {
 function FamilyTree() {
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
   const [introOpen, setIntroOpen] = useState(true);
+  const [statusMap, setStatusMap] = useState<Record<string, boolean>>({});
 
   useEffect(() => {
     if (!isAuthenticated) {
@@ -256,13 +282,29 @@ function FamilyTree() {
     }
   }, [isAuthenticated]);
 
+  // 拉取家族成员在线状态
+  useEffect(() => {
+    familyApi
+      .getStatus()
+      .then((res) => {
+        const map: Record<string, boolean> = {};
+        res.members.forEach((m) => {
+          map[m.name] = m.online;
+        });
+        setStatusMap(map);
+      })
+      .catch(() => {
+        // 静默失败 — 接口不可用时全部显示离线
+      });
+  }, []);
+
   return (
     <div className="ft-page">
       {/* 顶部装饰条 */}
       <div className="ft-page__top-decor" />
 
       {/* 导航 */}
-      <PageNav logoText="家谱图" logoEmoji="🌳" />
+      <PageNav />
 
       {/* 页面头部 */}
       <section className="ft-hero">
@@ -314,6 +356,14 @@ function FamilyTree() {
                   💍 夫妻关系
                 </span>
                 <span className="ft-intro__legend-item">
+                  <span className="ft-card__status ft-card__status--online" style={{ display: "inline-block", width: 10, height: 10, verticalAlign: "middle", marginRight: 2 }} />
+                  {" "}在线
+                </span>
+                <span className="ft-intro__legend-item">
+                  <span className="ft-card__status ft-card__status--offline" style={{ display: "inline-block", width: 10, height: 10, verticalAlign: "middle", marginRight: 2 }} />
+                  {" "}离线
+                </span>
+                <span className="ft-intro__legend-item">
                   📷 上传照片（待实现）
                 </span>
               </div>
@@ -336,7 +386,7 @@ function FamilyTree() {
       {/* 家谱树主体 */}
       <section className="ft-tree-section">
         <div className="ft-tree__canvas">
-          <SubTree person={FAMILY_DATA} />
+          <SubTree person={FAMILY_DATA} statusMap={statusMap} />
         </div>
       </section>
 

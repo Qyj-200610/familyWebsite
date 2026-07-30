@@ -33,6 +33,7 @@ def _photo_to_response(photo: Photo) -> dict:
         description=photo.description,
         uploaded_by=photo.uploaded_by,
         uploader={"id": photo.uploader.id, "username": photo.uploader.username} if photo.uploader else None,
+        album_id=photo.album_id,
         created_at=photo.created_at,
     ).model_dump(mode="json", by_alias=True)
 

@@ -1,7 +1,7 @@
 import { useEffect, useState, useRef, useMemo } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useAuthStore } from "../../store/authStore";
-import { authApi } from "../../api";
+import { authApi, uploadUrl } from "../../api";
 import DailyRoutine from "../dailyRoutine/dailyRoutine";
 
 import exitLoginIcon from "../../svg/exitLogin.svg";
@@ -56,8 +56,8 @@ function Home() {
 
   const [clockTime, setClockTime] = useState(new Date());
 
-  const greeting = useMemo(() => getGreeting(), []);
-  const timePeriod = useMemo(() => getTimePeriod(), []);
+  const greeting = useMemo(() => getGreeting(), [clockTime]);
+  const timePeriod = useMemo(() => getTimePeriod(), [clockTime]);
   const heroDecorations = useMemo(() => getHeroDecorations(timePeriod), [timePeriod]);
 
   // 每秒更新时钟
@@ -92,8 +92,8 @@ function Home() {
   const handleLogout = async () => {
     try {
       await authApi.logout();
-    } catch {
-      // 即使后端调用失败也清除本地状态
+    } catch (e) {
+      console.error("Logout failed:", e);
     }
     logout();
     navigate("/");
@@ -127,7 +127,7 @@ function Home() {
             >
               <span className="home__avatar">
                 {user?.avatar ? (
-                  <img src={user.avatar} alt={user.username} />
+                  <img src={uploadUrl(user.avatar)} alt={user.username} />
                 ) : (
                   <span className="home__avatar-placeholder">{avatarLetter}</span>
                 )}
