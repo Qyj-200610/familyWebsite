@@ -33,6 +33,7 @@ class Settings(BaseSettings):
     CORS_ORIGINS: str | list[str] = [
         "http://localhost:5175",
         "https://family-website-frontend-six.vercel.app",
+        "https://family-website-cgh.pages.dev",
     ]
 
     # Database SSL — PlanetScale requires SSL; set to False for local MySQL
