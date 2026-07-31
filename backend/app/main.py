@@ -81,5 +81,5 @@ app.mount("/uploads", StaticFiles(directory=str(_upload_dir)), name="uploads")
 @app.exception_handler(Exception)
 async def global_exception_handler(_request: Request, exc: Exception):
     logger.exception("Unhandled exception")
-    return error_response(500, "服务器内部错误")
+    return error_response(500, "服务器内部错误", status_code=500)
 

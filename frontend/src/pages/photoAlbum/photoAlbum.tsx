@@ -178,11 +178,9 @@ function PhotoAlbum() {
     try {
       await albumApi.deleteAlbum(deleteAlbumTarget.id);
       setAlbums((prev) => prev.filter((a) => a.id !== deleteAlbumTarget.id));
+      setDeleteAlbumTarget(null);
     } catch (err) {
       setDeleteError(err instanceof Error ? err.message : "删除失败");
-      return; // keep modal open to show error
-    } finally {
-      setDeleteAlbumTarget(null);
     }
   };
 
@@ -255,11 +253,9 @@ function PhotoAlbum() {
         photos: prev.photos.filter((p) => p.id !== deletePhotoTarget.id),
         photoCount: prev.photoCount - 1,
       } : null);
+      setDeletePhotoTarget(null);
     } catch (err) {
       setDeleteError(err instanceof Error ? err.message : "删除失败");
-      return; // keep modal open to show error
-    } finally {
-      setDeletePhotoTarget(null);
     }
   };
 

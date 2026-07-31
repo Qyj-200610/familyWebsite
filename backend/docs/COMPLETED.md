@@ -1,6 +1,6 @@
 # COMPLETED — 后端已完成功能
 
-> 最后更新：2026-07-30（全项目 debug + 文档更新）
+> 最后更新：2026-07-31（后端 debug + 文档更新）
 
 ---
 
@@ -122,6 +122,17 @@
 
 ## 调试记录
 
+### 2026-07-31 — 后端 Debug + 文档更新
+- [x] 修复：`error_response()` 不支持 `data` 参数，导致健康检查在数据库不可达时崩溃（TypeError）
+- [x] 修复：全局异常处理器返回 `error_response(500, ...)` 使用默认 `status_code=400`，应返回 HTTP 500
+- [x] 修复：相册端点 `_ERROR_MAP` 使用 `"EMPTY_NAME"` 但 service 层抛出 `"NAME_REQUIRED"`，错误码不匹配
+- [x] 修复：`AlbumService.create_album` 仅在验证时 strip 名称，未将 strip 后的值存入数据库
+- [x] 修复：`Photo.content_type` 模型为 `String(50)` 但 API 文档记录为 `varchar(100)`，统一为 `String(100)`
+- [x] 修复：`get_current_user` / `get_optional_user` 中 `int(user_id)` 可能因恶意 token 抛出 ValueError → 500，改为捕获并返回 401 / None
+- [x] 更新：`error_response()` 新增 `data` 可选参数，支持自定义错误数据载荷
+- [x] 更新：API_REFERENCE.md 错误码范围修正（1000–1099 注册, 1100–1199 登录）
+- [x] 更新：CLAUDE.md 移除不存在的 `User.updated_at` 字段说明
+
 ### 2026-07-30 — 全项目 Debug
 - [x] 修复：头像上传后旧文件永不删除（`current_user.avatar` 在 `update_user` 后被刷新）
 - [x] 修复：照片魔数检测未核对类型是否在允许列表中
@@ -133,6 +144,16 @@
 - [x] 新增：全局异常处理器（JSON 500）
 - [x] 新增：`get_optional_user` 依赖（可选认证）
 - [x] 重构：`family.py` 使用标准依赖注入
+
+### 2026-07-31 — 连通性回归测试
+
+- [x] 测试：Render 后端全部 API 端点回归（auth / user / album / photo / family / food / health）— 12/12 通过
+- [x] 测试：本地后端启动 + 连接 TiDB Cloud — 正常
+- [x] 测试：CORS 预检（localhost:5175 → Render） — 通过，`access-control-allow-origin` 正确
+- [x] 测试：前端 Vite dev server 全部路由 — 12/12 返回 200
+- [x] 修复：前端 `website.svg`（favicon）被误删 → 已从 git 恢复（该文件被 `index.html` `<link rel="icon">` 引用）
+- [x] 更新：CLAUDE.md 前端环境变量说明（VITE_API_BASE_URL 当前指向 Render）
+- [x] 更新：frontend/docs/COMPLETED.md 新增连通性测试结果章节
 
 ### 2026-07-26 — 修复
 - [x] 修复：登录错误码从 `1003` 改为 `1101`

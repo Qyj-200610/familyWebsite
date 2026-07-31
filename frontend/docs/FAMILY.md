@@ -1,7 +1,7 @@
 # 家族谱系数据规格
 
 > **版本**: v1.1.0  
-> **最后更新**: 2026-07-31  
+> **最后更新**: 2026-07-31（修正视频预览文档描述）  
 > **对应页面**: `src/pages/familyTree/`，含视频预览页 `src/pages/familyTree/video/`  
 > **数据位置**: `familyTree.tsx` → `FAMILY_DATA` 常量
 

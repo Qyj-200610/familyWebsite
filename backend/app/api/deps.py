@@ -31,7 +31,11 @@ async def get_current_user(
     if user_id is None:
         raise HTTPException(status_code=401, detail="Token 格式错误")
 
-    user = await UserService.get_user_by_id(db, int(user_id))
+    try:
+        user = await UserService.get_user_by_id(db, int(user_id))
+    except (ValueError, TypeError):
+        raise HTTPException(status_code=401, detail="Token 格式错误")
+
     if user is None:
         raise HTTPException(status_code=401, detail="用户不存在")
 
@@ -57,4 +61,7 @@ async def get_optional_user(
     if user_id is None:
         return None
 
-    return await UserService.get_user_by_id(db, int(user_id))
+    try:
+        return await UserService.get_user_by_id(db, int(user_id))
+    except (ValueError, TypeError):
+        return None

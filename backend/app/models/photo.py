@@ -17,7 +17,7 @@ class Photo(Base):
     filename: Mapped[str] = mapped_column(String(200), nullable=False, comment="存储文件名 (UUID)")
     original_filename: Mapped[str] = mapped_column(String(200), nullable=False, comment="原始上传文件名")
     file_size: Mapped[int] = mapped_column(BigInteger, nullable=False, comment="文件大小 (bytes)")
-    content_type: Mapped[str] = mapped_column(String(50), nullable=False, comment="MIME 类型")
+    content_type: Mapped[str] = mapped_column(String(100), nullable=False, comment="MIME 类型")
     description: Mapped[str | None] = mapped_column(Text, nullable=True, default=None, comment="照片描述")
     uploaded_by: Mapped[int] = mapped_column(
         BigInteger, ForeignKey("users.id", ondelete="CASCADE"), nullable=False, comment="上传者 ID"

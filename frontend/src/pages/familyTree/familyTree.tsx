@@ -213,10 +213,12 @@ function CoupleCard({
   person,
   memberMap,
   onAvatarClick,
+  isRoot = false,
 }: {
   person: Person;
   memberMap: Record<string, FamilyMemberStatus>;
   onAvatarClick?: (name: string) => void;
+  isRoot?: boolean;
 }) {
   return (
     <div className="ft-couple">
@@ -225,6 +227,7 @@ function CoupleCard({
         person={person}
         member={memberMap[person.name]}
         onAvatarClick={onAvatarClick}
+        isRoot={isRoot}
       />
 
       {/* 配偶（如果有） */}
@@ -281,10 +284,12 @@ function SubTree({
   person,
   memberMap,
   onAvatarClick,
+  isRoot = false,
 }: {
   person: Person;
   memberMap: Record<string, FamilyMemberStatus>;
   onAvatarClick?: (name: string) => void;
+  isRoot?: boolean;
 }) {
   const { children } = person;
   const [collapsed, setCollapsed] = useState(false);
@@ -298,6 +303,7 @@ function SubTree({
           person={person}
           memberMap={memberMap}
           onAvatarClick={onAvatarClick}
+          isRoot={isRoot}
         />
 
         {/* 折叠按钮 */}
@@ -432,6 +438,7 @@ function FamilyTree() {
 
       // 在线 → 弹出连接中 toast，短暂延迟后跳转
       setToast({ visible: true, name, online: true });
+      if (videoTimerRef.current) clearTimeout(videoTimerRef.current);
       videoTimerRef.current = setTimeout(() => {
         navigateTo(`/family-tree/video?name=${encodeURIComponent(name)}`);
       }, 800);
@@ -550,6 +557,7 @@ function FamilyTree() {
             person={FAMILY_DATA}
             memberMap={memberMap}
             onAvatarClick={handleAvatarClick}
+            isRoot
           />
         </div>
       </section>

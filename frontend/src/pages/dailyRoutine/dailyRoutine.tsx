@@ -136,10 +136,14 @@ function DailyRoutine() {
     });
     if (valid.size !== doneSet.size) {
       setDoneSet(valid);
-      saveDoneIndices(valid);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  // Persist doneSet to localStorage whenever it changes
+  useEffect(() => {
+    saveDoneIndices(doneSet);
+  }, [doneSet]);
 
   // --- handlers ---
 
@@ -152,7 +156,6 @@ function DailyRoutine() {
         } else {
           next.add(index);
         }
-        saveDoneIndices(next);
         return next;
       });
     },
@@ -195,7 +198,7 @@ function DailyRoutine() {
         const next = prev.filter((_, i) => i !== index);
         return next;
       });
-      // Re-index doneSet because indices shifted — do this outside the setTemplate updater
+      // Re-index doneSet because indices shifted
       setDoneSet((oldDone) => {
         const newDone = new Set<number>();
         oldDone.forEach((i) => {
@@ -203,7 +206,6 @@ function DailyRoutine() {
           else if (i > index) newDone.add(i - 1);
           // i === index → drop
         });
-        saveDoneIndices(newDone);
         return newDone;
       });
     },
@@ -217,7 +219,6 @@ function DailyRoutine() {
 
   const resetToday = useCallback(() => {
     setDoneSet(new Set());
-    saveDoneIndices(new Set());
   }, []);
 
   // --- collapsed view ---

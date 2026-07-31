@@ -1,6 +1,6 @@
 # COMPLETED — 已完成功能
 
-> 最后更新：2026-07-30（全项目 debug + 文档更新）
+> 最后更新：2026-07-31（前端代码审查 + 后端 Debug）
 
 ---
 
@@ -303,3 +303,92 @@ cd frontend && npm run dev
 - [x] 后端启动正常 → `GET /api/health` 返回 `{"code":0,"data":{"status":"healthy"}}`
 - [x] 前端 Vite 代理正常 → `curl localhost:5175/api/health` 正确转发到后端
 - [x] TypeScript 零错误 + Vite 生产构建成功
+
+---
+
+## Debug 修复 (2026-07-31 · 后端 Debug + 文档更新)
+
+### 后端 Bug 修复
+- [x] **response.py** — `error_response()` 不支持 `data` 参数，导致健康检查在 DB 不可达时 TypeError 崩溃 → 新增 `data` 可选参数
+- [x] **main.py** — 全局异常处理器 `error_response(500, ...)` 使用默认 `status_code=400` → 改为显式 `status_code=500`
+- [x] **album.py endpoint** — `_ERROR_MAP` 使用 `"EMPTY_NAME"` 但 service 抛出 `"NAME_REQUIRED"` → 统一为 `"NAME_REQUIRED"`，端点改为 try/except 由 service 层验证
+- [x] **album.py service** — `create_album` 仅在验证时 strip 名称，未存储 strip 后的值 → 将 strip 后的值写入数据库
+- [x] **photo.py model** — `content_type` 为 `String(50)` 但文档记录 `varchar(100)` → 统一为 `String(100)`
+- [x] **deps.py** — `int(user_id)` 在恶意 token 时抛出 ValueError → 500 错误（应为 401）→ 捕获并返回 401 / None
+
+### 文档更新
+- [x] **CLAUDE.md** — 移除不存在的 `User.updated_at` 字段说明；修正错误码范围
+- [x] **API_REFERENCE.md** — 错误码范围修正（`1000–1100` → `1000–1099` 等），新增 `5000–5099` 系统健康检查
+- [x] **backend/docs/COMPLETED.md** — 新增 2026-07-31 调试记录
+- [x] **frontend/docs/COMPLETED.md** — 同步更新（本文）
+
+---
+
+## Debug 修复 (2026-07-31 · 前端代码审查修复)
+
+### Bug 修复
+
+- [x] **App.tsx** — `navigate()` 在 render 阶段直接调用（React 副作用） → 移入 `useEffect`，避免渲染期间的副作用
+- [x] **dailyRoutine.tsx** — `saveDoneIndices()` 在 `setDoneSet` / `setTemplate` 状态更新器内部调用（状态更新器应保持纯函数） → 添加 `useEffect(() => saveDoneIndices(doneSet), [doneSet])` 统一持久化，移除所有 updater 内的副作用
+- [x] **familyTree.tsx** — `handleAvatarClick` 连续快速点击多个在线成员时，旧 timer 未清除导致导航到错误的成员视频页 → 在设置新 timer 前先 `clearTimeout` 旧 timer
+- [x] **familyTree.tsx** — `isRoot` prop 在 `SubTree` → `CoupleCard` → `PersonCard` 传递链中断，根节点从未获得大头像样式 → 贯通 `isRoot` prop 整条链路
+- [x] **photoAlbum.tsx** — `handleDeleteAlbum` / `handleDeletePhoto` 的 `finally` 块在 catch 后仍执行 `setTarget(null)`，导致错误提示弹窗立即关闭（用户看不到错误信息） → 仅成功时清除 target，移除 finally 块
+- [x] **forgetPassword.tsx** — 密码显示/隐藏按钮 `tabIndex={0}` 与 Login/Register 页面的 `tabIndex={-1}` 不一致 → 统一为 `-1`（装饰性按钮不应进入 tab 顺序）
+- [x] **website.svg** — ~~未被任何文件引用 → 删除~~（⚠️ 误删：该文件实际被 `index.html` 作为 favicon 引用 `<link rel="icon" type="image/svg+xml" href="./src/svg/website.svg">`，已于 2026-07-31 恢复）
+
+### 验证结果
+- [x] **TypeScript** — `tsc -b --noEmit` 零错误
+- [x] **Vite 生产构建** — `vite build` 成功，127 modules
+
+---
+
+## 前后端连通性测试 (2026-07-31)
+
+### 测试环境
+
+| 组件 | 地址 | 状态 |
+|------|------|------|
+| Render 后端 | `https://familywebsite-qkqd.onrender.com/api` | ✅ 在线 |
+| 本地后端 | `http://localhost:8001` | ✅ 在线（连接 TiDB Cloud） |
+| 前端 Dev | `http://localhost:5175` | ✅ 在线（Vite v8.1.4） |
+| TiDB Cloud | `gateway01.ap-southeast-1.prod.aws.tidbcloud.com:4000` | ✅ 在线 |
+
+### API 端点测试结果
+
+| 方法 | 端点 | 状态 | 说明 |
+|------|------|------|------|
+| `GET` | `/api/family/status` | ✅ 200 | 公开访问返回全部成员离线；认证后匹配用户名标记在线 |
+| `POST` | `/api/auth/register` | ✅ 200 | 注册成功返回 `data: null`（不自动登录） |
+| `POST` | `/api/auth/login` | ✅ 200 | 返回 `{user, token}`；错误凭据返回 1101 |
+| `POST` | `/api/auth/logout` | ✅ 200 | 需 Bearer Token |
+| `POST` | `/api/auth/reset-password` | ✅ 200 | 通过邮箱重置密码 |
+| `GET` | `/api/user/me` | ✅ 200 (auth) / 401 (no auth) | 认证守卫正常 |
+| `PATCH` | `/api/user/me` | ✅ 200 | 更新用户名/头像，含唯一性校验 |
+| `GET` | `/api/albums` | ✅ 200 (auth) / 401 (no auth) | 认证守卫正常 |
+| `POST` | `/api/albums` | ✅ 200 | 创建相册，名称非空验证 |
+| `GET` | `/api/albums/{id}` | ✅ 200 | 含照片列表，权限控制正确 |
+| `DELETE` | `/api/albums/{id}` | ✅ 200 | 仅创建者可删除，照片 album_id 置 NULL |
+| `GET` | `/api/health` | ✅ 200 | 不依赖数据库 |
+
+### 前端路由测试结果
+
+所有路由返回 HTTP 200（SPA 客户端路由）：
+`/`, `/login`, `/register`, `/home`, `/albums`, `/family-tree`, `/food-order`, `/daily-routine`, `/user/setting`, `/user/personal-center`, `/forget-password`
+
+### CORS 测试结果
+
+- ✅ `localhost:5175` → Render 后端：CORS 预检通过，`access-control-allow-origin` 正确
+- ✅ Vercel / EdgeOne / Cloudflare Pages 域名均在 CORS 白名单中
+
+### 修复记录
+
+- [x] **website.svg** — 恢复被误删的 favicon 文件（`index.html` 引用该文件作为网站图标）
+- [x] **前端构建验证** — `vite build` 成功输出 3 个资产（JS + CSS + SVG）
+
+### 已知问题（非阻塞）
+
+| 问题 | 影响 | 建议 |
+|------|------|------|
+| `passlib` + `bcrypt` 版本兼容警告 | 无（仅终端警告，不影响功能） | 升级 passlib 或降级 bcrypt |
+| 前端 `.env` 指向 Render 后端 | 本地开发使用远程后端（冷启动 30-60s） | 如需本地后端开发，将 `VITE_API_BASE_URL` 设为空或 `http://localhost:8001/api` |
+| Vite 代理未使用 | 因 `VITE_API_BASE_URL` 已设置，代理配置被绕过 | 符合当前设计（开发也使用部署后端） |

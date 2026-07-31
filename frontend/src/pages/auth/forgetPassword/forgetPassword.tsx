@@ -164,7 +164,7 @@ function ForgetPassword() {
               type="button"
               className="form-password-toggle"
               onClick={() => setShowNewPassword((v) => !v)}
-              tabIndex={0}
+              tabIndex={-1}
               aria-label={showNewPassword ? "隐藏新密码" : "显示新密码"}
             >
               {showNewPassword ? "🙈" : "👁"}
@@ -199,7 +199,7 @@ function ForgetPassword() {
               type="button"
               className="form-password-toggle"
               onClick={() => setShowConfirmPassword((v) => !v)}
-              tabIndex={0}
+              tabIndex={-1}
               aria-label={showConfirmPassword ? "隐藏确认新密码" : "显示确认新密码"}
             >
               {showConfirmPassword ? "🙈" : "👁"}

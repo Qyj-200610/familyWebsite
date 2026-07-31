@@ -17,7 +17,8 @@ class AlbumService:
         is_public: bool,
     ) -> Album:
         """Create a new album."""
-        if not name or not name.strip():
+        name = name.strip()
+        if not name:
             raise ValueError("NAME_REQUIRED")
         album = Album(
             name=name,

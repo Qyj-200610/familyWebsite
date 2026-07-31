@@ -16,7 +16,7 @@ router = APIRouter(prefix="/albums", tags=["albums"])
 # ---------- 错误码映射 ----------
 
 _ERROR_MAP = {
-    "EMPTY_NAME": (3201, "相册名称不能为空"),
+    "NAME_REQUIRED": (3201, "相册名称不能为空"),
     "ALBUM_NOT_FOUND": (3202, "相册不存在"),
     "FORBIDDEN": (3203, "无权访问该相册"),
     "NOT_OWNER": (3204, "只能操作自己创建的相册"),
@@ -78,12 +78,11 @@ async def create_album(
     db: AsyncSession = Depends(get_db),
 ):
     """创建新相册。"""
-    name = body.name.strip()
-    if not name:
-        code, msg = _ERROR_MAP["EMPTY_NAME"]
+    try:
+        album = await AlbumService.create_album(db, current_user, body.name, body.is_public)
+    except ValueError as e:
+        code, msg = _ERROR_MAP.get(str(e), (3200, "创建相册失败"))
         return error_response(code, msg)
-
-    album = await AlbumService.create_album(db, current_user, name, body.is_public)
     return success_response(_album_to_response(album), message="相册创建成功")
 
 

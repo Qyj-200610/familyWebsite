@@ -146,15 +146,15 @@ npm run dev  # 启动在 localhost:5175，代理 /api → localhost:8001
 
 | 范围 | 模块 |
 |------|------|
-| 1000–1100 | 注册 |
-| 1100–1200 | 登录 |
-| 1200–1300 | 密码重置 |
-| 2000–2100 | 用户更新 |
+| 1000–1099 | 注册 |
+| 1100–1199 | 登录 |
+| 1200–1299 | 密码重置 |
+| 2000–2099 | 用户更新 |
 | 2003–2007 | 头像上传（文件验证） |
-| 3000–3100 | 照片上传/删除 |
-| 3100–3200 | 照片操作 |
-| 3200–3300 | 相册操作 |
-| 4000–4100 | 美食点单 |
+| 3000–3099 | 照片上传/删除 |
+| 3100–3199 | 照片操作 |
+| 3200–3299 | 相册操作 |
+| 4000–4099 | 美食点单 |
 
 ### 命名规范
 
@@ -202,8 +202,10 @@ npm run dev  # 启动在 localhost:5175，代理 /api → localhost:8001
 
 - `VITE_API_BASE_URL`：后端 API 基础路径
   - 开发时留空 → 走 Vite 代理（`/api` → `localhost:8001`）
+  - 开发时填写远程地址 → 直接请求远程后端（绕过 Vite 代理），适合配合已部署后端开发
   - 生产时设置为后端完整地址，如 `https://api.example.com/api`
-- `Vite` 同时代理 `/uploads` → `localhost:8001`（用于头像和照片的静态资源访问）
+  - 当前 `.env` 配置：`https://familywebsite-qkqd.onrender.com/api`（Render 部署后端）
+- `Vite` 代理配置 `/uploads` → `localhost:8001`（仅在 `VITE_API_BASE_URL` 为空时生效）
 
 ### 前端 uploadUrl 工具
 
@@ -221,7 +223,6 @@ npm run dev  # 启动在 localhost:5175，代理 /api → localhost:8001
 ### 数据库注意事项
 
 - `func.utc_timestamp()` 是 MySQL/MariaDB 专用语法，不适合迁移到 PostgreSQL/SQLite
-- User 模型中的 `updated_at` 使用 `onupdate=func.utc_timestamp()` 实现自动更新
 - Photo 模型的 `album_id` 外键使用 `ondelete="SET NULL"`（删除相册不删除照片）
 - 所有关系使用 `lazy="joined"` 或 `selectinload` 预加载，避免 async lazy-load 错误
 
