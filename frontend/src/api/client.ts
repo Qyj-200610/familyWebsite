@@ -7,7 +7,7 @@ import { navigateTo } from "../utils/navigate";
 // ============================================================
 
 // 开发时 VITE_API_BASE_URL 留空 → 走 Vite 代理（/api → localhost:8001）
-// 生产环境在 Vercel 面板设置 VITE_API_BASE_URL 为后端完整地址，如 https://api.example.com/api
+// 生产环境在 Cloudflare Pages 面板设置 VITE_API_BASE_URL 为后端完整地址，如 https://api.example.com/api
 const API_BASE: string = import.meta.env.VITE_API_BASE_URL || "/api";
 
 /** 上传文件的基础路径（从 API_BASE 推导，替换 /api → /uploads） */

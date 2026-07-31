@@ -1,0 +1,14 @@
+# Cloudflare Pages 配置（通过 wrangler CLI 部署时使用）
+# 如果通过 Cloudflare Dashboard Git 集成部署，此文件可不使用
+
+name = "family-website"
+pages_build_output_dir = "frontend/dist"
+compatibility_date = "2025-07-31"
+
+# 环境变量（部署时在 Cloudflare Dashboard 设置更安全）
+[vars]
+# VITE_API_BASE_URL = "https://familywebsite-qkqd.onrender.com/api"
+
+# Pages 构建配置（如果使用 wrangler 部署）
+[pages]
+build_command = "cd frontend && npm install && npm run build"
