@@ -33,7 +33,7 @@ export const uploadUrl = (path: string | null | undefined): string => {
 
 const instance = axios.create({
   baseURL: API_BASE,
-  timeout: 10_000,
+  timeout: 60_000,  // Render 免费版冷启动需 30~60s，给足够时间
   headers: { "Content-Type": "application/json; charset=utf-8" },
 });
 
@@ -127,3 +127,14 @@ const client = {
 };
 
 export default client;
+
+// ============================================================
+// 预热 — 应用启动时 ping 后端，唤醒 Render 免费版（防冷启动超时）
+// ============================================================
+let _warmed = false;
+
+export const warmup = (): void => {
+  if (_warmed) return;
+  _warmed = true;
+  fetch(`${API_BASE}/family/status`).catch(() => {});
+};
