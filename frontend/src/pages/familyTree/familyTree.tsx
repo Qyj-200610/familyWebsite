@@ -1,9 +1,8 @@
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import { useAuthStore } from "../../store/authStore";
 import { navigateTo } from "../../utils/navigate";
 import PageNav from "../../components/PageNav/PageNav";
-import { familyApi } from "../../api";
-import { uploadUrl } from "../../api/client";
+import { familyApi, uploadUrl } from "../../api";
 import type { FamilyMemberStatus } from "../../api/types";
 import "./familyTree.css";
 
@@ -378,6 +377,7 @@ function FamilyTree() {
     name: "",
     online: false,
   });
+  const videoTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // 未登录跳转
   useEffect(() => {
@@ -385,6 +385,13 @@ function FamilyTree() {
       navigateTo("/login");
     }
   }, [isAuthenticated]);
+
+  // 清理 video 导航 timer
+  useEffect(() => {
+    return () => {
+      if (videoTimerRef.current) clearTimeout(videoTimerRef.current);
+    };
+  }, []);
 
   // 拉取家族成员状态（在线状态 + 头像）
   useEffect(() => {
@@ -397,8 +404,9 @@ function FamilyTree() {
         });
         setMemberMap(map);
       })
-      .catch(() => {
+      .catch((err) => {
         // 静默失败 — 接口不可用时全部显示离线
+        console.warn("Failed to fetch family status:", err);
       });
   }, []);
 
@@ -424,7 +432,7 @@ function FamilyTree() {
 
       // 在线 → 弹出连接中 toast，短暂延迟后跳转
       setToast({ visible: true, name, online: true });
-      setTimeout(() => {
+      videoTimerRef.current = setTimeout(() => {
         navigateTo(`/family-tree/video?name=${encodeURIComponent(name)}`);
       }, 800);
     },

@@ -77,8 +77,9 @@
 
 ## 照片模块 `/api/photos`
 
-- [x] **获取照片** `GET /api/photos/{id}` — 含上传者信息
-- [x] **删除照片** `DELETE /api/photos/{id}` — 仅上传者或相册创建者可删除，自动清理磁盘文件
+- [x] **照片列表** `GET /api/photos` — 分页查询，含上传者信息
+- [x] **上传照片** `POST /api/photos/upload` — JPEG/PNG/WebP，最大 10 MB
+- [x] **删除照片** `DELETE /api/photos/{id}` — 仅上传者可删除，自动清理磁盘文件
 
 ## 美食模块 `/api/food`
 

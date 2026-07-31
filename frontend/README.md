@@ -18,10 +18,10 @@ npm run dev        # 启动开发服务器 → http://localhost:5175
 ```
 
 开发服务器配置了代理：
-- `/api` → `http://localhost:8000`
-- `/uploads` → `http://localhost:8000`
+- `/api` → `http://localhost:8001`
+- `/uploads` → `http://localhost:8001`
 
-确保后端服务已在 `localhost:8000` 运行。
+确保后端服务已在 `localhost:8001` 运行。
 
 ## 构建
 
@@ -39,20 +39,28 @@ src/
 ├── router.tsx            # 路由定义
 ├── api/
 │   ├── client.ts         # Axios 实例（拦截器、Token 注入、统一错误处理）
+│   ├── index.ts          # API 统一导出
 │   ├── types.ts          # TypeScript 类型定义
 │   ├── auth.ts           # 认证 API
 │   ├── user.ts           # 用户 API
 │   ├── photo.ts          # 相册 API
-│   └── food.ts           # 美食点单 API
+│   ├── food.ts           # 美食点单 API
+│   └── family.ts         # 家谱 API
 ├── store/
 │   └── authStore.ts      # Zustand 认证状态
+├── components/
+│   └── PageNav/          # 共享导航栏组件
 ├── utils/
 │   └── navigate.ts       # 全局导航工具
+├── svg/                  # SVG 图标资源
 └── pages/
     ├── home/             # 首页（已登录）
-    ├── auth/             # 登录、注册
+    ├── auth/             # 登录、注册、注册成功、忘记密码
     ├── photoAlbum/       # 家庭相册
     ├── foodOrder/        # 美食点单
+    ├── familyTree/       # 家谱图
+    │   └── video/         # 视频预览页
+    ├── dailyRoutine/     # 日常日程侧边栏
     ├── user/
     │   ├── setting/      # 用户设置
     │   └── personalCenter/ # 个人中心

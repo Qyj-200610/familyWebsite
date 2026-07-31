@@ -1,7 +1,7 @@
 # 家庭门户网站 — 前后端接口规范
 
-> **版本**: v1.2.0  
-> **最后更新**: 2026-07-30（新增家谱在线状态端点 + 类型定义）  
+> **版本**: v1.2.1  
+> **最后更新**: 2026-07-31（同步文档与代码：修正约束值、错误码、分页方式、健康检查响应）  
 > **技术栈**: React 19 + TypeScript + Vite + Axios  
 
 ---
@@ -61,21 +61,23 @@ Authorization: Bearer <token>    <!-- 需要认证的接口必传 -->
 
 ### 1.3 命名约定
 
-- URL 路径使用小写 + 短横线（kebab-case），如 `/api/auth/send-code`
+- URL 路径使用小写 + 短横线（kebab-case），如 `/api/auth/reset-password`
 - 请求体 / 响应体字段使用 camelCase
 - 枚举值使用 UPPER_SNAKE_CASE
 - 日期时间统一为 ISO 8601 字符串（`YYYY-MM-DDTHH:mm:ss.sssZ`）
 
 ### 1.4 分页约定（列表接口通用）
 
+照片列表接口使用偏移量分页：
+
 ```json
 {
-  "page": 1,        // 页码，从 1 开始
-  "pageSize": 20,   // 每页条数，默认 20，最大 100
-  "total": 200,     // 总条数
-  "totalPages": 10  // 总页数
+  "skip": 0,    // 跳过的记录数，默认 0
+  "limit": 50   // 每页条数，默认 50
 }
 ```
+
+> 当前接口返回平铺数组，不包含 `total`/`totalPages`。如需总数统计，后续可扩展响应格式。
 
 ---
 
@@ -93,7 +95,7 @@ Authorization: Bearer <token>    <!-- 需要认证的接口必传 -->
 
 | 字段 | 类型 | 说明 |
 |------|------|------|
-| `code` | `number` | 业务状态码。`0` 表示成功，非 `0` 表示异常（参见 [错误码对照表](#7-错误码对照表)） |
+| `code` | `number` | 业务状态码。`0` 表示成功，非 `0` 表示异常（参见 [错误码对照表](#9-错误码对照表)） |
 | `message` | `string` | 状态描述（成功时为 `"success"`，失败时为可读的中文提示） |
 | `data` | `object` \| `null` | 业务数据载荷；无数据时返回 `null` |
 
@@ -127,21 +129,32 @@ GET /api/health
 
 无。
 
-**响应体**
+**响应体 — 正常**
 
 ```json
 {
   "code": 0,
   "message": "ok",
-  "data": { "status": "healthy" }
+  "data": { "status": "healthy", "database": "connected" }
 }
 ```
 
 | 字段 | 类型 | 说明 |
 |------|------|------|
-| `data.status` | `string` | 固定为 `"healthy"` |
+| `data.status` | `string` | `"healthy"` 表示服务正常运行 |
+| `data.database` | `string` | `"connected"` 表示数据库可达；`"unreachable"` 表示数据库连接失败 |
 
-> 此端点不依赖数据库连接，即使数据库不可用也会返回成功。可用于前端启动时的连通性检测。
+**响应体 — 数据库不可达**
+
+```json
+{
+  "code": 5000,
+  "message": "服务异常",
+  "data": { "status": "degraded", "database": "unreachable" }
+}
+```
+
+> 数据库不可达时不视为致命错误，服务仍可响应，但 `code` 为非零值。
 
 ---
 
@@ -159,9 +172,9 @@ POST /api/auth/register
 
 | 字段 | 类型 | 必填 | 说明 |
 |------|------|------|------|
-| `username` | `string` | 是 | 用户名，2–20 个字符 |
+| `username` | `string` | 是 | 用户名，2–50 个字符 |
 | `email` | `string` | 是 | 邮箱地址，需符合邮箱格式 |
-| `password` | `string` | 是 | 密码，6–32 个字符 |
+| `password` | `string` | 是 | 密码，6–128 个字符 |
 
 ```json
 {
@@ -251,7 +264,7 @@ POST /api/auth/login
 
 ### 4.3 退出登录
 
-使当前 token 失效。
+通知后端当前用户已退出（前端清除 token，服务端不维护会话状态）。
 
 ```
 POST /api/auth/logout
@@ -272,7 +285,7 @@ Authorization: Bearer <token>
 ```json
 {
   "code": 0,
-  "message": "success",
+  "message": "已退出登录",
   "data": null
 }
 ```
@@ -292,7 +305,7 @@ POST /api/auth/reset-password
 | 字段 | 类型 | 必填 | 说明 |
 |------|------|------|------|
 | `email` | `string` | 是 | 注册时使用的邮箱 |
-| `newPassword` | `string` | 是 | 新密码，6–32 个字符 |
+| `newPassword` | `string` | 是 | 新密码，6–128 个字符 |
 
 ```json
 {
@@ -340,6 +353,7 @@ GET /api/user/me
     "username": "小明",
     "email": "xiaoming@example.com",
     "avatar": "https://cdn.example.com/avatars/1.jpg",
+    "lastLoginAt": "2026-07-30T12:00:00.000Z",
     "createdAt": "2026-07-01T12:00:00.000Z"
   }
 }
@@ -351,6 +365,7 @@ GET /api/user/me
 | `username` | `string` | 用户名 |
 | `email` | `string` | 邮箱 |
 | `avatar` | `string` \| `null` | 头像 URL |
+| `lastLoginAt` | `string` \| `null` | 最近登录时间（ISO 8601），从未登录过为 null |
 | `createdAt` | `string` | 注册时间（ISO 8601） |
 
 ---
@@ -365,7 +380,7 @@ PATCH /api/user/me
 
 | 字段 | 类型 | 必填 | 说明 |
 |------|------|------|------|
-| `username` | `string` | 否 | 新用户名，2–20 字符 |
+| `username` | `string` | 否 | 新用户名，2–50 字符 |
 | `avatar` | `string` | 否 | 新头像 URL |
 
 ```json
@@ -402,8 +417,11 @@ Content-Type: multipart/form-data
 | code | 说明 |
 |------|------|
 | `2002` | 用户名已被占用（更新资料时） |
-
-> 文件校验失败（格式/大小/魔数）时返回 HTTP 400，`message` 中包含具体原因。
+| `2003` | 未选择要上传的文件 |
+| `2004` | 不支持的文件格式（扩展名不合法） |
+| `2005` | 不支持的文件类型（MIME 类型不合法） |
+| `2006` | 文件大小超出限制（最大 2 MB） |
+| `2007` | 文件内容不是有效的图片格式（魔数检测失败） |
 
 ---
 
@@ -746,12 +764,9 @@ Authorization: Bearer <token>    <!-- 可选 -->
 | code | 说明 |
 |------|------|
 | `0` | 成功 |
-| `401` | 未认证（token 缺失、过期或无效） |
-| `403` | 无权限 |
-| `404` | 资源不存在 |
-| `422` | 请求参数校验失败，`message` 中返回具体原因 |
-| `429` | 请求过于频繁 |
-| `500` | 服务器内部错误 |
+| `5000` | 服务异常（如数据库不可达，见健康检查） |
+
+> HTTP 状态码（401/403/404/422/500）在 HTTP 响应头中返回，`code` 字段始终为业务错误码。
 
 ### 9.2 认证错误 (`1xxx`)
 
@@ -759,17 +774,19 @@ Authorization: Bearer <token>    <!-- 可选 -->
 |------|------|
 | `1001` | 该邮箱已被注册 |
 | `1002` | 用户名已被占用 |
-| `1003` | 密码格式不符合要求 |
 | `1101` | 邮箱或密码错误 |
-| `1102` | 账号已被禁用 |
-| `1103` | 登录过于频繁，请稍后再试 |
+| `1201` | 该邮箱未注册 |
 
 ### 9.3 用户错误 (`2xxx`)
 
 | code | 说明 |
 |------|------|
-| `2001` | 用户不存在 |
 | `2002` | 用户名已被占用（更新资料时） |
+| `2003` | 未选择要上传的文件（头像） |
+| `2004` | 不支持的文件格式（头像） |
+| `2005` | 不支持的文件类型（头像） |
+| `2006` | 文件大小超出限制（头像，最大 2 MB） |
+| `2007` | 文件内容不是有效的图片格式（头像魔数检测） |
 
 ### 9.4 相册错误 (`3xxx`)
 
@@ -836,7 +853,7 @@ interface LoginRequest {
   password: string;
 }
 
-/** 认证成功返回（登录 & 注册通用） */
+/** 认证成功返回（登录） */
 interface AuthResponse {
   user: User;
   token: string;
@@ -850,10 +867,18 @@ interface UpdateUserRequest {
   avatar?: string;
 }
 
+// === 认证 ===
+
+/** POST /api/auth/reset-password */
+interface ResetPasswordRequest {
+  email: string;
+  newPassword: string;
+}
+
 // === 相册 ===
 
 /** 照片上传者 / 相册创建者简要信息 */
-interface UserBrief {
+interface PhotoUploader {
   id: number;
   username: string;
 }
@@ -867,7 +892,7 @@ interface Photo {
   contentType: string;
   description: string | null;
   uploadedBy: number;
-  uploader: UserBrief | null;
+  uploader: PhotoUploader | null;
   albumId: number | null;
   createdAt: string;
 }
@@ -878,7 +903,7 @@ interface Album {
   name: string;
   isPublic: boolean;
   createdBy: number;
-  creator: UserBrief | null;
+  creator: PhotoUploader | null;
   photoCount: number;
   coverPhoto: Photo | null;
   createdAt: string;

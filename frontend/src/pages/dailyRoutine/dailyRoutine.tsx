@@ -193,23 +193,27 @@ function DailyRoutine() {
     (index: number) => {
       setTemplate((prev) => {
         const next = prev.filter((_, i) => i !== index);
-        saveTemplate(next);
-        // Re-index doneSet because indices shifted
-        setDoneSet((oldDone) => {
-          const newDone = new Set<number>();
-          oldDone.forEach((i) => {
-            if (i < index) newDone.add(i);
-            else if (i > index) newDone.add(i - 1);
-            // i === index → drop
-          });
-          saveDoneIndices(newDone);
-          return newDone;
-        });
         return next;
+      });
+      // Re-index doneSet because indices shifted — do this outside the setTemplate updater
+      setDoneSet((oldDone) => {
+        const newDone = new Set<number>();
+        oldDone.forEach((i) => {
+          if (i < index) newDone.add(i);
+          else if (i > index) newDone.add(i - 1);
+          // i === index → drop
+        });
+        saveDoneIndices(newDone);
+        return newDone;
       });
     },
     []
   );
+
+  // Persist template to localStorage whenever it changes
+  useEffect(() => {
+    saveTemplate(template);
+  }, [template]);
 
   const resetToday = useCallback(() => {
     setDoneSet(new Set());
@@ -295,7 +299,7 @@ function DailyRoutine() {
       <ul className="dr__list">
         {template.map((item, index) => (
           <li
-            key={index}
+            key={`${item.time}-${item.title}`}
             className={`dr__item ${doneSet.has(index) ? "dr__item--done" : ""} ${editing ? "dr__item--editing" : ""}`}
             onClick={() => !editing && toggleDone(index)}
           >

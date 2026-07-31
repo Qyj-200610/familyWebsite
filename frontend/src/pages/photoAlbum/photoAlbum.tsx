@@ -69,6 +69,7 @@ function PhotoAlbum() {
 
   // ---------- 删除相册 ----------
   const [deleteAlbumTarget, setDeleteAlbumTarget] = useState<Album | null>(null);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
 
   // ---------- 上传弹窗 ----------
   const [uploadOpen, setUploadOpen] = useState(false);
@@ -173,11 +174,13 @@ function PhotoAlbum() {
   // ---------- 删除相册 ----------
   const handleDeleteAlbum = async () => {
     if (!deleteAlbumTarget) return;
+    setDeleteError(null);
     try {
       await albumApi.deleteAlbum(deleteAlbumTarget.id);
       setAlbums((prev) => prev.filter((a) => a.id !== deleteAlbumTarget.id));
     } catch (err) {
-      alert(err instanceof Error ? err.message : "删除失败");
+      setDeleteError(err instanceof Error ? err.message : "删除失败");
+      return; // keep modal open to show error
     } finally {
       setDeleteAlbumTarget(null);
     }
@@ -197,6 +200,7 @@ function PhotoAlbum() {
       return;
     }
     setUploadError(null);
+    if (uploadPreview) URL.revokeObjectURL(uploadPreview);
     setUploadFile(file);
     setUploadPreview(URL.createObjectURL(file));
   };
@@ -207,8 +211,8 @@ function PhotoAlbum() {
     setUploadError(null);
     try {
       const newPhoto = await albumApi.uploadPhoto(selectedAlbumId, uploadFile, uploadDescription.trim() || undefined);
-      if (newPhoto && albumDetail) {
-        setAlbumDetail({ ...albumDetail, photos: [newPhoto, ...albumDetail.photos], photoCount: albumDetail.photoCount + 1 });
+      if (newPhoto && selectedAlbumId !== null) {
+        setAlbumDetail((prev) => prev ? { ...prev, photos: [newPhoto, ...prev.photos], photoCount: prev.photoCount + 1 } : null);
       }
       setUploadOpen(false);
       setUploadFile(null);
@@ -243,17 +247,17 @@ function PhotoAlbum() {
   // ---------- 删除照片 ----------
   const handleDeletePhoto = async () => {
     if (!deletePhotoTarget) return;
+    setDeleteError(null);
     try {
       await photoApi.deletePhoto(deletePhotoTarget.id);
-      if (albumDetail) {
-        setAlbumDetail({
-          ...albumDetail,
-          photos: albumDetail.photos.filter((p) => p.id !== deletePhotoTarget.id),
-          photoCount: albumDetail.photoCount - 1,
-        });
-      }
+      setAlbumDetail((prev) => prev ? {
+        ...prev,
+        photos: prev.photos.filter((p) => p.id !== deletePhotoTarget.id),
+        photoCount: prev.photoCount - 1,
+      } : null);
     } catch (err) {
-      alert(err instanceof Error ? err.message : "删除失败");
+      setDeleteError(err instanceof Error ? err.message : "删除失败");
+      return; // keep modal open to show error
     } finally {
       setDeletePhotoTarget(null);
     }
@@ -262,6 +266,16 @@ function PhotoAlbum() {
   // ---------- 查看器 ----------
   const openViewer = (photo: Photo) => { setViewerPhoto(photo); setViewerOpen(true); };
   const closeViewer = () => { setViewerOpen(false); setViewerPhoto(null); };
+
+  // ESC key closes viewer
+  useEffect(() => {
+    if (!viewerOpen) return;
+    const handleKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") closeViewer();
+    };
+    document.addEventListener("keydown", handleKey);
+    return () => document.removeEventListener("keydown", handleKey);
+  }, [viewerOpen]);
 
   const getPhotoUrl = (filename: string) => uploadUrl(`/uploads/photos/${filename}`);
 
@@ -526,9 +540,10 @@ function PhotoAlbum() {
             <div className="album__modal-body">
               <p>确定要删除相册「{deleteAlbumTarget.name}」吗？</p>
               <p className="album__confirm-warning">相册内的照片不会被删除，你可以稍后重新整理。</p>
+              {deleteError && <div className="album__upload-error">⚠️ {deleteError}</div>}
             </div>
             <div className="album__modal-footer">
-              <button className="album__modal-btn album__modal-btn--cancel" onClick={() => setDeleteAlbumTarget(null)}>取消</button>
+              <button className="album__modal-btn album__modal-btn--cancel" onClick={() => { setDeleteAlbumTarget(null); setDeleteError(null); }}>取消</button>
               <button className="album__modal-btn album__modal-btn--danger" onClick={handleDeleteAlbum}>确认删除</button>
             </div>
           </div>
@@ -543,9 +558,10 @@ function PhotoAlbum() {
             <div className="album__modal-body">
               <p>确定要删除这张照片吗？{deletePhotoTarget.description && <span className="album__confirm-desc">「{deletePhotoTarget.description}」</span>}</p>
               <p className="album__confirm-warning">此操作不可撤销。</p>
+              {deleteError && <div className="album__upload-error">⚠️ {deleteError}</div>}
             </div>
             <div className="album__modal-footer">
-              <button className="album__modal-btn album__modal-btn--cancel" onClick={() => setDeletePhotoTarget(null)}>取消</button>
+              <button className="album__modal-btn album__modal-btn--cancel" onClick={() => { setDeletePhotoTarget(null); setDeleteError(null); }}>取消</button>
               <button className="album__modal-btn album__modal-btn--danger" onClick={handleDeletePhoto}>确认删除</button>
             </div>
           </div>

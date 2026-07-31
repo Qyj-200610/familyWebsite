@@ -170,7 +170,7 @@ function Login() {
           className={`form-submit ${loading ? "form-submit--loading" : ""}`}
           disabled={loading}
         >
-          {loading ? "登录中" : "登录"}
+          {loading ? "登录中..." : "登录"}
         </button>
       </form>
 

@@ -1,7 +1,7 @@
 import uuid
 from pathlib import Path
 
-from fastapi import APIRouter, Depends, File, HTTPException, UploadFile
+from fastapi import APIRouter, Depends, File, UploadFile
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.deps import get_current_user
@@ -55,35 +55,26 @@ async def upload_avatar(
     """
     # ── 验证文件存在 ──
     if not file.filename:
-        raise HTTPException(status_code=400, detail="请选择要上传的文件")
+        return error_response(2003, "请选择要上传的文件")
 
     # ── 验证扩展名 ──
     suffix = Path(file.filename).suffix.lower()
     if suffix not in _AVATAR_ALLOWED_EXTENSIONS:
-        raise HTTPException(
-            status_code=400,
-            detail=f"不支持的文件格式：{suffix}，仅允许 jpg、png、webp",
-        )
+        return error_response(2004, f"不支持的文件格式：{suffix}，仅允许 jpg、png、webp")
 
     # ── 验证 Content-Type ──
     if file.content_type and file.content_type not in settings.AVATAR_ALLOWED_CONTENT_TYPES:
-        raise HTTPException(
-            status_code=400,
-            detail=f"不支持的文件类型：{file.content_type}，仅允许 jpg、png、webp",
-        )
+        return error_response(2005, f"不支持的文件类型：{file.content_type}，仅允许 jpg、png、webp")
 
     # ── 验证文件大小 ──
     content = await file.read()
     if len(content) > settings.AVATAR_MAX_SIZE:
-        raise HTTPException(
-            status_code=400,
-            detail=f"文件大小超出限制（最大 {settings.AVATAR_MAX_SIZE // (1024 * 1024)} MB）",
-        )
+        return error_response(2006, f"文件大小超出限制（最大 {settings.AVATAR_MAX_SIZE // (1024 * 1024)} MB）")
 
     # ── 二次验证：通过文件头魔数检测真实类型 ──
     detected_type = detect_image_type(content)
     if detected_type is None or detected_type not in settings.AVATAR_ALLOWED_CONTENT_TYPES:
-        raise HTTPException(status_code=400, detail="文件内容不是有效的图片格式（仅允许 jpg、png、webp）")
+        return error_response(2007, "文件内容不是有效的图片格式（仅允许 jpg、png、webp）")
 
     # ── 保存文件 ──
     avatar_dir = Path(settings.UPLOAD_DIR) / "avatars"

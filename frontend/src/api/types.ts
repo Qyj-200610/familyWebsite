@@ -98,6 +98,12 @@ export interface AlbumDetail extends Album {
   photos: Photo[];
 }
 
+/** POST /api/albums 创建相册 */
+export interface AlbumCreateRequest {
+  name: string;
+  isPublic?: boolean;
+}
+
 // === 美食点单 ===
 
 /** 订单中的单个菜品 */

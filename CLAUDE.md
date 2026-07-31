@@ -18,6 +18,10 @@ familyWebsite/
 ├── backend/                     # FastAPI 后端
 │   ├── .env.example             # 环境变量模板
 │   ├── requirements.txt         # Python 依赖
+│   ├── API_REFERENCE.md         # 后端 API 快速参考
+│   ├── docs/                    # 后端文档
+│   │   ├── COMPLETED.md         # 已完成功能
+│   │   └── TODOLIST.md          # 待办事项
 │   ├── uploads/                 # 上传文件存储目录
 │   └── app/
 │       ├── main.py              # 应用入口，CORS，StaticFiles，lifespan
@@ -52,7 +56,8 @@ familyWebsite/
 │       │   ├── photo.py         # PhotoService — 照片业务逻辑
 │       │   └── food.py          # FoodService — 邮件通知
 │       └── utils/
-│           └── image.py         # 图片魔数检测（JPEG/PNG/WebP）
+│           ├── image.py         # 图片魔数检测（JPEG/PNG/WebP）
+│           └── response_helpers.py  # 照片响应转换 + 错误码映射
 ├── frontend/                    # React SPA 前端
 │   ├── .env.example             # VITE_API_BASE_URL 说明
 │   ├── index.html
@@ -65,6 +70,7 @@ familyWebsite/
 │   └── src/
 │       ├── main.tsx             # React 入口
 │       ├── App.tsx              # 首页（未登录时的 Landing 展示页）
+│       ├── env.d.ts             # Vite 环境变量类型声明
 │       ├── router.tsx           # React Router 路由定义 + 全局导航注入
 │       ├── api/
 │       │   ├── client.ts        # Axios 实例 + 拦截器（含 uploadUrl 工具函数）
@@ -144,6 +150,7 @@ npm run dev  # 启动在 localhost:5175，代理 /api → localhost:8001
 | 1100–1200 | 登录 |
 | 1200–1300 | 密码重置 |
 | 2000–2100 | 用户更新 |
+| 2003–2007 | 头像上传（文件验证） |
 | 3000–3100 | 照片上传/删除 |
 | 3100–3200 | 照片操作 |
 | 3200–3300 | 相册操作 |
@@ -217,3 +224,23 @@ npm run dev  # 启动在 localhost:5175，代理 /api → localhost:8001
 - User 模型中的 `updated_at` 使用 `onupdate=func.utc_timestamp()` 实现自动更新
 - Photo 模型的 `album_id` 外键使用 `ondelete="SET NULL"`（删除相册不删除照片）
 - 所有关系使用 `lazy="joined"` 或 `selectinload` 预加载，避免 async lazy-load 错误
+
+### 已知设计决策
+
+以下是针对家庭内部使用场景的**有意设计选择**，不是 bug：
+
+| 决策 | 原因 |
+|------|------|
+| 密码重置无需邮箱验证 | 家庭内部使用，用户量小；若要登录才能重置则形成悖论（忘记密码无法登录）。CLAUDE.md 注明"仅适用于家庭场景" |
+| 无登录/注册速率限制 | 家庭用户数极少，引入 in-memory rate limiter 或 Redis 不值得 |
+| 无 JWT token 撤销机制 | 需要 DB migration 或 Redis 支持，对家庭网站过重 |
+| 上传文件通过 StaticFiles 直接服务 | UUID 文件名提供足够隐蔽性保护私有相册照片；完全接入认证需大规模重构 |
+| 无 Alembic 数据库迁移 | 使用 SQLAlchemy `create_all` 自动建表，适合低复杂度项目；已在 TODO 中列为低优先级 |
+| 密码列名为 `password`（非 `hashed_password`） | 是历史设计，改名需要数据库迁移，风险大于收益 |
+
+### 照片/头像上传限制
+
+| 类型 | 最大大小 | 允许格式 | 配置位置 |
+|------|---------|---------|---------|
+| 头像 | 2 MB | JPEG/PNG/WebP | `settings.AVATAR_MAX_SIZE`, `settings.AVATAR_ALLOWED_CONTENT_TYPES` |
+| 照片 | 10 MB | JPEG/PNG/WebP | `settings.PHOTO_MAX_SIZE`, `settings.PHOTO_ALLOWED_CONTENT_TYPES` |

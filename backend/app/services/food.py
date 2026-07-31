@@ -105,14 +105,20 @@ class FoodService:
             html_body = FoodService._build_email_body(username, items, note)
             msg.attach(MIMEText(html_body, "html", "utf-8"))
 
+            server = None
             try:
                 server = smtplib.SMTP(settings.SMTP_HOST, settings.SMTP_PORT, timeout=15)
                 server.starttls()
                 server.login(settings.SMTP_USER, settings.SMTP_PASSWORD)
                 server.sendmail(settings.SMTP_USER, settings.SMTP_NOTIFICATION_EMAIL, msg.as_string())
-                server.quit()
             except Exception as e:
                 logger.error(f"SMTP send failed: {e}")
                 raise RuntimeError(f"邮件发送失败: {e}") from e
+            finally:
+                if server is not None:
+                    try:
+                        server.quit()
+                    except Exception:
+                        pass
 
         await asyncio.to_thread(_sync_send)

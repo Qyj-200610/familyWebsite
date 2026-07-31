@@ -4,38 +4,11 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.api.deps import get_current_user
 from app.core.database import get_db
 from app.core.response import error_response, success_response
-from app.models.photo import Photo
 from app.models.user import User
-from app.schemas.photo import PhotoResponse
 from app.services.photo import PhotoService
+from app.utils.response_helpers import PHOTO_UPLOAD_ERROR_MAP, photo_to_response
 
 router = APIRouter(prefix="/photos", tags=["photos"])
-
-# ---------- 错误码映射 ----------
-
-_ERROR_MAP = {
-    "FILENAME_MISSING": (3001, "请选择要上传的文件"),
-    "UNSUPPORTED_FORMAT": (3002, "不支持的文件格式，仅允许 jpg、png、webp"),
-    "UNSUPPORTED_CONTENT_TYPE": (3003, "不支持的文件类型，仅允许 jpg、png、webp"),
-    "FILE_TOO_LARGE": (3004, f"文件大小超出限制（最大 {PhotoService.MAX_FILE_SIZE // (1024 * 1024)} MB）"),
-    "INVALID_IMAGE": (3005, "文件内容不是有效的图片格式"),
-}
-
-
-def _photo_to_response(photo: Photo) -> dict:
-    """Convert a Photo ORM object to a response dict with the uploader info embedded."""
-    return PhotoResponse(
-        id=photo.id,
-        filename=photo.filename,
-        original_filename=photo.original_filename,
-        file_size=photo.file_size,
-        content_type=photo.content_type,
-        description=photo.description,
-        uploaded_by=photo.uploaded_by,
-        uploader={"id": photo.uploader.id, "username": photo.uploader.username} if photo.uploader else None,
-        album_id=photo.album_id,
-        created_at=photo.created_at,
-    ).model_dump(mode="json", by_alias=True)
 
 
 @router.get("")
@@ -49,7 +22,7 @@ async def get_photos(
     photos = await PhotoService.get_photos(
         db, skip=skip, limit=limit, current_user_id=current_user.id
     )
-    return success_response([_photo_to_response(p) for p in photos])
+    return success_response([photo_to_response(p) for p in photos])
 
 
 @router.post("/upload")
@@ -63,10 +36,10 @@ async def upload_photo(
     try:
         photo = await PhotoService.upload_photo(db, current_user, file, description)
     except ValueError as e:
-        code, msg = _ERROR_MAP.get(str(e), (3000, "上传失败"))
+        code, msg = PHOTO_UPLOAD_ERROR_MAP.get(str(e), (3000, "上传失败"))
         return error_response(code, msg)
 
-    return success_response(_photo_to_response(photo), message="照片上传成功")
+    return success_response(photo_to_response(photo), message="照片上传成功")
 
 
 @router.delete("/{photo_id}")

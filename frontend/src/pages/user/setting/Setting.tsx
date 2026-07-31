@@ -1,7 +1,8 @@
 import { useEffect, useState, useRef } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useAuthStore } from "../../../store/authStore";
-import { authApi, userApi, uploadUrl } from "../../../api";
+import { userApi, uploadUrl } from "../../../api";
+import PageNav from "../../../components/PageNav/PageNav";
 import "./Setting.css";
 
 /** 允许的头像格式 */
@@ -11,9 +12,7 @@ const MAX_SIZE = 2 * 1024 * 1024; // 2 MB
 
 function Setting() {
   const navigate = useNavigate();
-  const { user, isAuthenticated, logout, updateUser } = useAuthStore();
-  const [dropdownOpen, setDropdownOpen] = useState(false);
-  const dropdownRef = useRef<HTMLDivElement>(null);
+  const { user, isAuthenticated, updateUser } = useAuthStore();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // 头像上传状态
@@ -26,32 +25,12 @@ function Setting() {
   const [usernameError, setUsernameError] = useState("");
   const [savingUsername, setSavingUsername] = useState(false);
 
-  // 点击外部关闭下拉菜单
-  useEffect(() => {
-    function handleClickOutside(e: MouseEvent) {
-      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
-        setDropdownOpen(false);
-      }
-    }
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
-
+  // 认证检查
   useEffect(() => {
     if (!isAuthenticated) {
       navigate("/login", { replace: true });
     }
   }, [isAuthenticated, navigate]);
-
-  const handleLogout = async () => {
-    try {
-      await authApi.logout();
-    } catch (e) {
-      console.error("Logout failed:", e);
-    }
-    logout();
-    navigate("/");
-  };
 
   /** 获取头像首字母 */
   const avatarLetter = user?.username?.charAt(0).toUpperCase() || "U";
@@ -151,59 +130,7 @@ function Setting() {
       <div className="setting__top-decor" />
 
       {/* Nav */}
-      <nav className="setting__nav">
-        <div className="container setting__nav-inner">
-          <div className="setting__nav-left">
-            <Link to="/home" className="setting__logo">🏠 我们的家</Link>
-          </div>
-
-          {/* 头像 + 下拉菜单 */}
-          <div className="setting__user-area" ref={dropdownRef}>
-            <button
-              className="setting__avatar-btn"
-              onClick={() => setDropdownOpen(!dropdownOpen)}
-            >
-              <span className="setting__avatar">
-                {user?.avatar ? (
-                  <img src={uploadUrl(user.avatar)} alt={user.username} />
-                ) : (
-                  <span className="setting__avatar-placeholder">{avatarLetter}</span>
-                )}
-              </span>
-              <span className="setting__username">{user?.username || "用户"}</span>
-              <span className={`setting__dropdown-arrow ${dropdownOpen ? "setting__dropdown-arrow--open" : ""}`}>▾</span>
-            </button>
-
-            {dropdownOpen && (
-              <div className="setting__dropdown">
-                <Link
-                  to="/personal-center"
-                  className="setting__dropdown-item"
-                  onClick={() => setDropdownOpen(false)}
-                >
-                  <span className="setting__dropdown-icon">👤</span>
-                  个人中心
-                </Link>
-                <Link
-                  to="/setting"
-                  className="setting__dropdown-item setting__dropdown-item--active"
-                  onClick={() => setDropdownOpen(false)}
-                >
-                  <span className="setting__dropdown-icon">⚙️</span>
-                  设置
-                </Link>
-                <div className="setting__dropdown-divider" />
-                <button
-                  className="setting__dropdown-item setting__dropdown-item--danger"
-                  onClick={handleLogout}
-                >
-                  退出登录
-                </button>
-              </div>
-            )}
-          </div>
-        </div>
-      </nav>
+      <PageNav />
 
       {/* Main */}
       <main className="setting__main">
@@ -281,7 +208,7 @@ function Setting() {
                     type="file"
                     accept=".jpg,.jpeg,.png,.webp"
                     onChange={handleFileChange}
-                    style={{ display: "none" }}
+                    hidden
                   />
                 </div>
 

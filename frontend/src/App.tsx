@@ -1,4 +1,3 @@
-import { useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuthStore } from "./store/authStore";
 import "./App.css";
@@ -7,12 +6,11 @@ function App() {
   const navigate = useNavigate();
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
 
-  // 已登录用户自动跳转到 /home
-  useEffect(() => {
-    if (isAuthenticated) {
-      navigate("/home", { replace: true });
-    }
-  }, [isAuthenticated, navigate]);
+  // 已登录用户同步重定向到 /home（避免闪现 Landing 页）
+  if (isAuthenticated) {
+    navigate("/home", { replace: true });
+    return null;
+  }
   return (
     <div className="cover">
       {/* Nav */}

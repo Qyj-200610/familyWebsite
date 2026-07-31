@@ -32,6 +32,13 @@ Vercel 反向代理转发 API 请求，从根源规避跨域问题，无需额�
 - 仅适合个人项目、毕设、竞赛展示等低访问量场景
 - 不适合高并发、7×24 商用、实时通讯等生产级需求
 
+## 已部署 URL
+
+| 服务 | URL |
+|------|-----|
+| Frontend | https://family-website-frontend-six.vercel.app |
+| Backend | https://familywebsite-qkqd.onrender.com |
+
 ---
 
 > 注：部分内容可能由 AI 生成

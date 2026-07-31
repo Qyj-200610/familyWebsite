@@ -237,7 +237,7 @@ function Register() {
           className={`form-submit ${loading ? "form-submit--loading" : ""}`}
           disabled={loading}
         >
-          {loading ? "注册中" : "注册"}
+          {loading ? "注册中..." : "注册"}
         </button>
       </form>
     </Auth>

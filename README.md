@@ -86,7 +86,7 @@ pip install -r requirements.txt
 编辑 `backend/.env`，修改数据库连接信息：
 
 ```env
-DATABASE_URL=mysql+asyncmy://用户名:密码@localhost:3306/family_website
+DATABASE_URL=mysql+aiomysql://用户名:密码@localhost:3306/family_website
 JWT_SECRET=你的密钥
 JWT_ALGORITHM=HS256
 JWT_EXPIRE_MINUTES=1440

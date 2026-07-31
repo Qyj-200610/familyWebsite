@@ -16,14 +16,12 @@ from app.utils.image import detect_image_type
 class PhotoService:
     """Business logic for photo album operations."""
 
-    # 允许的图片格式及对应扩展名
-    ALLOWED_CONTENT_TYPES = {"image/jpeg", "image/png", "image/webp"}
+    # 允许的图片扩展名（用于文件名后缀检查）
     ALLOWED_EXTENSIONS = {".jpg", ".jpeg", ".png", ".webp"}
-    MAX_FILE_SIZE = 10 * 1024 * 1024  # 10 MB
 
     @staticmethod
-    def _validate_file(filename: str, content_type: str | None, content: bytes) -> str:
-        """Validate the uploaded file and return the normalized extension.
+    def _validate_file(filename: str, content_type: str | None, content: bytes) -> tuple[str, str | None]:
+        """Validate the uploaded file and return (normalized_extension, detected_content_type).
 
         Raises ValueError on failure.
         """
@@ -34,17 +32,18 @@ class PhotoService:
         if suffix not in PhotoService.ALLOWED_EXTENSIONS:
             raise ValueError("UNSUPPORTED_FORMAT")
 
-        if content_type and content_type not in PhotoService.ALLOWED_CONTENT_TYPES:
+        if content_type and content_type not in settings.PHOTO_ALLOWED_CONTENT_TYPES:
             raise ValueError("UNSUPPORTED_CONTENT_TYPE")
 
-        if len(content) > PhotoService.MAX_FILE_SIZE:
+        if len(content) > settings.PHOTO_MAX_SIZE:
             raise ValueError("FILE_TOO_LARGE")
 
         detected = detect_image_type(content)
-        if detected is None or detected not in PhotoService.ALLOWED_CONTENT_TYPES:
+        if detected is None or detected not in settings.PHOTO_ALLOWED_CONTENT_TYPES:
             raise ValueError("INVALID_IMAGE")
 
-        return ".jpg" if suffix == ".jpeg" else suffix
+        ext = ".jpg" if suffix == ".jpeg" else suffix
+        return ext, detected
 
     @staticmethod
     async def upload_photo(
@@ -60,9 +59,9 @@ class PhotoService:
         content = await file.read()
         filename = file.filename or ""
 
-        # 验证文件
-        ext = PhotoService._validate_file(filename, file.content_type, content)
-        content_type = file.content_type or detect_image_type(content) or "image/jpeg"
+        # 验证文件（同时完成魔数检测，detected_type 复用检测结果避免重复调用）
+        ext, detected_type = PhotoService._validate_file(filename, file.content_type, content)
+        content_type = file.content_type or detected_type or "image/jpeg"
 
         # 保存到磁盘
         photo_dir = Path(settings.UPLOAD_DIR) / "photos"

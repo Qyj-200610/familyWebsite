@@ -11,6 +11,8 @@ class AlbumCreateRequest(BaseModel):
     name: str = Field(..., min_length=1, max_length=100, description="相册名称")
     is_public: bool = Field(True, alias="isPublic", description="是否公开")
 
+    model_config = ConfigDict(populate_by_name=True)
+
 
 # ── Response Schemas ────────────────────────────────────────────
 
@@ -33,6 +35,6 @@ class AlbumResponse(BaseModel):
     photo_count: int = Field(0, alias="photoCount")
     created_at: datetime = Field(alias="createdAt")
     cover_photo: dict | None = Field(None, alias="coverPhoto")
-    photos: list | None = None
+    photos: list[dict] | None = None
 
     model_config = ConfigDict(from_attributes=True, populate_by_name=True)

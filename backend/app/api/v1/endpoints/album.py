@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, File, Form, HTTPException, UploadFile
+from fastapi import APIRouter, Depends, File, Form, UploadFile
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.deps import get_current_user
@@ -9,6 +9,7 @@ from app.schemas.album import AlbumCreateRequest, AlbumResponse
 from app.schemas.photo import PhotoResponse
 from app.services.album import AlbumService
 from app.services.photo import PhotoService
+from app.utils.response_helpers import PHOTO_UPLOAD_ERROR_MAP, photo_to_response
 
 router = APIRouter(prefix="/albums", tags=["albums"])
 
@@ -19,14 +20,6 @@ _ERROR_MAP = {
     "ALBUM_NOT_FOUND": (3202, "相册不存在"),
     "FORBIDDEN": (3203, "无权访问该相册"),
     "NOT_OWNER": (3204, "只能操作自己创建的相册"),
-}
-
-_PHOTO_ERROR_MAP = {
-    "FILENAME_MISSING": (3001, "请选择要上传的文件"),
-    "UNSUPPORTED_FORMAT": (3002, "不支持的文件格式，仅允许 jpg、png、webp"),
-    "UNSUPPORTED_CONTENT_TYPE": (3003, "不支持的文件类型，仅允许 jpg、png、webp"),
-    "FILE_TOO_LARGE": (3004, f"文件大小超出限制（最大 {PhotoService.MAX_FILE_SIZE // (1024 * 1024)} MB）"),
-    "INVALID_IMAGE": (3005, "文件内容不是有效的图片格式"),
 }
 
 
@@ -78,22 +71,6 @@ def _album_to_response(album) -> dict:
     ).model_dump(mode="json", by_alias=True) | {"coverPhoto": cover_photo}
 
 
-def _photo_to_response(photo) -> dict:
-    """Convert a Photo ORM object to a response dict."""
-    return PhotoResponse(
-        id=photo.id,
-        filename=photo.filename,
-        original_filename=photo.original_filename,
-        file_size=photo.file_size,
-        content_type=photo.content_type,
-        description=photo.description,
-        uploaded_by=photo.uploaded_by,
-        uploader={"id": photo.uploader.id, "username": photo.uploader.username} if photo.uploader else None,
-        album_id=photo.album_id,
-        created_at=photo.created_at,
-    ).model_dump(mode="json", by_alias=True)
-
-
 @router.post("")
 async def create_album(
     body: AlbumCreateRequest,
@@ -138,7 +115,7 @@ async def get_album(
     album_data = _album_to_response(album)
     photos_list = list(album.photos) if album.photos else []
     sorted_photos = sorted(photos_list, key=lambda p: p.created_at, reverse=True)
-    album_data["photos"] = [_photo_to_response(p) for p in sorted_photos]
+    album_data["photos"] = [photo_to_response(p) for p in sorted_photos]
 
     return success_response(album_data)
 
@@ -183,10 +160,10 @@ async def upload_photo_to_album(
     try:
         photo = await PhotoService.upload_photo(db, current_user, file, description, album_id=album_id)
     except ValueError as e:
-        code, msg = _PHOTO_ERROR_MAP.get(str(e), (3000, "上传失败"))
+        code, msg = PHOTO_UPLOAD_ERROR_MAP.get(str(e), (3000, "上传失败"))
         return error_response(code, msg)
 
-    return success_response(_photo_to_response(photo), message="照片上传成功")
+    return success_response(photo_to_response(photo), message="照片上传成功")
 
 
 @router.get("/{album_id}/photos")
@@ -205,4 +182,4 @@ async def get_album_photos(
         return error_response(3203, "无权访问该相册", status_code=403)
 
     photos = await PhotoService.get_photos(db, skip=skip, limit=limit, album_id=album_id)
-    return success_response([_photo_to_response(p) for p in photos])
+    return success_response([photo_to_response(p) for p in photos])

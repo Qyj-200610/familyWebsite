@@ -1,4 +1,4 @@
-import { useState, type FormEvent } from "react";
+import { useState, useRef, useEffect, type FormEvent } from "react";
 import { useNavigate } from "react-router-dom";
 import Auth from "../Auth";
 import { authApi } from "../../../api";
@@ -32,6 +32,14 @@ function ForgetPassword() {
   const [serverSuccess, setServerSuccess] = useState("");
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const redirectTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Clean up redirect timer on unmount
+  useEffect(() => {
+    return () => {
+      if (redirectTimerRef.current) clearTimeout(redirectTimerRef.current);
+    };
+  }, []);
 
   const validate = (): boolean => {
     const errs: FormErrors = {};
@@ -72,7 +80,7 @@ function ForgetPassword() {
         newPassword: form.newPassword,
       });
       setServerSuccess("密码已重置成功！");
-      setTimeout(() => {
+      redirectTimerRef.current = setTimeout(() => {
         navigate("/login", { replace: true });
       }, 2000);
     } catch (err: unknown) {
@@ -156,7 +164,7 @@ function ForgetPassword() {
               type="button"
               className="form-password-toggle"
               onClick={() => setShowNewPassword((v) => !v)}
-              tabIndex={-1}
+              tabIndex={0}
               aria-label={showNewPassword ? "隐藏新密码" : "显示新密码"}
             >
               {showNewPassword ? "🙈" : "👁"}
@@ -191,7 +199,7 @@ function ForgetPassword() {
               type="button"
               className="form-password-toggle"
               onClick={() => setShowConfirmPassword((v) => !v)}
-              tabIndex={-1}
+              tabIndex={0}
               aria-label={showConfirmPassword ? "隐藏确认新密码" : "显示确认新密码"}
             >
               {showConfirmPassword ? "🙈" : "👁"}
@@ -207,7 +215,7 @@ function ForgetPassword() {
           className={`form-submit ${loading ? "form-submit--loading" : ""}`}
           disabled={loading}
         >
-          {loading ? "重置中" : "重置密码"}
+          {loading ? "重置中..." : "重置密码"}
         </button>
       </form>
     </Auth>

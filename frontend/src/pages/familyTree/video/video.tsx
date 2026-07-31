@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState, useCallback } from "react";
 import { useSearchParams } from "react-router-dom";
+import { useAuthStore } from "../../../store/authStore";
 import { navigateTo } from "../../../utils/navigate";
 import PageNav from "../../../components/PageNav/PageNav";
 import "./video.css";
@@ -29,8 +30,18 @@ function formatTime(seconds: number): string {
 function VideoPage() {
   const [searchParams] = useSearchParams();
   const memberName = searchParams.get("name") || "成员";
+  const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
 
   const videoRef = useRef<HTMLVideoElement>(null);
+
+  // ── 认证守卫 ──
+  useEffect(() => {
+    if (!isAuthenticated) {
+      navigateTo("/login");
+    }
+  }, [isAuthenticated]);
+
+  if (!isAuthenticated) return null;
 
   // ── 摄像头 ──
   const cameraStreamRef = useRef<MediaStream | null>(null);

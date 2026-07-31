@@ -42,6 +42,8 @@ class Settings(BaseSettings):
     UPLOAD_DIR: str = str(Path(__file__).resolve().parent.parent.parent / "uploads")
     AVATAR_MAX_SIZE: int = 2 * 1024 * 1024  # 2 MB
     AVATAR_ALLOWED_CONTENT_TYPES: set[str] = {"image/jpeg", "image/png", "image/webp"}
+    PHOTO_MAX_SIZE: int = 10 * 1024 * 1024  # 10 MB
+    PHOTO_ALLOWED_CONTENT_TYPES: set[str] = {"image/jpeg", "image/png", "image/webp"}
 
     model_config = SettingsConfigDict(
         env_file=str(_ENV_FILE),

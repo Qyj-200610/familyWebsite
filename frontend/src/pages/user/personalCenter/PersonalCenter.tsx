@@ -1,41 +1,20 @@
-import { useEffect, useState, useRef } from "react";
+import { useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useAuthStore } from "../../../store/authStore";
-import { authApi, uploadUrl } from "../../../api";
+import { uploadUrl } from "../../../api";
+import PageNav from "../../../components/PageNav/PageNav";
 import "./PersonalCenter.css";
 
 function PersonalCenter() {
   const navigate = useNavigate();
-  const { user, isAuthenticated, logout } = useAuthStore();
-  const [dropdownOpen, setDropdownOpen] = useState(false);
-  const dropdownRef = useRef<HTMLDivElement>(null);
+  const { user, isAuthenticated } = useAuthStore();
 
-  // 点击外部关闭下拉菜单
-  useEffect(() => {
-    function handleClickOutside(e: MouseEvent) {
-      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
-        setDropdownOpen(false);
-      }
-    }
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
-
+  // 认证检查
   useEffect(() => {
     if (!isAuthenticated) {
       navigate("/login", { replace: true });
     }
   }, [isAuthenticated, navigate]);
-
-  const handleLogout = async () => {
-    try {
-      await authApi.logout();
-    } catch (e) {
-      console.error("Logout failed:", e);
-    }
-    logout();
-    navigate("/");
-  };
 
   /** 获取头像首字母 */
   const avatarLetter = user?.username?.charAt(0).toUpperCase() || "U";
@@ -60,59 +39,7 @@ function PersonalCenter() {
       <div className="pc__top-decor" />
 
       {/* Nav */}
-      <nav className="pc__nav">
-        <div className="container pc__nav-inner">
-          <div className="pc__nav-left">
-            <Link to="/home" className="pc__logo">🏠 我们的家</Link>
-          </div>
-
-          {/* 头像 + 下拉菜单 */}
-          <div className="pc__user-area" ref={dropdownRef}>
-            <button
-              className="pc__avatar-btn"
-              onClick={() => setDropdownOpen(!dropdownOpen)}
-            >
-              <span className="pc__avatar">
-                {user?.avatar ? (
-                  <img src={uploadUrl(user.avatar)} alt={user.username} />
-                ) : (
-                  <span className="pc__avatar-placeholder">{avatarLetter}</span>
-                )}
-              </span>
-              <span className="pc__username">{user?.username || "用户"}</span>
-              <span className={`pc__dropdown-arrow ${dropdownOpen ? "pc__dropdown-arrow--open" : ""}`}>▾</span>
-            </button>
-
-            {dropdownOpen && (
-              <div className="pc__dropdown">
-                <Link
-                  to="/personal-center"
-                  className="pc__dropdown-item pc__dropdown-item--active"
-                  onClick={() => setDropdownOpen(false)}
-                >
-                  <span className="pc__dropdown-icon">👤</span>
-                  个人中心
-                </Link>
-                <Link
-                  to="/setting"
-                  className="pc__dropdown-item"
-                  onClick={() => setDropdownOpen(false)}
-                >
-                  <span className="pc__dropdown-icon">⚙️</span>
-                  设置
-                </Link>
-                <div className="pc__dropdown-divider" />
-                <button
-                  className="pc__dropdown-item pc__dropdown-item--danger"
-                  onClick={handleLogout}
-                >
-                  退出登录
-                </button>
-              </div>
-            )}
-          </div>
-        </div>
-      </nav>
+      <PageNav />
 
       {/* Main */}
       <main className="pc__main">
