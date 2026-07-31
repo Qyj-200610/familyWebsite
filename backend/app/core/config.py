@@ -10,6 +10,13 @@ _ENV_CANDIDATES = [
 ]
 _ENV_FILE = next((p for p in _ENV_CANDIDATES if p.is_file()), _ENV_CANDIDATES[0])
 
+# 核心 CORS 域名 — 始终允许，不会被环境变量 CORS_ORIGINS 覆盖。
+# 当 Render 等平台上的环境变量漏加新域名时，此列表确保核心域名不会因配置遗漏被 CORS 拦截。
+_CORE_CORS_ORIGINS: list[str] = [
+    "http://localhost:5175",
+    "https://family-website-cgh.pages.dev",
+]
+
 
 class Settings(BaseSettings):
     """Application settings loaded from .env and environment variables."""
@@ -54,20 +61,32 @@ class Settings(BaseSettings):
     @field_validator("CORS_ORIGINS", mode="before")
     @classmethod
     def _parse_cors_origins(cls, v: object) -> list[str]:
-        """Parse CORS_ORIGINS — supports JSON array or comma-separated string."""
+        """Parse CORS_ORIGINS — supports JSON array or comma-separated string.
+        Always merges _CORE_CORS_ORIGINS to ensure essential domains are never
+        accidentally removed by a stale environment variable on platforms like Render."""
+        parsed: list[str]
         if isinstance(v, list):
-            return v
-        if isinstance(v, str):
+            parsed = v
+        elif isinstance(v, str):
             v = v.strip()
             if v.startswith("[") and v.endswith("]"):
                 import json
 
                 try:
-                    return json.loads(v)
+                    parsed = json.loads(v)
                 except json.JSONDecodeError:
-                    pass  # fall through to comma-split
-            return [origin.strip() for origin in v.split(",") if origin.strip()]
-        raise ValueError(f"CORS_ORIGINS must be a JSON array or comma-separated string, got {type(v)}")
+                    parsed = [origin.strip() for origin in v.split(",") if origin.strip()]
+            else:
+                parsed = [origin.strip() for origin in v.split(",") if origin.strip()]
+        else:
+            raise ValueError(f"CORS_ORIGINS must be a JSON array or comma-separated string, got {type(v)}")
+
+        # 合并核心域名 — 去重并保持核心域名在前
+        merged: list[str] = list(_CORE_CORS_ORIGINS)
+        for origin in parsed:
+            if origin not in merged:
+                merged.append(origin)
+        return merged
 
 
 settings = Settings()
