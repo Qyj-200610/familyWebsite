@@ -112,7 +112,9 @@ function Register() {
     >
       <form onSubmit={handleSubmit} noValidate>
         {serverError && (
-          <div className="register__server-error">{serverError}</div>
+          <div className="auth__server-error" id="reg-server-error" role="alert">
+            {serverError}
+          </div>
         )}
 
         <div className="form-group">
@@ -129,6 +131,7 @@ function Register() {
               onChange={(e) => updateField("username", e.target.value)}
               autoComplete="username"
               autoFocus
+              aria-describedby={errors.username ? "reg-username-error" : undefined}
             />
             <img
               className="form-input-icon"
@@ -137,7 +140,11 @@ function Register() {
               aria-hidden="true"
             />
           </div>
-          {errors.username && <span className="form-error">{errors.username}</span>}
+          {errors.username && (
+            <span className="form-error" id="reg-username-error" role="alert">
+              {errors.username}
+            </span>
+          )}
         </div>
 
         <div className="form-group">
@@ -148,11 +155,13 @@ function Register() {
             <input
               id="reg-email"
               type="email"
+              inputMode="email"
               className={`form-input form-input--with-icon ${errors.email ? "form-input--error" : ""}`}
               placeholder="请输入邮箱地址"
               value={form.email}
               onChange={(e) => updateField("email", e.target.value)}
               autoComplete="email"
+              aria-describedby={errors.email ? "reg-email-error" : undefined}
             />
             <img
               className="form-input-icon"
@@ -161,7 +170,11 @@ function Register() {
               aria-hidden="true"
             />
           </div>
-          {errors.email && <span className="form-error">{errors.email}</span>}
+          {errors.email && (
+            <span className="form-error" id="reg-email-error" role="alert">
+              {errors.email}
+            </span>
+          )}
         </div>
 
         <div className="form-group">
@@ -177,6 +190,7 @@ function Register() {
               value={form.password}
               onChange={(e) => updateField("password", e.target.value)}
               autoComplete="new-password"
+              aria-describedby={errors.password ? "reg-password-error" : undefined}
             />
             <img
               className="form-input-icon"
@@ -194,7 +208,11 @@ function Register() {
               {showPassword ? "🙈" : "👁"}
             </button>
           </div>
-          {errors.password && <span className="form-error">{errors.password}</span>}
+          {errors.password && (
+            <span className="form-error" id="reg-password-error" role="alert">
+              {errors.password}
+            </span>
+          )}
         </div>
 
         <div className="form-group">
@@ -210,6 +228,7 @@ function Register() {
               value={form.confirmPassword}
               onChange={(e) => updateField("confirmPassword", e.target.value)}
               autoComplete="new-password"
+              aria-describedby={errors.confirmPassword ? "reg-confirm-error" : undefined}
             />
             <img
               className="form-input-icon"
@@ -228,7 +247,9 @@ function Register() {
             </button>
           </div>
           {errors.confirmPassword && (
-            <span className="form-error">{errors.confirmPassword}</span>
+            <span className="form-error" id="reg-confirm-error" role="alert">
+              {errors.confirmPassword}
+            </span>
           )}
         </div>
 

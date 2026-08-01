@@ -61,9 +61,11 @@
   box-shadow: 0 2px 8px rgba(61, 107, 60, 0.25);
 }
 
-.register-success__btn:hover {
-  box-shadow: 0 6px 20px rgba(61, 107, 60, 0.35);
-  transform: translateY(-2px);
+@media (hover: hover) {
+  .register-success__btn:hover {
+    box-shadow: 0 6px 20px rgba(61, 107, 60, 0.35);
+    transform: translateY(-2px);
+  }
 }
 
 .register-success__btn:active {

@@ -77,9 +77,11 @@
   transition: background 0.25s, box-shadow 0.25s;
 }
 
-.home__avatar-btn:hover {
-  background: rgba(91, 140, 90, 0.12);
-  box-shadow: 0 2px 8px rgba(91, 140, 90, 0.1);
+@media (hover: hover) {
+  .home__avatar-btn:hover {
+    background: rgba(91, 140, 90, 0.12);
+    box-shadow: 0 2px 8px rgba(91, 140, 90, 0.1);
+  }
 }
 
 .home__avatar {
@@ -167,18 +169,22 @@
   font-family: inherit;
 }
 
-.home__dropdown-item:hover {
-  background: var(--color-bg);
-  padding-left: 20px;
+@media (hover: hover) {
+  .home__dropdown-item:hover {
+    background: var(--color-bg);
+    padding-left: 20px;
+  }
 }
 
 .home__dropdown-item--danger {
   color: var(--color-error);
 }
 
-.home__dropdown-item--danger:hover {
-  background: #fef2f2;
-  color: var(--color-error);
+@media (hover: hover) {
+  .home__dropdown-item--danger:hover {
+    background: #fef2f2;
+    color: var(--color-error);
+  }
 }
 
 .home__dropdown-icon {
@@ -719,25 +725,27 @@
   );
 }
 
-.home__card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.08), 0 4px 12px rgba(0, 0, 0, 0.04);
-}
+@media (hover: hover) {
+  .home__card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.08), 0 4px 12px rgba(0, 0, 0, 0.04);
+  }
 
-.home__card--album:hover {
-  border-color: rgba(91, 140, 90, 0.3);
-}
+  .home__card--album:hover {
+    border-color: rgba(91, 140, 90, 0.3);
+  }
 
-.home__card--food:hover {
-  border-color: rgba(240, 160, 75, 0.3);
-}
+  .home__card--food:hover {
+    border-color: rgba(240, 160, 75, 0.3);
+  }
 
-.home__card--family:hover {
-  border-color: rgba(91, 140, 90, 0.4);
-}
+  .home__card--family:hover {
+    border-color: rgba(91, 140, 90, 0.4);
+  }
 
-.home__card:hover::after {
-  opacity: 1;
+  .home__card:hover::after {
+    opacity: 1;
+  }
 }
 
 .home__card:active {
@@ -756,8 +764,10 @@
   transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.home__card:hover .home__card-icon-wrap {
-  transform: scale(1.08);
+@media (hover: hover) {
+  .home__card:hover .home__card-icon-wrap {
+    transform: scale(1.08);
+  }
 }
 
 .home__card-icon-wrap--album {
@@ -805,9 +815,11 @@
               color 0.25s;
 }
 
-.home__card:hover .home__card-arrow {
-  transform: translateX(4px);
-  color: var(--color-primary);
+@media (hover: hover) {
+  .home__card:hover .home__card-arrow {
+    transform: translateX(4px);
+    color: var(--color-primary);
+  }
 }
 
 /* ===== Entrance Animation ===== */

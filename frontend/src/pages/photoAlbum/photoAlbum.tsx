@@ -110,7 +110,9 @@ function PhotoAlbum() {
 
   useEffect(() => {
     if (isAuthenticated) {
-      fetchAlbums();
+      // Defer via microtask so the synchronous setState calls inside
+      // fetchAlbums don't trigger React 19's cascading-render warning.
+      queueMicrotask(() => fetchAlbums());
     }
   }, [isAuthenticated, fetchAlbums]);
 

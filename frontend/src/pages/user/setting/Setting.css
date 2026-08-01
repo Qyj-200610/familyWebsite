@@ -54,8 +54,10 @@
   letter-spacing: 0.02em;
 }
 
-.setting__logo:hover {
-  color: var(--color-primary-dark);
+@media (hover: hover) {
+  .setting__logo:hover {
+    color: var(--color-primary-dark);
+  }
 }
 
 /* ---- User Area ---- */
@@ -73,9 +75,11 @@
   transition: background 0.25s, box-shadow 0.25s;
 }
 
-.setting__avatar-btn:hover {
-  background: rgba(91, 140, 90, 0.12);
-  box-shadow: 0 2px 8px rgba(91, 140, 90, 0.1);
+@media (hover: hover) {
+  .setting__avatar-btn:hover {
+    background: rgba(91, 140, 90, 0.12);
+    box-shadow: 0 2px 8px rgba(91, 140, 90, 0.1);
+  }
 }
 
 .setting__avatar {
@@ -163,9 +167,11 @@
   font-family: inherit;
 }
 
-.setting__dropdown-item:hover {
-  background: var(--color-bg);
-  padding-left: 20px;
+@media (hover: hover) {
+  .setting__dropdown-item:hover {
+    background: var(--color-bg);
+    padding-left: 20px;
+  }
 }
 
 .setting__dropdown-item--active {
@@ -178,9 +184,11 @@
   color: var(--color-error);
 }
 
-.setting__dropdown-item--danger:hover {
-  background: #fef2f2;
-  color: var(--color-error);
+@media (hover: hover) {
+  .setting__dropdown-item--danger:hover {
+    background: #fef2f2;
+    color: var(--color-error);
+  }
 }
 
 .setting__dropdown-icon {
@@ -249,9 +257,11 @@
   position: relative;
 }
 
-.setting__sidebar-link:hover {
-  background: var(--color-bg);
-  color: var(--color-text);
+@media (hover: hover) {
+  .setting__sidebar-link:hover {
+    background: var(--color-bg);
+    color: var(--color-text);
+  }
 }
 
 .setting__sidebar-link--active {
@@ -331,8 +341,10 @@
   border-bottom: none;
 }
 
-.setting__field:hover {
-  background: rgba(91, 140, 90, 0.015);
+@media (hover: hover) {
+  .setting__field:hover {
+    background: rgba(91, 140, 90, 0.015);
+  }
 }
 
 .setting__label {
@@ -538,10 +550,12 @@
   box-shadow: 0 2px 8px rgba(91, 140, 90, 0.25);
 }
 
-.setting__btn--primary:hover {
-  background: var(--color-primary-dark);
-  transform: translateY(-1px);
-  box-shadow: 0 4px 14px rgba(91, 140, 90, 0.3);
+@media (hover: hover) {
+  .setting__btn--primary:hover {
+    background: var(--color-primary-dark);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 14px rgba(91, 140, 90, 0.3);
+  }
 }
 
 .setting__btn--outline {
@@ -550,11 +564,13 @@
   border: 2px solid rgba(91, 140, 90, 0.25);
 }
 
-.setting__btn--outline:hover {
-  background: rgba(91, 140, 90, 0.05);
-  border-color: var(--color-primary);
-  color: var(--color-primary-dark);
-  transform: translateY(-1px);
+@media (hover: hover) {
+  .setting__btn--outline:hover {
+    background: rgba(91, 140, 90, 0.05);
+    border-color: var(--color-primary);
+    color: var(--color-primary-dark);
+    transform: translateY(-1px);
+  }
 }
 
 .setting__btn:disabled {
@@ -589,11 +605,13 @@
   min-width: 110px;
 }
 
-.setting__theme-btn:hover:not(:disabled) {
-  border-color: rgba(91, 140, 90, 0.3);
-  background: rgba(91, 140, 90, 0.03);
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-sm);
+@media (hover: hover) {
+  .setting__theme-btn:hover:not(:disabled) {
+    border-color: rgba(91, 140, 90, 0.3);
+    background: rgba(91, 140, 90, 0.03);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-sm);
+  }
 }
 
 .setting__theme-btn--active {

@@ -60,10 +60,12 @@
   transition: background 0.2s, transform 0.1s;
 }
 
-.notfound__btn:hover {
-  background: var(--color-primary-dark);
-  color: #fff;
-  transform: translateY(-1px);
+@media (hover: hover) {
+  .notfound__btn:hover {
+    background: var(--color-primary-dark);
+    color: #fff;
+    transform: translateY(-1px);
+  }
 }
 
 .notfound__btn--outline {
@@ -72,7 +74,25 @@
   border: 2px solid var(--color-primary);
 }
 
-.notfound__btn--outline:hover {
-  background: var(--color-primary);
-  color: #fff;
+@media (hover: hover) {
+  .notfound__btn--outline:hover {
+    background: var(--color-primary);
+    color: #fff;
+  }
+}
+
+/* ===== 响应式 ===== */
+@media (max-width: 768px) {
+  .notfound__code { font-size: 3.5rem; }
+  .notfound__emoji { font-size: 3rem; }
+  .notfound__title { font-size: 1.25rem; }
+  .notfound__desc { font-size: 0.9rem; }
+}
+
+@media (max-width: 480px) {
+  .notfound { padding: 16px; }
+  .notfound__code { font-size: 2.8rem; }
+  .notfound__emoji { font-size: 2.5rem; }
+  .notfound__actions { flex-direction: column; width: 100%; }
+  .notfound__btn { width: 100%; }
 }

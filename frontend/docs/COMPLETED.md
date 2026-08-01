@@ -1,6 +1,6 @@
 # COMPLETED — 已完成功能
 
-> 最后更新：2026-07-31（前端代码审查 + 后端 Debug）
+> 最后更新：2026-08-01（前端 CSS 全面重构 + 无障碍改进 + 后端相册查询优化）
 
 ---
 
@@ -384,6 +384,51 @@ cd frontend && npm run dev
 
 - [x] **website.svg** — 恢复被误删的 favicon 文件（`index.html` 引用该文件作为网站图标）
 - [x] **前端构建验证** — `vite build` 成功输出 3 个资产（JS + CSS + SVG）
+
+---
+
+## UI/UX 全面重构 (2026-08-01)
+
+### 前端 CSS 全面重构
+
+对所有页面的 CSS 进行了现代化改造：
+
+- [x] **hover 媒体查询包装** — 所有 `:hover` 样式用 `@media (hover: hover)` 包装，避免移动端触摸后残留 hover 状态
+- [x] **`:active` 按压反馈** — 按钮和可点击元素新增 `:active` 缩放/颜色变化，提供触觉般的即时反馈
+- [x] **间距与排版优化** — 统一各页面 `padding`、`gap`、`border-radius` 等间距变量
+- [x] **CSS 变量体系** — 完善 `--color-*`、`--shadow-*`、`--radius-*` 设计 token
+- [x] **涉及文件**（22 个 CSS 文件）：
+  - `App.css`, `index.css`, `PageNav.css`
+  - `Auth.css`, `Login.css`, `Register.css`, `RegisterSuccess.css`, `forgetPassword.css`
+  - `Home.css`, `dailyRoutine.css`, `photoAlbum.css`, `foodOrder.css`
+  - `familyTree.css`, `video.css`, `PersonalCenter.css`, `Setting.css`, `NotFound.css`
+
+### 认证页面无障碍改进
+
+- [x] **错误/成功消息** — 统一使用 `auth__server-error` / `auth__server-success` 类名，添加 `role="alert"` / `role="status"` ARIA 角色，添加唯一 `id` 属性
+- [x] **表单字段 `aria-describedby`** — 错误消息关联到对应输入框，屏幕阅读器可自动朗读错误提示
+- [x] **邮箱输入 `inputMode="email"`** — 移动端键盘自动切换为邮箱模式
+- [x] **Login/Register/ForgetPassword 三页面统一** — 错误显示模式、tabIndex 行为、密码切换按钮保持一致
+- [x] **涉及文件**：`Login.tsx`, `Register.tsx`, `forgetPassword.tsx`
+
+### 日程侧边栏体验优化
+
+- [x] **移除硬编码默认日程** — 不再预置 10 条示例日程（`DEFAULT_ROUTINES`），新用户从空白开始
+- [x] **空状态提示** — 模板为空时显示友好的引导文案 + 图标："还没有日程，点击 ⚙️ 开始添加吧"
+- [x] **智能编辑模式** — 首次使用（localStorage 中无模板数据）自动进入编辑模式，减少操作步骤
+- [x] **涉及文件**：`dailyRoutine.tsx`
+
+### React 19 兼容性修复
+
+- [x] **PhotoAlbum** — `queueMicrotask(() => fetchAlbums())` 延迟调用，避免 `useEffect` 中同步 setState 触发 React 19 的级联渲染警告
+- [x] **涉及文件**：`photoAlbum.tsx`
+
+### 后端相册查询优化
+
+- [x] **album.py service** — 所有相册查询添加链式 `selectinload(Album.photos).selectinload(Photo.uploader)`，预加载照片上传者信息，消除 N+1 查询
+- [x] **涉及文件**：`backend/app/services/album.py`
+
+---
 
 ### 已知问题（非阻塞）
 

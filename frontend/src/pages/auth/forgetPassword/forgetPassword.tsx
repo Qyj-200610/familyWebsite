@@ -109,10 +109,14 @@ function ForgetPassword() {
     >
       <form onSubmit={handleSubmit} noValidate>
         {serverError && (
-          <div className="forget__server-error">{serverError}</div>
+          <div className="auth__server-error" id="forget-server-error" role="alert">
+            {serverError}
+          </div>
         )}
         {serverSuccess && (
-          <div className="forget__server-success">{serverSuccess}</div>
+          <div className="auth__server-success" id="forget-server-success" role="status">
+            {serverSuccess}
+          </div>
         )}
 
         <div className="form-group">
@@ -123,6 +127,7 @@ function ForgetPassword() {
             <input
               id="forget-email"
               type="email"
+              inputMode="email"
               className={`form-input form-input--with-icon ${errors.email ? "form-input--error" : ""}`}
               placeholder="请输入注册邮箱"
               value={form.email}

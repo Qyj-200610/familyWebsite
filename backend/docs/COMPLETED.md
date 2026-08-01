@@ -1,6 +1,6 @@
 # COMPLETED — 后端已完成功能
 
-> 最后更新：2026-07-31（后端 debug + 文档更新）
+> 最后更新：2026-08-01（前端 CSS 全面重构 + 无障碍改进 + 后端相册查询优化）
 
 ---
 
@@ -154,6 +154,10 @@
 - [x] 修复：前端 `website.svg`（favicon）被误删 → 已从 git 恢复（该文件被 `index.html` `<link rel="icon">` 引用）
 - [x] 更新：CLAUDE.md 前端环境变量说明（VITE_API_BASE_URL 当前指向 Render）
 - [x] 更新：frontend/docs/COMPLETED.md 新增连通性测试结果章节
+
+### 2026-08-01 — 相册查询优化
+
+- [x] **album.py service** — 所有相册查询添加链式 `selectinload(Album.photos).selectinload(Photo.uploader)`，预加载照片上传者信息，避免 N+1 查询和 async lazy-load 错误
 
 ### 2026-07-26 — 修复
 - [x] 修复：登录错误码从 `1003` 改为 `1101`

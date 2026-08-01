@@ -3,6 +3,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
 from app.models.album import Album
+from app.models.photo import Photo
 from app.models.user import User
 
 
@@ -31,7 +32,7 @@ class AlbumService:
         # doesn't trigger lazy-load (which fails in async mode).
         result = await db.execute(
             select(Album)
-            .options(selectinload(Album.photos))
+            .options(selectinload(Album.photos).selectinload(Photo.uploader))
             .where(Album.id == album.id)
         )
         return result.scalar_one()
@@ -44,7 +45,7 @@ class AlbumService:
         """Get all public albums + the current user's private albums, newest first."""
         result = await db.execute(
             select(Album)
-            .options(selectinload(Album.photos))
+            .options(selectinload(Album.photos).selectinload(Photo.uploader))
             .where(
                 (Album.is_public) | (Album.created_by == current_user.id)
             )
@@ -57,7 +58,7 @@ class AlbumService:
         """Get a single album by ID, with photos eagerly loaded."""
         result = await db.execute(
             select(Album)
-            .options(selectinload(Album.photos))
+            .options(selectinload(Album.photos).selectinload(Photo.uploader))
             .where(Album.id == album_id)
         )
         return result.scalar_one_or_none()

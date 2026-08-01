@@ -134,9 +134,11 @@
   transition: background 0.2s, color 0.2s;
 }
 
-.ft-intro__close:hover {
-  background: rgba(0, 0, 0, 0.1);
-  color: var(--color-text);
+@media (hover: hover) {
+  .ft-intro__close:hover {
+    background: rgba(0, 0, 0, 0.1);
+    color: var(--color-text);
+  }
 }
 
 .ft-intro__body {
@@ -200,9 +202,11 @@
   transition: background 0.2s, box-shadow 0.2s;
 }
 
-.ft-intro__reopen:hover {
-  background: rgba(91, 140, 90, 0.12);
-  box-shadow: 0 2px 8px rgba(91, 140, 90, 0.1);
+@media (hover: hover) {
+  .ft-intro__reopen:hover {
+    background: rgba(91, 140, 90, 0.12);
+    box-shadow: 0 2px 8px rgba(91, 140, 90, 0.1);
+  }
 }
 
 /* ===== Tree Canvas ===== */
@@ -252,12 +256,12 @@
   bottom: -6px;
   left: 50%;
   transform: translateX(-50%);
-  width: 22px;
-  height: 22px;
+  width: 30px;
+  height: 30px;
   border-radius: 50%;
   background: var(--color-surface);
   border: 1px solid var(--color-border);
-  font-size: 0.6rem;
+  font-size: 0.75rem;
   font-weight: 700;
   color: var(--color-text-muted);
   display: flex;
@@ -270,10 +274,12 @@
   line-height: 1;
 }
 
-.ft-tree__toggle:hover {
-  transform: translateX(-50%) scale(1.2);
-  box-shadow: var(--shadow-md);
-  color: var(--color-primary);
+@media (hover: hover) {
+  .ft-tree__toggle:hover {
+    transform: translateX(-50%) scale(1.2);
+    box-shadow: var(--shadow-md);
+    color: var(--color-primary);
+  }
 }
 
 /* ---- Offspring area ---- */
@@ -409,10 +415,12 @@
   transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
 }
 
-.ft-card:hover {
-  transform: translateY(-3px);
-  box-shadow: var(--shadow-md);
-  border-color: rgba(91, 140, 90, 0.25);
+@media (hover: hover) {
+  .ft-card:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-md);
+    border-color: rgba(91, 140, 90, 0.25);
+  }
 }
 
 /* 根节点高亮 */
@@ -547,12 +555,24 @@
   cursor: pointer;
 }
 
-.ft-avatar--clickable:hover .ft-avatar__camera-hint {
-  opacity: 1;
+@media (hover: hover) {
+  .ft-avatar--clickable:hover .ft-avatar__camera-hint {
+    opacity: 1;
+  }
+
+  .ft-avatar--clickable:hover {
+    box-shadow: 0 4px 18px rgba(0, 0, 0, 0.25);
+  }
 }
 
-.ft-avatar--clickable:hover {
-  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.25);
+/* 触摸设备始终显示相机/状态提示 */
+@media (hover: none) {
+  .ft-avatar--clickable .ft-avatar__camera-hint {
+    opacity: 0.55;
+  }
+  .ft-avatar--clickable:active .ft-avatar__camera-hint {
+    opacity: 1;
+  }
 }
 
 .ft-avatar--clickable:active {
@@ -704,9 +724,11 @@
   flex-shrink: 0;
 }
 
-.ft-webcam__close:hover {
-  background: rgba(0, 0, 0, 0.12);
-  color: var(--color-text);
+@media (hover: hover) {
+  .ft-webcam__close:hover {
+    background: rgba(0, 0, 0, 0.12);
+    color: var(--color-text);
+  }
 }
 
 /* ---- Body ---- */
@@ -804,9 +826,11 @@
   transition: opacity 0.2s, transform 0.15s;
 }
 
-.ft-webcam__btn:hover {
-  opacity: 0.9;
-  transform: scale(1.03);
+@media (hover: hover) {
+  .ft-webcam__btn:hover {
+    opacity: 0.9;
+    transform: scale(1.03);
+  }
 }
 
 /* ---- Resize handle ---- */
@@ -827,9 +851,11 @@
   user-select: none;
 }
 
-.ft-webcam__resize-handle:hover {
-  opacity: 1;
-  color: var(--color-primary);
+@media (hover: hover) {
+  .ft-webcam__resize-handle:hover {
+    opacity: 1;
+    color: var(--color-primary);
+  }
 }
 
 /* ===== Entrance Animation ===== */
@@ -941,6 +967,21 @@
     margin: 0 12px;
     padding: 20px 16px 32px;
   }
+
+  /* 视频通话弹窗移动端适配 */
+  .ft-webcam__card {
+    min-width: auto;
+    width: auto;
+  }
+
+  .ft-webcam__header {
+    padding: 12px 16px;
+  }
+
+  .ft-webcam__close {
+    width: 36px;
+    height: 36px;
+  }
 }
 
 @media (max-width: 480px) {
@@ -1004,9 +1045,9 @@
   .ft-tree__drop  { height: 14px; }
 
   .ft-tree__toggle {
-    width: 18px;
-    height: 18px;
-    font-size: 0.5rem;
+    width: 26px;
+    height: 26px;
+    font-size: 0.65rem;
   }
 
   .ft-couple__ring {
@@ -1016,4 +1057,8 @@
   .ft-couple__ring-icon {
     font-size: 0.7rem;
   }
+
+  /* 视频通话弹窗小屏适配 */
+  .ft-webcam__backdrop { padding: 12px; }
+  .ft-webcam__header { padding: 10px 14px; }
 }

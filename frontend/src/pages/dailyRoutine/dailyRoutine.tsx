@@ -17,19 +17,6 @@ interface NewRoutineForm {
 
 /* ===== Constants ===== */
 
-const DEFAULT_ROUTINES: RoutineItem[] = [
-  { time: "07:30", title: "起床洗漱", icon: "🌅" },
-  { time: "08:00", title: "早餐时间", icon: "🥐" },
-  { time: "09:00", title: "工作 / 学习", icon: "💻" },
-  { time: "12:00", title: "午餐时间", icon: "🍜" },
-  { time: "13:00", title: "午休片刻", icon: "😴" },
-  { time: "14:00", title: "下午活动", icon: "🚶" },
-  { time: "18:00", title: "晚餐时光", icon: "🍲" },
-  { time: "19:30", title: "家庭时间", icon: "👨‍👩‍👧‍👦" },
-  { time: "21:30", title: "洗漱准备", icon: "🛁" },
-  { time: "22:00", title: "晚安好梦", icon: "🌙" },
-];
-
 const LS_TEMPLATE_KEY = "dr_template";
 const LS_COLLAPSED_KEY = "dr_collapsed";
 
@@ -53,7 +40,7 @@ function loadTemplate(): RoutineItem[] {
   } catch {
     // corrupted data — fall through
   }
-  return DEFAULT_ROUTINES;
+  return [];
 }
 
 function saveTemplate(routines: RoutineItem[]): void {
@@ -115,8 +102,19 @@ function DailyRoutine() {
   // --- collapsed ---
   const [collapsed, setCollapsed] = useState(loadCollapsed);
 
-  // --- edit mode ---
-  const [editing, setEditing] = useState(false);
+  // --- edit mode (start in edit mode if no template saved yet) ---
+  const [editing, setEditing] = useState(() => {
+    try {
+      const raw = localStorage.getItem(LS_TEMPLATE_KEY);
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        if (Array.isArray(parsed) && parsed.length > 0) return false;
+      }
+    } catch {
+      // corrupted — start in edit mode
+    }
+    return true;
+  });
   const [newForm, setNewForm] = useState<NewRoutineForm>({ time: "08:00", title: "", icon: "📌" });
 
   // --- derived ---
@@ -127,17 +125,9 @@ function DailyRoutine() {
   const doneCount = doneSet.size;
   const total = template.length;
 
-  // On mount: clean old state keys + re-sync doneSet if template length changed
+  // On mount: clean old state keys
   useEffect(() => {
     cleanupOldStateKeys();
-    const valid = new Set<number>();
-    doneSet.forEach((i) => {
-      if (i >= 0 && i < template.length) valid.add(i);
-    });
-    if (valid.size !== doneSet.size) {
-      setDoneSet(valid);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Persist doneSet to localStorage whenever it changes
@@ -325,6 +315,13 @@ function DailyRoutine() {
             )}
           </li>
         ))}
+
+        {template.length === 0 && !editing && (
+          <li className="dr__item dr__item--empty">
+            <span className="dr__empty-icon">📋</span>
+            <span className="dr__empty-text">还没有日程，点击 ⚙️ 开始添加吧</span>
+          </li>
+        )}
 
         {/* 新增表单 */}
         {editing && (

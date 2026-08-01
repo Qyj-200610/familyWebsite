@@ -75,7 +75,8 @@
 }
 
 .food__category-btn {
-  padding: 8px 20px;
+  padding: 10px 20px;
+  min-height: 40px;
   border: none;
   border-radius: 20px;
   background: transparent;
@@ -86,9 +87,11 @@
   transition: all 0.2s;
 }
 
-.food__category-btn:hover {
-  background: rgba(91, 140, 90, 0.08);
-  color: var(--color-primary);
+@media (hover: hover) {
+  .food__category-btn:hover {
+    background: rgba(91, 140, 90, 0.08);
+    color: var(--color-primary);
+  }
 }
 
 .food__category-btn--active {
@@ -97,9 +100,11 @@
   box-shadow: 0 2px 8px rgba(91, 140, 90, 0.25);
 }
 
-.food__category-btn--active:hover {
-  background: var(--color-primary-dark);
-  color: #fff;
+@media (hover: hover) {
+  .food__category-btn--active:hover {
+    background: var(--color-primary-dark);
+    color: #fff;
+  }
 }
 
 /* ---- 菜品网格 ---- */
@@ -122,10 +127,12 @@
   flex-direction: column;
 }
 
-.food__card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.08);
-  border-color: rgba(91, 140, 90, 0.25);
+@media (hover: hover) {
+  .food__card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.08);
+    border-color: rgba(91, 140, 90, 0.25);
+  }
 }
 
 /* 图片区 */
@@ -144,8 +151,10 @@
   transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.food__card:hover .food__card-emoji {
-  transform: scale(1.15);
+@media (hover: hover) {
+  .food__card:hover .food__card-emoji {
+    transform: scale(1.15);
+  }
 }
 
 .food__card-badge {
@@ -206,8 +215,10 @@
   transition: background 0.2s, transform 0.15s;
 }
 
-.food__card-add-btn:hover {
-  background: var(--color-primary-dark);
+@media (hover: hover) {
+  .food__card-add-btn:hover {
+    background: var(--color-primary-dark);
+  }
 }
 
 .food__card-add-btn:active {
@@ -226,8 +237,8 @@
 }
 
 .food__card-qty-btn {
-  width: 40px;
-  height: 38px;
+  width: 44px;
+  height: 40px;
   background: none;
   border: none;
   font-size: 1.1rem;
@@ -240,8 +251,10 @@
   justify-content: center;
 }
 
-.food__card-qty-btn:hover {
-  background: rgba(91, 140, 90, 0.08);
+@media (hover: hover) {
+  .food__card-qty-btn:hover {
+    background: rgba(91, 140, 90, 0.08);
+  }
 }
 
 .food__card-qty {
@@ -314,8 +327,10 @@
   transition: background 0.15s;
 }
 
-.food__cart-close:hover {
-  background: rgba(0, 0, 0, 0.05);
+@media (hover: hover) {
+  .food__cart-close:hover {
+    background: rgba(0, 0, 0, 0.05);
+  }
 }
 
 /* 空购物车 */
@@ -392,8 +407,8 @@
 }
 
 .food__cart-qty-btn {
-  width: 28px;
-  height: 28px;
+  width: 36px;
+  height: 36px;
   background: none;
   border: none;
   font-size: 0.95rem;
@@ -405,13 +420,15 @@
   justify-content: center;
 }
 
-.food__cart-qty-btn:hover {
-  background: rgba(0, 0, 0, 0.05);
-  color: var(--color-text);
+@media (hover: hover) {
+  .food__cart-qty-btn:hover {
+    background: rgba(0, 0, 0, 0.05);
+    color: var(--color-text);
+  }
 }
 
 .food__cart-qty-value {
-  min-width: 28px;
+  min-width: 32px;
   text-align: center;
   font-size: 0.85rem;
   font-weight: 700;
@@ -423,16 +440,18 @@
   border: none;
   font-size: 1rem;
   cursor: pointer;
-  padding: 4px;
+  padding: 8px;
   border-radius: var(--radius-sm);
   opacity: 0.4;
   transition: opacity 0.15s, background 0.15s;
   flex-shrink: 0;
 }
 
-.food__cart-item-remove:hover {
-  opacity: 1;
-  background: rgba(217, 83, 79, 0.08);
+@media (hover: hover) {
+  .food__cart-item-remove:hover {
+    opacity: 1;
+    background: rgba(217, 83, 79, 0.08);
+  }
 }
 
 /* 购物车底部 */
@@ -470,8 +489,10 @@
   box-shadow: 0 2px 8px rgba(91, 140, 90, 0.2);
 }
 
-.food__cart-submit-btn:hover {
-  background: var(--color-primary-dark);
+@media (hover: hover) {
+  .food__cart-submit-btn:hover {
+    background: var(--color-primary-dark);
+  }
 }
 
 .food__cart-submit-btn:active {
@@ -489,8 +510,10 @@
   transition: color 0.15s;
 }
 
-.food__cart-clear-btn:hover {
-  color: var(--color-error);
+@media (hover: hover) {
+  .food__cart-clear-btn:hover {
+    color: var(--color-error);
+  }
 }
 
 /* ---- 购物车 FAB（移动端） ---- */
@@ -511,9 +534,15 @@
   transition: transform 0.2s, box-shadow 0.2s;
 }
 
-.food__cart-fab:hover {
-  transform: scale(1.08);
-  box-shadow: 0 6px 24px rgba(91, 140, 90, 0.45);
+@media (hover: hover) {
+  .food__cart-fab:hover {
+    transform: scale(1.08);
+    box-shadow: 0 6px 24px rgba(91, 140, 90, 0.45);
+  }
+}
+
+.food__cart-fab:active {
+  transform: scale(0.92);
 }
 
 .food__cart-fab-icon {
@@ -607,8 +636,10 @@
   transition: background 0.15s;
 }
 
-.food__modal-close:hover {
-  background: rgba(0, 0, 0, 0.06);
+@media (hover: hover) {
+  .food__modal-close:hover {
+    background: rgba(0, 0, 0, 0.06);
+  }
 }
 
 .food__modal-body {
@@ -638,8 +669,10 @@
   color: var(--color-text-secondary);
 }
 
-.food__modal-btn--cancel:hover {
-  background: rgba(0, 0, 0, 0.03);
+@media (hover: hover) {
+  .food__modal-btn--cancel:hover {
+    background: rgba(0, 0, 0, 0.03);
+  }
 }
 
 .food__modal-btn--confirm {
@@ -648,8 +681,10 @@
   color: #fff;
 }
 
-.food__modal-btn--confirm:hover {
-  background: var(--color-primary-dark);
+@media (hover: hover) {
+  .food__modal-btn--confirm:hover {
+    background: var(--color-primary-dark);
+  }
 }
 
 .food__modal-btn:disabled {

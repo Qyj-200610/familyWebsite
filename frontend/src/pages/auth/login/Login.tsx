@@ -90,7 +90,9 @@ function Login() {
     >
       <form onSubmit={handleSubmit} noValidate>
         {serverError && (
-          <div className="login__server-error">{serverError}</div>
+          <div className="auth__server-error" id="login-server-error" role="alert">
+            {serverError}
+          </div>
         )}
 
         <div className="form-group">
@@ -101,12 +103,14 @@ function Login() {
             <input
               id="email"
               type="email"
+              inputMode="email"
               className={`form-input form-input--with-icon ${errors.email ? "form-input--error" : ""}`}
               placeholder="请输入邮箱地址"
               value={form.email}
               onChange={(e) => updateField("email", e.target.value)}
               autoComplete="email"
               autoFocus
+              aria-describedby={errors.email ? "login-email-error" : undefined}
             />
             <img
               className="form-input-icon"
@@ -115,7 +119,11 @@ function Login() {
               aria-hidden="true"
             />
           </div>
-          {errors.email && <span className="form-error">{errors.email}</span>}
+          {errors.email && (
+            <span className="form-error" id="login-email-error" role="alert">
+              {errors.email}
+            </span>
+          )}
         </div>
 
         <div className="form-group">
@@ -131,6 +139,7 @@ function Login() {
               value={form.password}
               onChange={(e) => updateField("password", e.target.value)}
               autoComplete="current-password"
+              aria-describedby={errors.password ? "login-password-error" : undefined}
             />
             <img
               className="form-input-icon"
@@ -148,7 +157,11 @@ function Login() {
               {showPassword ? "🙈" : "👁"}
             </button>
           </div>
-          {errors.password && <span className="form-error">{errors.password}</span>}
+          {errors.password && (
+            <span className="form-error" id="login-password-error" role="alert">
+              {errors.password}
+            </span>
+          )}
         </div>
 
         <div className="login__row">
