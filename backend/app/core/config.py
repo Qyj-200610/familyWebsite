@@ -48,7 +48,7 @@ class Settings(BaseSettings):
 
     # File upload
     UPLOAD_DIR: str = str(Path(__file__).resolve().parent.parent.parent / "uploads")
-    AVATAR_MAX_SIZE: int = 2 * 1024 * 1024  # 2 MB
+    AVATAR_MAX_SIZE: int = 5 * 1024 * 1024  # 5 MB
     AVATAR_ALLOWED_CONTENT_TYPES: set[str] = {"image/jpeg", "image/png", "image/webp"}
     PHOTO_MAX_SIZE: int = 10 * 1024 * 1024  # 10 MB
     PHOTO_ALLOWED_CONTENT_TYPES: set[str] = {"image/jpeg", "image/png", "image/webp"}

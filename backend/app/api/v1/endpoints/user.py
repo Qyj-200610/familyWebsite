@@ -51,7 +51,7 @@ async def upload_avatar(
 ):
     """Upload a new avatar for the current user.
 
-    Only accepts JPEG, PNG, and WebP images up to 2 MB.
+    Only accepts JPEG, PNG, and WebP images up to 5 MB.
     """
     # ── 验证文件存在 ──
     if not file.filename:

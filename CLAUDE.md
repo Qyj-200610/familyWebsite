@@ -243,5 +243,5 @@ npm run dev  # 启动在 localhost:5175，代理 /api → localhost:8001
 
 | 类型 | 最大大小 | 允许格式 | 配置位置 |
 |------|---------|---------|---------|
-| 头像 | 2 MB | JPEG/PNG/WebP | `settings.AVATAR_MAX_SIZE`, `settings.AVATAR_ALLOWED_CONTENT_TYPES` |
+| 头像 | 5 MB | JPEG/PNG/WebP | `settings.AVATAR_MAX_SIZE`, `settings.AVATAR_ALLOWED_CONTENT_TYPES` |
 | 照片 | 10 MB | JPEG/PNG/WebP | `settings.PHOTO_MAX_SIZE`, `settings.PHOTO_ALLOWED_CONTENT_TYPES` |

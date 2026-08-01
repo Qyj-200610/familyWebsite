@@ -8,7 +8,7 @@ import "./Setting.css";
 /** 允许的头像格式 */
 const ALLOWED_TYPES = ["image/jpeg", "image/png", "image/webp"];
 const ALLOWED_EXTENSIONS = [".jpg", ".jpeg", ".png", ".webp"];
-const MAX_SIZE = 2 * 1024 * 1024; // 2 MB
+const MAX_SIZE = 5 * 1024 * 1024; // 5 MB
 
 function Setting() {
   const navigate = useNavigate();
@@ -60,7 +60,7 @@ function Setting() {
     }
 
     if (file.size > MAX_SIZE) {
-      setUploadError(`文件大小超出限制（最大 2 MB）`);
+      setUploadError(`文件大小超出限制（最大 5 MB）`);
       if (fileInputRef.current) fileInputRef.current.value = "";
       return;
     }
@@ -196,7 +196,7 @@ function Setting() {
                         {uploading ? "上传中..." : "更换头像"}
                       </button>
                       <p className="setting__avatar-hint">
-                        支持 JPG、PNG、WebP 格式，最大 2 MB
+                        支持 JPG、PNG、WebP 格式，最大 5 MB
                       </p>
                       {uploadError && (
                         <p className="setting__avatar-error">⚠️ {uploadError}</p>
