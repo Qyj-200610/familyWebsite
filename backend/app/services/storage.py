@@ -36,6 +36,10 @@ def _ensure_initialized() -> None:
 # ── 公开 API ────────────────────────────────────────────────
 
 
+class CloudinaryNotConfiguredError(RuntimeError):
+    """Raised when Cloudinary credentials are missing."""
+
+
 def upload_image(file_content: bytes, public_id: str, folder: str) -> str:
     """上传图片到 Cloudinary，返回 public_id。
 
@@ -46,8 +50,16 @@ def upload_image(file_content: bytes, public_id: str, folder: str) -> str:
 
     Returns:
         Cloudinary public_id，如 "family-website/avatars/abc123"
+
+    Raises:
+        CloudinaryNotConfiguredError: Cloudinary 凭证未配置
     """
     _ensure_initialized()
+
+    if not settings.CLOUDINARY_CLOUD_NAME or not settings.CLOUDINARY_API_KEY or not settings.CLOUDINARY_API_SECRET:
+        raise CloudinaryNotConfiguredError(
+            "Cloudinary 未配置，请在 .env 中设置 CLOUDINARY_CLOUD_NAME、CLOUDINARY_API_KEY、CLOUDINARY_API_SECRET"
+        )
 
     result = cloudinary.uploader.upload(
         file_content,
