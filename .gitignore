@@ -27,6 +27,9 @@ backend/uploads/*
 *.swo
 *~
 
+# ===== Cloudflare =====
+.wrangler/
+
 # ===== OS =====
 .DS_Store
 Thumbs.db
