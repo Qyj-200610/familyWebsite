@@ -333,10 +333,21 @@ function PhotoAlbum() {
                     <div key={album.id} className="album__album-card" onClick={() => enterAlbum(album)}>
                       <div className="album__album-cover">
                         {album.coverPhoto ? (
-                          <img src={getPhotoUrl(album.coverPhoto.filename)} alt={album.name} loading="lazy" />
-                        ) : (
-                          <span className="album__album-cover-placeholder">📷</span>
-                        )}
+                          <img
+                            src={getPhotoUrl(album.coverPhoto.filename)}
+                            alt={album.name}
+                            loading="lazy"
+                            onError={(e) => {
+                              (e.target as HTMLImageElement).style.display = "none";
+                              const fb = (e.target as HTMLImageElement).nextElementSibling as HTMLElement | null;
+                              if (fb) fb.style.display = "flex";
+                            }}
+                          />
+                        ) : null}
+                        <span
+                          className="album__album-cover-placeholder"
+                          style={{ display: album.coverPhoto ? "none" : "flex" }}
+                        >📷</span>
                       </div>
                       <div className="album__album-info">
                         <div className="album__album-name-row">
@@ -402,7 +413,17 @@ function PhotoAlbum() {
                   {albumDetail.photos.map((photo) => (
                     <div key={photo.id} className="album__card" onClick={() => openViewer(photo)}>
                       <div className="album__card-image">
-                        <img src={getPhotoUrl(photo.filename)} alt={photo.description || photo.originalFilename} loading="lazy" />
+                        <img
+                          src={getPhotoUrl(photo.filename)}
+                          alt={photo.description || photo.originalFilename}
+                          loading="lazy"
+                          onError={(e) => {
+                            (e.target as HTMLImageElement).style.display = "none";
+                            const fb = (e.target as HTMLImageElement).nextElementSibling as HTMLElement | null;
+                            if (fb) fb.style.display = "flex";
+                          }}
+                        />
+                        <span className="album__card-image-error" style={{ display: "none" }}>🖼️</span>
                         <div className="album__card-overlay">
                           {photo.description && <p className="album__card-desc">{photo.description}</p>}
                           <span className="album__card-date">{formatDate(photo.createdAt)}</span>
@@ -517,7 +538,19 @@ function PhotoAlbum() {
         <div className="album__viewer-overlay" onClick={closeViewer}>
           <button className="album__viewer-close" onClick={closeViewer}>✕</button>
           <div className="album__viewer-content" onClick={(e) => e.stopPropagation()}>
-            <img src={getPhotoUrl(viewerPhoto.filename)} alt={viewerPhoto.description || viewerPhoto.originalFilename} />
+            <img
+              src={getPhotoUrl(viewerPhoto.filename)}
+              alt={viewerPhoto.description || viewerPhoto.originalFilename}
+              onError={(e) => {
+                (e.target as HTMLImageElement).style.display = "none";
+                const fb = (e.target as HTMLImageElement).nextElementSibling as HTMLElement | null;
+                if (fb) fb.style.display = "flex";
+              }}
+            />
+            <div className="album__viewer-error" style={{ display: "none" }}>
+              <span className="album__viewer-error-icon">🖼️</span>
+              <p>图片加载失败</p>
+            </div>
             <div className="album__viewer-info">
               {viewerPhoto.description && <p className="album__viewer-desc">{viewerPhoto.description}</p>}
               <p className="album__viewer-meta">

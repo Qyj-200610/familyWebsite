@@ -256,6 +256,18 @@
   display: block;
 }
 
+/* 图片加载失败占位 */
+.album__card-image-error {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2.5rem;
+  background: var(--color-bg-alt);
+  opacity: 0.5;
+}
+
 /* hover 遮罩 */
 .album__card-overlay {
   position: absolute;
@@ -856,6 +868,31 @@
   max-height: 75vh;
   object-fit: contain;
   border-radius: 8px;
+}
+
+/* 查看器图片加载失败 */
+.album__viewer-error {
+  width: 300px;
+  height: 200px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 12px;
+  border: 1px dashed rgba(255, 255, 255, 0.2);
+  color: rgba(255, 255, 255, 0.7);
+  gap: 8px;
+}
+
+.album__viewer-error-icon {
+  font-size: 3rem;
+  opacity: 0.6;
+}
+
+.album__viewer-error p {
+  margin: 0;
+  font-size: 0.95rem;
 }
 
 .album__viewer-info { margin-top: 18px; text-align: center; color: #fff; }
