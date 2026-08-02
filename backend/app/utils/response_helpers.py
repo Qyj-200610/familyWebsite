@@ -32,4 +32,7 @@ PHOTO_UPLOAD_ERROR_MAP = {
     "UNSUPPORTED_CONTENT_TYPE": (3003, "不支持的文件类型，仅允许 jpg、png、webp"),
     "FILE_TOO_LARGE": (3004, "文件大小超出限制（最大 10 MB）"),
     "INVALID_IMAGE": (3005, "文件内容不是有效的图片格式"),
+    "EMPTY_FILE": (3006, "文件内容为空，请选择有效的图片文件"),
+    "CLOUDINARY_NOT_CONFIGURED": (3007, "服务器图片存储未配置，请联系管理员"),
+    "CLOUDINARY_UPLOAD_FAILED": (3008, "图片存储服务暂时不可用，请稍后重试"),
 }

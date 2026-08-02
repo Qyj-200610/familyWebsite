@@ -9,6 +9,7 @@ from app.schemas.album import AlbumCreateRequest, AlbumResponse
 from app.schemas.photo import PhotoResponse
 from app.services.album import AlbumService
 from app.services.photo import PhotoService
+from app.services.storage import get_url
 from app.utils.response_helpers import PHOTO_UPLOAD_ERROR_MAP, photo_to_response
 
 router = APIRouter(prefix="/albums", tags=["albums"])
@@ -49,7 +50,7 @@ def _album_to_response(album) -> dict:
         latest = _latest_photo(album)
         cover_photo = PhotoResponse(
             id=latest.id,
-            filename=latest.filename,
+            filename=get_url(latest.filename),
             original_filename=latest.original_filename,
             file_size=latest.file_size,
             content_type=latest.content_type,

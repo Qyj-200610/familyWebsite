@@ -1,3 +1,4 @@
+import asyncio
 import uuid
 from pathlib import Path
 
@@ -10,7 +11,11 @@ from app.core.config import settings
 from app.models.album import Album
 from app.models.photo import Photo
 from app.models.user import User
-from app.services.storage import upload_image
+from app.services.storage import (
+    CloudinaryNotConfiguredError,
+    CloudinaryUploadError,
+    upload_image,
+)
 from app.utils.image import detect_image_type
 
 
@@ -35,6 +40,9 @@ class PhotoService:
 
         if content_type and content_type not in settings.PHOTO_ALLOWED_CONTENT_TYPES:
             raise ValueError("UNSUPPORTED_CONTENT_TYPE")
+
+        if len(content) == 0:
+            raise ValueError("EMPTY_FILE")
 
         if len(content) > settings.PHOTO_MAX_SIZE:
             raise ValueError("FILE_TOO_LARGE")
@@ -64,8 +72,15 @@ class PhotoService:
         ext, detected_type = PhotoService._validate_file(original_filename, file.content_type, content)
         content_type = file.content_type or detected_type or "image/jpeg"
 
-        # 上传到 Cloudinary
-        public_id = upload_image(content, uuid.uuid4().hex, "family-website/photos")
+        # 上传到 Cloudinary（在后台线程中执行，避免阻塞事件循环）
+        try:
+            public_id = await asyncio.to_thread(
+                upload_image, content, uuid.uuid4().hex, "family-website/photos"
+            )
+        except CloudinaryNotConfiguredError:
+            raise ValueError("CLOUDINARY_NOT_CONFIGURED")
+        except CloudinaryUploadError:
+            raise ValueError("CLOUDINARY_UPLOAD_FAILED")
 
         # 创建数据库记录（filename 存 Cloudinary public_id）
         photo = Photo(
@@ -83,7 +98,7 @@ class PhotoService:
         except Exception:
             # DB write failed — clean up the Cloudinary file
             from app.services.storage import delete_image
-            delete_image(public_id)
+            await asyncio.to_thread(delete_image, public_id)
             raise
         await db.refresh(photo)
 

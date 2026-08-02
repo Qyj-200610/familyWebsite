@@ -5,12 +5,14 @@ Cloudinary 存储服务 — 上传、删除、URL 生成。
 照片存储在 family-website/photos/ 目录下。
 """
 
+import io
 import logging
 from typing import Optional
 
 import cloudinary
 import cloudinary.api
 import cloudinary.uploader
+from cloudinary.exceptions import Error as CloudinaryError
 
 from app.core.config import settings
 
@@ -40,8 +42,15 @@ class CloudinaryNotConfiguredError(RuntimeError):
     """Raised when Cloudinary credentials are missing."""
 
 
+class CloudinaryUploadError(RuntimeError):
+    """Raised when Cloudinary upload fails for any reason other than missing config."""
+
+
 def upload_image(file_content: bytes, public_id: str, folder: str) -> str:
     """上传图片到 Cloudinary，返回 public_id。
+
+    将原始字节包装为 BytesIO，确保 Cloudinary SDK 走其标准
+    file-like / stream 处理分支（而非 fallback else 分支）。
 
     Args:
         file_content: 图片二进制内容
@@ -53,22 +62,30 @@ def upload_image(file_content: bytes, public_id: str, folder: str) -> str:
 
     Raises:
         CloudinaryNotConfiguredError: Cloudinary 凭证未配置
+        CloudinaryUploadError: 上传失败（网络、认证、Cloudinary API 错误等）
     """
-    _ensure_initialized()
-
+    # 凭证检查必须在初始化之前，避免用空凭证初始化
     if not settings.CLOUDINARY_CLOUD_NAME or not settings.CLOUDINARY_API_KEY or not settings.CLOUDINARY_API_SECRET:
         raise CloudinaryNotConfiguredError(
             "Cloudinary 未配置，请在 .env 中设置 CLOUDINARY_CLOUD_NAME、CLOUDINARY_API_KEY、CLOUDINARY_API_SECRET"
         )
 
-    result = cloudinary.uploader.upload(
-        file_content,
-        public_id=f"{folder}/{public_id}",
-        overwrite=True,
-        resource_type="image",
-    )
-    logger.info("Uploaded to Cloudinary: %s", result["public_id"])
-    return result["public_id"]
+    _ensure_initialized()
+
+    try:
+        # 使用 BytesIO 包装，让 SDK 走标准 stream 处理路径
+        # （bytes 没有 .read()，会走 else fallback 分支，兼容性不如 stream 路径）
+        result = cloudinary.uploader.upload(
+            io.BytesIO(file_content),
+            public_id=f"{folder}/{public_id}",
+            overwrite=True,
+            resource_type="image",
+        )
+        logger.info("Uploaded to Cloudinary: %s", result["public_id"])
+        return result["public_id"]
+    except CloudinaryError as e:
+        logger.exception("Cloudinary upload failed for %s/%s", folder, public_id)
+        raise CloudinaryUploadError(str(e)) from e
 
 
 def delete_image(public_id: str) -> None:

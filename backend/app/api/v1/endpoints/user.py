@@ -1,3 +1,4 @@
+import asyncio
 import uuid
 from pathlib import Path
 
@@ -14,7 +15,14 @@ from app.models.photo import Photo
 from app.models.user import User
 from app.schemas.user import UpdateUserRequest, UserResponse
 from app.services.user import UserService
-from app.services.storage import delete_image, get_url, is_cloudinary_id, upload_image
+from app.services.storage import (
+    CloudinaryNotConfiguredError,
+    CloudinaryUploadError,
+    delete_image,
+    get_url,
+    is_cloudinary_id,
+    upload_image,
+)
 from app.utils.image import detect_image_type
 
 router = APIRouter(prefix="/user", tags=["user"])
@@ -70,8 +78,10 @@ async def upload_avatar(
     if file.content_type and file.content_type not in settings.AVATAR_ALLOWED_CONTENT_TYPES:
         return error_response(2005, f"不支持的文件类型：{file.content_type}，仅允许 jpg、png、webp")
 
-    # ── 验证文件大小 ──
+    # ── 读取并验证文件内容 ──
     content = await file.read()
+    if len(content) == 0:
+        return error_response(2006, "文件内容为空，请选择有效的图片文件")
     if len(content) > settings.AVATAR_MAX_SIZE:
         return error_response(2006, f"文件大小超出限制（最大 {settings.AVATAR_MAX_SIZE // (1024 * 1024)} MB）")
 
@@ -80,9 +90,15 @@ async def upload_avatar(
     if detected_type is None or detected_type not in settings.AVATAR_ALLOWED_CONTENT_TYPES:
         return error_response(2007, "文件内容不是有效的图片格式（仅允许 jpg、png、webp）")
 
-    # ── 上传到 Cloudinary ──
-    ext = ".jpg" if suffix == ".jpeg" else suffix
-    public_id = upload_image(content, uuid.uuid4().hex, "family-website/avatars")
+    # ── 上传到 Cloudinary（在后台线程中执行，避免阻塞事件循环） ──
+    try:
+        public_id = await asyncio.to_thread(
+            upload_image, content, uuid.uuid4().hex, "family-website/avatars"
+        )
+    except CloudinaryNotConfiguredError:
+        return error_response(2008, "服务器图片存储未配置，请联系管理员", status_code=500)
+    except CloudinaryUploadError:
+        return error_response(2009, "图片存储服务暂时不可用，请稍后重试", status_code=503)
 
     # ── 记录旧头像 public_id ──
     old_avatar = current_user.avatar
@@ -92,12 +108,12 @@ async def upload_avatar(
         user = await UserService.update_user(db, current_user, UpdateUserRequest(avatar=public_id))
     except Exception:
         # DB update failed — clean up the Cloudinary file we just uploaded
-        delete_image(public_id)
+        await asyncio.to_thread(delete_image, public_id)
         raise
 
     # ── 删除旧头像（best-effort） ──
     if is_cloudinary_id(old_avatar):
-        delete_image(old_avatar)
+        await asyncio.to_thread(delete_image, old_avatar)
 
     return success_response(
         UserResponse.model_validate(user).model_dump(mode="json", by_alias=True),
