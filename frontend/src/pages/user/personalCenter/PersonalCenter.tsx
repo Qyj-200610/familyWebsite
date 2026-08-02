@@ -68,10 +68,22 @@ function PersonalCenter() {
             <div className="pc__hero-inner">
               <span className="pc__hero-avatar">
                 {user?.avatar ? (
-                  <img src={uploadUrl(user.avatar)} alt={user.username} />
-                ) : (
-                  <span className="pc__hero-avatar-placeholder">{avatarLetter}</span>
-                )}
+                  <img
+                    src={uploadUrl(user.avatar)}
+                    alt={user.username}
+                    onError={(e) => {
+                      (e.target as HTMLImageElement).style.display = "none";
+                      const fb = (e.target as HTMLImageElement).nextElementSibling as HTMLElement | null;
+                      if (fb) fb.style.display = "flex";
+                    }}
+                  />
+                ) : null}
+                <span
+                  className="pc__hero-avatar-placeholder"
+                  style={{ display: user?.avatar ? "none" : "flex" }}
+                >
+                  {avatarLetter}
+                </span>
               </span>
               <div className="pc__hero-info">
                 <h2 className="pc__hero-name">{user?.username || "用户"}</h2>

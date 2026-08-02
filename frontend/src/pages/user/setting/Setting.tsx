@@ -180,10 +180,22 @@ function Setting() {
                   <div className="setting__avatar-edit">
                     <span className={`setting__avatar setting__avatar--lg ${uploading ? "setting__avatar--uploading" : ""}`}>
                       {user?.avatar ? (
-                        <img src={uploadUrl(user.avatar)} alt={user.username} />
-                      ) : (
-                        <span className="setting__avatar-placeholder">{avatarLetter}</span>
-                      )}
+                        <img
+                          src={uploadUrl(user.avatar)}
+                          alt={user.username}
+                          onError={(e) => {
+                            (e.target as HTMLImageElement).style.display = "none";
+                            const fb = (e.target as HTMLImageElement).nextElementSibling as HTMLElement | null;
+                            if (fb) fb.style.display = "flex";
+                          }}
+                        />
+                      ) : null}
+                      <span
+                        className="setting__avatar-placeholder"
+                        style={{ display: user?.avatar ? "none" : "flex" }}
+                      >
+                        {avatarLetter}
+                      </span>
                       {uploading && (
                         <span className="setting__avatar-overlay">
                           <span className="setting__spinner" />
