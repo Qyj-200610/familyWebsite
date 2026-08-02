@@ -3,7 +3,7 @@
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  background: linear-gradient(160deg, var(--color-bg) 0%, var(--color-bg-warm) 50%, #fdf6ee 100%);
+  background: linear-gradient(160deg, var(--color-bg) 0%, var(--color-bg-warm) 50%, var(--color-gradient-endpoint) 100%);
   position: relative;
   overflow: hidden;
 }
@@ -51,7 +51,7 @@
   top: 0;
   z-index: 100;
   backdrop-filter: blur(20px) saturate(180%);
-  background: rgba(255, 255, 255, 0.75);
+  background: var(--color-nav-glass);
   border-bottom: 1px solid transparent;
   background-clip: padding-box;
   transition: border-color 0.3s ease, background 0.3s ease;
@@ -230,7 +230,7 @@
   line-height: 1.25;
   margin-bottom: 16px;
   letter-spacing: -0.02em;
-  background: linear-gradient(135deg, #2d2d2d 0%, var(--color-primary-dark) 50%, var(--color-primary) 100%);
+  background: linear-gradient(135deg, var(--color-text) 0%, var(--color-primary-dark) 50%, var(--color-primary) 100%);
   background-clip: text;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;

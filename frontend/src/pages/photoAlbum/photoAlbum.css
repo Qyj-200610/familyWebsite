@@ -2,7 +2,7 @@
 
 .album {
   min-height: 100vh;
-  background: linear-gradient(165deg, #faf8f5 0%, #fef9f0 40%, #f7f3ed 100%);
+  background: linear-gradient(165deg, var(--color-bg) 0%, var(--color-bg-warm) 40%, var(--color-bg-alt) 100%);
   position: relative;
   overflow-x: hidden;
 }
@@ -121,8 +121,8 @@
   align-items: center;
   justify-content: space-between;
   padding: 14px 20px;
-  background: #fef2f2;
-  border: 1px solid #fecaca;
+  background: var(--color-alert-error-bg);
+  border: 1px solid var(--color-alert-error-border);
   border-radius: var(--radius-md);
   margin-bottom: 24px;
   color: #dc2626;
@@ -353,7 +353,7 @@
   width: 100%;
   height: 200px;
   overflow: hidden;
-  background: linear-gradient(135deg, #e8f0e7, #f5efe0, #fef9f0);
+  background: linear-gradient(135deg, var(--color-hero-bg-start), var(--color-hero-bg-mid), var(--color-bg-warm));
   display: flex;
   align-items: center;
   justify-content: center;
@@ -655,7 +655,7 @@
 .album__upload-error {
   margin-top: 14px;
   padding: 10px 16px;
-  background: #fef2f2;
+  background: var(--color-alert-error-bg);
   border-radius: var(--radius-sm);
   color: #dc2626;
   font-size: 0.875rem;

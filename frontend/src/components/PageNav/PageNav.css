@@ -5,7 +5,7 @@
   top: 0;
   z-index: 100;
   backdrop-filter: blur(16px) saturate(180%);
-  background: rgba(255, 255, 255, 0.72);
+  background: var(--color-nav-glass);
   border-bottom: 1px solid rgba(91, 140, 90, 0.12);
 }
 
@@ -167,7 +167,7 @@
 
 @media (hover: hover) {
   .pagenav__dropdown-item--danger:hover {
-    background: #fef2f2;
+    background: var(--color-alert-error-bg);
     color: var(--color-error);
   }
 }

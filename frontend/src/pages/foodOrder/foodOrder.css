@@ -2,7 +2,7 @@
 
 .food {
   min-height: 100vh;
-  background: linear-gradient(165deg, #faf8f5 0%, #fef9f0 40%, #f7f3ed 100%);
+  background: linear-gradient(165deg, var(--color-bg) 0%, var(--color-bg-warm) 40%, var(--color-bg-alt) 100%);
   position: relative;
   overflow-x: hidden;
 }
@@ -288,7 +288,7 @@
   justify-content: space-between;
   padding: 20px 24px;
   border-bottom: 1px solid var(--color-border);
-  background: linear-gradient(135deg, #fef9f0, #fdf6eb);
+  background: linear-gradient(135deg, var(--color-bg-warm), var(--color-bg-alt));
 }
 
 .food__cart-title {

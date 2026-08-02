@@ -1,7 +1,7 @@
 /* ===== Setting Page ===== */
 .setting {
   min-height: 100vh;
-  background: linear-gradient(165deg, #faf8f5 0%, #fef9f0 40%, #f7f3ed 100%);
+  background: linear-gradient(165deg, var(--color-bg) 0%, var(--color-bg-warm) 40%, var(--color-bg-alt) 100%);
   position: relative;
   overflow-x: hidden;
 }
@@ -28,7 +28,7 @@
   top: 0;
   z-index: 100;
   backdrop-filter: blur(16px) saturate(180%);
-  background: rgba(255, 255, 255, 0.72);
+  background: var(--color-nav-glass);
   border-bottom: 1px solid rgba(91, 140, 90, 0.12);
   transition: box-shadow 0.3s;
 }
@@ -186,7 +186,7 @@
 
 @media (hover: hover) {
   .setting__dropdown-item--danger:hover {
-    background: #fef2f2;
+    background: var(--color-alert-error-bg);
     color: var(--color-error);
   }
 }
@@ -652,7 +652,7 @@
   width: 64px;
   height: 64px;
   border-radius: 50%;
-  background: linear-gradient(135deg, #f5efe0, #fef9f0);
+  background: linear-gradient(135deg, var(--color-hero-bg-mid), var(--color-bg-warm));
   margin-bottom: 16px;
   font-size: 1.75rem;
   animation: settingPlaceholderFloat 3s ease-in-out infinite;

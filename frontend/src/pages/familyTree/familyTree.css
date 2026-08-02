@@ -1,7 +1,7 @@
 /* ===== Family Tree Page ===== */
 .ft-page {
   min-height: 100vh;
-  background: linear-gradient(165deg, #faf8f5 0%, #fef9f0 40%, #f7f3ed 100%);
+  background: linear-gradient(165deg, var(--color-bg) 0%, var(--color-bg-warm) 40%, var(--color-bg-alt) 100%);
   position: relative;
   overflow-x: auto;
 }
@@ -38,10 +38,10 @@
   inset: 0;
   background: linear-gradient(
     135deg,
-    #e8f0e7 0%,
-    #f0ebe0 30%,
-    #fef9f0 60%,
-    #eaf3e9 100%
+    var(--color-hero-bg-start) 0%,
+    var(--color-hero-bg-mid) 30%,
+    var(--color-bg-warm) 60%,
+    var(--color-hero-bg-end) 100%
   );
   z-index: 0;
 }
@@ -182,7 +182,7 @@
 }
 
 .ft-intro__dot--empty {
-  background: #d4d0c8;
+  background: var(--color-empty-dot);
   border: 2px dashed #b0aca5;
 }
 

@@ -304,7 +304,7 @@
 
 @media (hover: hover) {
   .dr__item-delete:hover {
-    background: #fef2f2;
+    background: var(--color-alert-error-bg);
     color: var(--color-error);
   }
 }

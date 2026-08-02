@@ -1,6 +1,7 @@
 import { useEffect, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuthStore } from "../../../store/authStore";
+import { useThemeStore } from "../../../store/themeStore";
 import { userApi, uploadUrl } from "../../../api";
 import PageNav from "../../../components/PageNav/PageNav";
 import "./Setting.css";
@@ -13,6 +14,8 @@ const MAX_SIZE = 5 * 1024 * 1024; // 5 MB
 function Setting() {
   const navigate = useNavigate();
   const { user, isAuthenticated, updateUser } = useAuthStore();
+  const theme = useThemeStore((s) => s.theme);
+  const setTheme = useThemeStore((s) => s.setTheme);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // 头像上传状态
@@ -280,15 +283,24 @@ function Setting() {
                   <label className="setting__label">主题模式</label>
                   <p className="setting__field-desc">选择你喜欢的界面配色方案</p>
                   <div className="setting__theme-options">
-                    <button className="setting__theme-btn setting__theme-btn--active" disabled>
+                    <button
+                      className={`setting__theme-btn ${theme === 'light' ? 'setting__theme-btn--active' : ''}`}
+                      onClick={() => setTheme('light')}
+                    >
                       <span className="setting__theme-icon">☀️</span>
                       浅色
                     </button>
-                    <button className="setting__theme-btn" disabled>
+                    <button
+                      className={`setting__theme-btn ${theme === 'dark' ? 'setting__theme-btn--active' : ''}`}
+                      onClick={() => setTheme('dark')}
+                    >
                       <span className="setting__theme-icon">🌙</span>
                       深色
                     </button>
-                    <button className="setting__theme-btn" disabled>
+                    <button
+                      className={`setting__theme-btn ${theme === 'system' ? 'setting__theme-btn--active' : ''}`}
+                      onClick={() => setTheme('system')}
+                    >
                       <span className="setting__theme-icon">💻</span>
                       跟随系统
                     </button>
