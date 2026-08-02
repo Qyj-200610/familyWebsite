@@ -1,13 +1,15 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useAuthStore } from "../../../store/authStore";
-import { uploadUrl } from "../../../api";
+import { uploadUrl, userApi } from "../../../api";
+import type { UserStats } from "../../../api";
 import PageNav from "../../../components/PageNav/PageNav";
 import "./PersonalCenter.css";
 
 function PersonalCenter() {
   const navigate = useNavigate();
   const { user, isAuthenticated } = useAuthStore();
+  const [stats, setStats] = useState<UserStats | null>(null);
 
   // 认证检查
   useEffect(() => {
@@ -15,6 +17,16 @@ function PersonalCenter() {
       navigate("/login", { replace: true });
     }
   }, [isAuthenticated, navigate]);
+
+  // 获取用户统计数据
+  useEffect(() => {
+    if (!isAuthenticated) return;
+    userApi.getMyStats().then((res) => {
+      setStats(res);
+    }).catch(() => {
+      // 静默处理，stats 保持 null 时显示 "—"
+    });
+  }, [isAuthenticated]);
 
   /** 获取头像首字母 */
   const avatarLetter = user?.username?.charAt(0).toUpperCase() || "U";
@@ -89,28 +101,21 @@ function PersonalCenter() {
               <span className="pc__stat-icon-wrap pc__stat-icon-wrap--photos">
                 <span className="pc__stat-icon">📸</span>
               </span>
-              <span className="pc__stat-value">0</span>
+              <span className="pc__stat-value">{stats?.photoCount ?? "—"}</span>
               <span className="pc__stat-label">照片</span>
             </div>
             <div className="pc__stat-card">
               <span className="pc__stat-icon-wrap pc__stat-icon-wrap--food">
                 <span className="pc__stat-icon">🍽️</span>
               </span>
-              <span className="pc__stat-value">0</span>
+              <span className="pc__stat-value">{stats?.foodOrderCount ?? "—"}</span>
               <span className="pc__stat-label">点单</span>
-            </div>
-            <div className="pc__stat-card">
-              <span className="pc__stat-icon-wrap pc__stat-icon-wrap--messages">
-                <span className="pc__stat-icon">💬</span>
-              </span>
-              <span className="pc__stat-value">0</span>
-              <span className="pc__stat-label">留言</span>
             </div>
             <div className="pc__stat-card">
               <span className="pc__stat-icon-wrap pc__stat-icon-wrap--family">
                 <span className="pc__stat-icon">👨‍👩‍👧‍👦</span>
               </span>
-              <span className="pc__stat-value">0</span>
+              <span className="pc__stat-value">{stats?.familyMemberCount ?? "—"}</span>
               <span className="pc__stat-label">家庭成员</span>
             </div>
           </div>
@@ -136,10 +141,6 @@ function PersonalCenter() {
                   <span className="pc__empty-hint-item">
                     <span className="pc__empty-hint-icon">🍽️</span>
                     美食点单
-                  </span>
-                  <span className="pc__empty-hint-item">
-                    <span className="pc__empty-hint-icon">💬</span>
-                    留言互动
                   </span>
                 </div>
               </div>

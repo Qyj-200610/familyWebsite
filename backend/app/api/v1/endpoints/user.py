@@ -2,12 +2,15 @@ import uuid
 from pathlib import Path
 
 from fastapi import APIRouter, Depends, File, UploadFile
+from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.deps import get_current_user
+from app.api.v1.endpoints.family import FAMILY_MEMBER_NAMES
 from app.core.config import settings
 from app.core.database import get_db
 from app.core.response import error_response, success_response
+from app.models.photo import Photo
 from app.models.user import User
 from app.schemas.user import UpdateUserRequest, UserResponse
 from app.services.user import UserService
@@ -114,3 +117,23 @@ async def upload_avatar(
     )
 
 
+@router.get("/me/stats")
+async def get_my_stats(
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    """Return aggregated stats for the current user's personal center."""
+    # 用户上传的照片总数
+    photo_result = await db.execute(
+        select(func.count()).select_from(Photo).where(Photo.uploaded_by == current_user.id)
+    )
+    photo_count: int = photo_result.scalar() or 0
+
+    # 家庭成员数量（当前为固定值，由 FAMILY_MEMBER_NAMES 常量定义）
+    family_member_count: int = len(FAMILY_MEMBER_NAMES)
+
+    return success_response({
+        "photoCount": photo_count,
+        "foodOrderCount": 0,  # 点单系统不存储订单，固定为 0
+        "familyMemberCount": family_member_count,
+    })

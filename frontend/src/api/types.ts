@@ -57,6 +57,13 @@ export interface UpdateUserRequest {
   avatar?: string;
 }
 
+/** GET /api/user/me/stats */
+export interface UserStats {
+  photoCount: number;
+  foodOrderCount: number;
+  familyMemberCount: number;
+}
+
 // === 相册 ===
 
 /** 照片上传者简要信息 */
