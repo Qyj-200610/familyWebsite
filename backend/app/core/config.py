@@ -54,6 +54,11 @@ class Settings(BaseSettings):
     PHOTO_MAX_SIZE: int = 10 * 1024 * 1024  # 10 MB
     PHOTO_ALLOWED_CONTENT_TYPES: set[str] = {"image/jpeg", "image/png", "image/webp"}
 
+    # Cloudinary — 持久化图片存储
+    CLOUDINARY_CLOUD_NAME: str = ""
+    CLOUDINARY_API_KEY: str = ""
+    CLOUDINARY_API_SECRET: str = ""
+
     model_config = SettingsConfigDict(
         env_file=str(_ENV_FILE),
         env_file_encoding="utf-8",

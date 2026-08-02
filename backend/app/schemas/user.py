@@ -1,6 +1,8 @@
 from datetime import datetime
 
-from pydantic import BaseModel, ConfigDict, EmailStr, Field, field_validator
+from pydantic import BaseModel, ConfigDict, EmailStr, Field, field_serializer, field_validator
+
+from app.services.storage import get_url
 
 
 # ── Password validation regex ──────────────────────────────────
@@ -62,6 +64,14 @@ class UserResponse(BaseModel):
     created_at: datetime = Field(alias="createdAt")
 
     model_config = ConfigDict(from_attributes=True, populate_by_name=True)
+
+    @field_serializer("avatar")
+    @classmethod
+    def _serialize_avatar(cls, v: str | None) -> str | None:
+        """Convert Cloudinary public_id to full URL. Old local paths pass through."""
+        if v is None:
+            return None
+        return get_url(v)
 
 
 class AuthResponse(BaseModel):

@@ -10,6 +10,7 @@ from app.core.config import settings
 from app.models.album import Album
 from app.models.photo import Photo
 from app.models.user import User
+from app.services.storage import upload_image
 from app.utils.image import detect_image_type
 
 
@@ -54,27 +55,22 @@ class PhotoService:
         *,
         album_id: int | None = None,
     ) -> Photo:
-        """Upload a photo and create a database record."""
+        """Upload a photo to Cloudinary and create a database record."""
         # 读取文件内容
         content = await file.read()
-        filename = file.filename or ""
+        original_filename = file.filename or ""
 
-        # 验证文件（同时完成魔数检测，detected_type 复用检测结果避免重复调用）
-        ext, detected_type = PhotoService._validate_file(filename, file.content_type, content)
+        # 验证文件
+        ext, detected_type = PhotoService._validate_file(original_filename, file.content_type, content)
         content_type = file.content_type or detected_type or "image/jpeg"
 
-        # 保存到磁盘
-        photo_dir = Path(settings.UPLOAD_DIR) / "photos"
-        photo_dir.mkdir(parents=True, exist_ok=True)
+        # 上传到 Cloudinary
+        public_id = upload_image(content, uuid.uuid4().hex, "family-website/photos")
 
-        stored_filename = f"{uuid.uuid4().hex}{ext}"
-        filepath = photo_dir / stored_filename
-        filepath.write_bytes(content)
-
-        # 创建数据库记录
+        # 创建数据库记录（filename 存 Cloudinary public_id）
         photo = Photo(
-            filename=stored_filename,
-            original_filename=filename,
+            filename=public_id,
+            original_filename=original_filename,
             file_size=len(content),
             content_type=content_type,
             description=description,
@@ -85,8 +81,9 @@ class PhotoService:
         try:
             await db.flush()
         except Exception:
-            # DB write failed — clean up the file we just wrote
-            filepath.unlink(missing_ok=True)
+            # DB write failed — clean up the Cloudinary file
+            from app.services.storage import delete_image
+            delete_image(public_id)
             raise
         await db.refresh(photo)
 

@@ -275,7 +275,10 @@ function PhotoAlbum() {
     return () => document.removeEventListener("keydown", handleKey);
   }, [viewerOpen]);
 
-  const getPhotoUrl = (filename: string) => uploadUrl(`/uploads/photos/${filename}`);
+  const getPhotoUrl = (filename: string) => {
+    if (filename.startsWith("http://") || filename.startsWith("https://")) return filename;
+    return uploadUrl(`/uploads/photos/${filename}`);
+  };
 
   if (!isAuthenticated) return null;
 

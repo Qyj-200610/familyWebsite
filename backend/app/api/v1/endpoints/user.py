@@ -14,6 +14,7 @@ from app.models.photo import Photo
 from app.models.user import User
 from app.schemas.user import UpdateUserRequest, UserResponse
 from app.services.user import UserService
+from app.services.storage import delete_image, get_url, is_cloudinary_id, upload_image
 from app.utils.image import detect_image_type
 
 router = APIRouter(prefix="/user", tags=["user"])
@@ -79,37 +80,24 @@ async def upload_avatar(
     if detected_type is None or detected_type not in settings.AVATAR_ALLOWED_CONTENT_TYPES:
         return error_response(2007, "文件内容不是有效的图片格式（仅允许 jpg、png、webp）")
 
-    # ── 保存文件 ──
-    avatar_dir = Path(settings.UPLOAD_DIR) / "avatars"
-    avatar_dir.mkdir(parents=True, exist_ok=True)
-
-    # 映射后缀（.jpeg → .jpg 统一）
+    # ── 上传到 Cloudinary ──
     ext = ".jpg" if suffix == ".jpeg" else suffix
-    filename = f"{uuid.uuid4().hex}{ext}"
-    filepath = avatar_dir / filename
-    filepath.write_bytes(content)
+    public_id = upload_image(content, uuid.uuid4().hex, "family-website/avatars")
 
-    # ── 记录旧头像路径（必须在 update_user 之前，因为 update 会刷新 current_user） ──
+    # ── 记录旧头像 public_id ──
     old_avatar = current_user.avatar
 
     # ── 更新用户头像字段 ──
-    avatar_url = f"/uploads/avatars/{filename}"
     try:
-        user = await UserService.update_user(db, current_user, UpdateUserRequest(avatar=avatar_url))
+        user = await UserService.update_user(db, current_user, UpdateUserRequest(avatar=public_id))
     except Exception:
-        # DB update failed — clean up the file we just wrote
-        filepath.unlink(missing_ok=True)
+        # DB update failed — clean up the Cloudinary file we just uploaded
+        delete_image(public_id)
         raise
 
-    # ── 删除旧头像文件（best-effort） ──
-    if old_avatar and old_avatar.startswith("/uploads/avatars/"):
-        old_filename = old_avatar[len("/uploads/avatars/"):]
-        old_filepath = avatar_dir / old_filename
-        if old_filepath != filepath:
-            try:
-                old_filepath.unlink(missing_ok=True)
-            except OSError:
-                pass
+    # ── 删除旧头像（best-effort） ──
+    if is_cloudinary_id(old_avatar):
+        delete_image(old_avatar)
 
     return success_response(
         UserResponse.model_validate(user).model_dump(mode="json", by_alias=True),

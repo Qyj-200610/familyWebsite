@@ -2,13 +2,18 @@
 
 from app.models.photo import Photo
 from app.schemas.photo import PhotoResponse
+from app.services.storage import get_url
 
 
 def photo_to_response(photo: Photo) -> dict:
-    """Convert a Photo ORM object to a response dict with the uploader info embedded."""
+    """Convert a Photo ORM object to a response dict with the uploader info embedded.
+
+    Converts Cloudinary public_id in ``filename`` to a full public URL.
+    Old-format plain filenames are passed through as-is.
+    """
     return PhotoResponse(
         id=photo.id,
-        filename=photo.filename,
+        filename=get_url(photo.filename),
         original_filename=photo.original_filename,
         file_size=photo.file_size,
         content_type=photo.content_type,

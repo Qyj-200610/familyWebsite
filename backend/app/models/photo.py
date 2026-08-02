@@ -39,14 +39,21 @@ class Photo(Base):
 
 @event.listens_for(Photo, "after_delete")
 def _cleanup_photo_file(mapper, connection, target: Photo) -> None:
-    """Clean up the photo file from disk after the DB record is deleted.
+    """Clean up the photo file from Cloudinary after the DB record is deleted.
 
-    This handles cascade deletes as well as explicit deletes via the service layer.
+    Handles both new Cloudinary records (public_id in filename) and
+    old local-file records (plain UUID filename — best-effort local delete).
     """
-    try:
-        from app.core.config import settings
+    from app.services.storage import delete_image, is_cloudinary_id
 
-        filepath = Path(settings.UPLOAD_DIR) / "photos" / target.filename
-        filepath.unlink(missing_ok=True)
-    except Exception:
-        logger.warning("Failed to delete photo file: %s", target.filename, exc_info=True)
+    if is_cloudinary_id(target.filename):
+        delete_image(target.filename)
+    else:
+        # Old-format record: try local disk cleanup
+        try:
+            from app.core.config import settings
+
+            filepath = Path(settings.UPLOAD_DIR) / "photos" / target.filename
+            filepath.unlink(missing_ok=True)
+        except Exception:
+            logger.warning("Failed to delete photo file: %s", target.filename, exc_info=True)
