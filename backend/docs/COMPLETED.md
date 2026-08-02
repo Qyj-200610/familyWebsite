@@ -62,7 +62,7 @@
 
 - [x] **获取个人信息** `GET /api/user/me` — 需认证
 - [x] **更新个人信息** `PATCH /api/user/me` — 用户名/头像更新，含唯一性校验
-- [x] **上传头像** `POST /api/user/me/avatar` — JPEG/PNG/WebP，最大 2 MB，扩展名 + Content-Type + 魔数三重验证，旧文件自动清理
+- [x] **上传头像** `POST /api/user/me/avatar` — JPEG/PNG/WebP，最大 5 MB，扩展名 + Content-Type + 魔数三重验证，旧文件自动清理
 
 ---
 
@@ -93,7 +93,7 @@
 
 ## 系统模块
 
-- [x] **健康检查** `GET /api/health` — 不依赖数据库，始终返回 `healthy`
+- [x] **健康检查** `GET /api/health` — 验证数据库连接；可达时返回 `healthy`，不可达时返回 HTTP 503 + `degraded` 状态
 - [x] **CORS 中间件** — 允许 `localhost:5175` 和 `https://family-website-frontend-six.vercel.app` 跨域请求
 - [x] **Lifespan 管理** — 启动时自动建表（DB 不可用时仅 warn，不阻止服务启动），关闭时释放连接池
 - [x] **全局异常处理** — 未捕获异常返回 JSON `{code: 500, message: "服务器内部错误"}`
@@ -102,7 +102,7 @@
 
 ## 文件上传
 
-- [x] **头像** — `uploads/avatars/`，最大 2 MB，JPEG/PNG/WebP，旧文件自动清理
+- [x] **头像** — `uploads/avatars/`，最大 5 MB，JPEG/PNG/WebP，旧文件自动清理
 - [x] **照片** — `uploads/photos/`，最大 10 MB，JPEG/PNG/WebP，`after_delete` 事件自动清理
 - [x] **三重验证** — 文件扩展名 + Content-Type + 魔数检测（魔数类型必须属于允许列表）
 - [x] **FastAPI StaticFiles** — `/uploads` 路径挂载上传目录
@@ -158,6 +158,19 @@
 ### 2026-08-01 — 相册查询优化
 
 - [x] **album.py service** — 所有相册查询添加链式 `selectinload(Album.photos).selectinload(Photo.uploader)`，预加载照片上传者信息，避免 N+1 查询和 async lazy-load 错误
+
+### 2026-08-02 — 后端 Debug + 文档同步
+
+- [x] 修复：健康检查 `GET /api/health` 在数据库不可达时返回 HTTP 400 → 改为 HTTP 503（`error_response` 添加 `status_code=503`），并添加异常日志记录
+- [x] 修复：`UserService.update_user` 用户名唯一性检查存在 TOCTOU 竞态条件 → 添加 `IntegrityError` 捕获（与 `create_user` 一致），并发冲突时返回友好错误而非 500
+- [x] 修复：照片列表接口 `limit` 参数无上界限制，可导致内存耗尽 → 添加 `min(max(limit, 1), 100)` 钳制到 [1, 100]
+- [x] 修复：美食点单 SMTP 错误信息泄露给客户端 → 改为通用提示 "邮件发送失败，请稍后重试"
+- [x] 更新：头像最大上传大小从 2 MB 更正为 5 MB（3 处：API_REFERENCE.md、COMPLETED.md、.env.example），与实际代码 `config.py` 保持一致
+- [x] 更新：`COMPLETED.md` 健康检查描述更正 — 从"不依赖数据库，始终返回 healthy"改为准确描述双路行为
+- [x] 更新：`API_REFERENCE.md` 数据库表结构中 6 处 `int` 类型更正为 `bigint`（id 列、created_by、uploaded_by、album_id），与 ORM 模型的 `BigInteger` 保持一致
+- [x] 更新：`API_REFERENCE.md` 模型对照表中 `Photo.content_type` 从 `String(50)` 更正为 `String(100)`（2026-07-31 已修复模型但漏改此表）
+- [x] 更新：`CLAUDE.md` 错误码范围表新增 `5000–5099 系统健康检查`
+- [x] 更新：`frontend/docs/interface.md` 错误码 `1003`、`1102`、`1103` 标注为"预留，后端未实现"
 
 ### 2026-07-26 — 修复
 - [x] 修复：登录错误码从 `1003` 改为 `1101`

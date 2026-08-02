@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuthStore } from "../../store/authStore";
 import { foodApi } from "../../api";
@@ -79,6 +79,14 @@ function FoodOrder() {
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [submitSuccess, setSubmitSuccess] = useState(false);
+  const successTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // 清理定时器，防止组件卸载后 setState
+  useEffect(() => {
+    return () => {
+      if (successTimerRef.current) clearTimeout(successTimerRef.current);
+    };
+  }, []);
 
   // 认证检查
   useEffect(() => {
@@ -167,7 +175,9 @@ function FoodOrder() {
       });
       setSubmitSuccess(true);
       handleClearCart();
-      setTimeout(() => {
+      // 清除旧定时器（防止多次快速提交导致状态冲突）
+      if (successTimerRef.current) clearTimeout(successTimerRef.current);
+      successTimerRef.current = setTimeout(() => {
         setOrderModalOpen(false);
         setSubmitSuccess(false);
       }, 3000);

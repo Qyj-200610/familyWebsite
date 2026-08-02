@@ -25,12 +25,23 @@ applyTheme(initialResolved)
 
 // 监听系统主题变化（仅当用户选择了"跟随系统"时生效）
 const darkModeQuery = window.matchMedia('(prefers-color-scheme: dark)')
-darkModeQuery.addEventListener('change', (e) => {
+const onSystemThemeChange = (e: MediaQueryListEvent) => {
   const current = useThemeStore.getState()
   if (current.theme === 'system') {
-    applyTheme(e.matches ? 'dark' : 'light')
+    const resolved = e.matches ? 'dark' as const : 'light' as const
+    applyTheme(resolved)
+    // 同步更新 store 的 resolved 状态，避免组件读取到过期值
+    useThemeStore.setState({ resolved })
   }
-})
+}
+darkModeQuery.addEventListener('change', onSystemThemeChange)
+
+// HMR 兼容：页面热更新时清理旧监听器
+if (import.meta.hot) {
+  import.meta.hot.dispose(() => {
+    darkModeQuery.removeEventListener('change', onSystemThemeChange)
+  })
+}
 
 // --- 渲染 ---
 createRoot(document.getElementById('root')!).render(

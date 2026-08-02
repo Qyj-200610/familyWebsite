@@ -10,8 +10,8 @@ import { navigateTo } from "../utils/navigate";
 // 生产环境在 Cloudflare Pages 面板设置 VITE_API_BASE_URL 为后端完整地址，如 https://api.example.com/api
 const API_BASE: string = import.meta.env.VITE_API_BASE_URL || "/api";
 
-/** 上传文件的基础路径（从 API_BASE 推导，替换 /api → /uploads） */
-export const UPLOADS_BASE: string = API_BASE.replace(/\/api$/, "/uploads");
+/** 上传文件的基础路径（从 API_BASE 推导，替换 /api → /uploads，兼容尾部斜杠） */
+export const UPLOADS_BASE: string = API_BASE.replace(/\/api\/?$/, "/uploads");
 
 /**
  * 将后端返回的相对上传路径（如 /uploads/avatars/xxx.jpg）解析为完整 URL。
@@ -44,8 +44,9 @@ instance.interceptors.request.use((config) => {
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }
-  // FormData 上传时，删除默认 Content-Type 让浏览器自动设置 multipart boundary
-  if (config.data instanceof FormData && config.headers["Content-Type"]) {
+  // FormData 上传时，无条件删除 Content-Type 让浏览器自动设置 multipart boundary
+  // AxiosHeaders 可能对键名做归一化，直接判断 instanceof 更安全
+  if (config.data instanceof FormData) {
     delete config.headers["Content-Type"];
   }
   return config;
@@ -87,7 +88,8 @@ instance.interceptors.response.use(
       return Promise.reject(new Error("请求超时，请检查网络"));
     }
 
-    return Promise.reject(error);
+    // 其他网络错误（DNS 失败、连接拒绝等）→ 统一返回友好提示
+    return Promise.reject(new Error("网络错误，请检查连接"));
   },
 );
 

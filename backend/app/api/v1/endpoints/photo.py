@@ -19,6 +19,7 @@ async def get_photos(
     current_user: User = Depends(get_current_user),
 ):
     """获取照片列表（按上传时间倒序，分页）。仅返回公开相册或本人相册的照片。"""
+    limit = min(max(limit, 1), 100)  # clamp to [1, 100]
     photos = await PhotoService.get_photos(
         db, skip=skip, limit=limit, current_user_id=current_user.id
     )

@@ -116,7 +116,7 @@
 - [x] 最近活动占位
 
 ### 设置 (Setting.tsx)
-- [x] 头像上传（JPEG/PNG/WebP，最大 2 MB，魔数检测）
+- [x] 头像上传（JPEG/PNG/WebP，最大 5 MB，魔数检测）
 - [x] 用户名编辑
 - [x] 侧边栏导航（个人资料/外观设置/通知偏好）
 - [x] 主题切换按钮（待实现）
@@ -430,6 +430,43 @@ cd frontend && npm run dev
 
 ---
 
+---
+
+## Debug 修复 (2026-08-02 · 前端全量审查修复)
+
+### Bug 修复
+
+- [x] **foodOrder.tsx** — `handleSubmitOrder` 中 `setTimeout` 未清理，组件卸载后可能触发 setState → 添加 `successTimerRef` 和 `useEffect` 清理
+- [x] **Home.tsx / PageNav.tsx** — `handleLogout` 中 `navigate("/")` 与 auth guard 的 `navigate("/login")` 竞争导致双重跳转 → 统一直接导航到 `/login`
+- [x] **client.ts** — FormData 上传时 Content-Type 删除条件依赖 `config.headers["Content-Type"]` 存在性，AxiosHeaders 归一化可能导致删除失败 → 改为无条件删除
+- [x] **client.ts** — `UPLOADS_BASE` 正则 `\/api$` 不匹配尾部斜杠（如 `https://api.example.com/api/`），导致上传 URL 错误 → 正则改为 `\/api\/?$`
+- [x] **client.ts** — 非超时类网络错误（DNS 失败、连接拒绝等）直接 re-throw 原始 AxiosError，message 对用户不友好 → 统一返回 `"网络错误，请检查连接"`
+- [x] **main.tsx** — 系统主题变化时 `darkModeQuery` 监听器直接调用 `applyTheme` 但未更新 store 的 `resolved` 状态 → 改为同步更新 `useThemeStore.setState({ resolved })`，并添加 HMR 清理
+- [x] **Register.tsx** — SVG import 语句缺少分号；`updateField` 的 `value: string | boolean` 类型是 Login.tsx 的遗留复制（Register 无 boolean 字段）→ 统一加 `;`，改为 `value: string`
+- [x] **forgetPassword.tsx** — 表单字段错误消息缺少 `id`、`role="alert"` 和 `aria-describedby`，与 Login/Register 不一致 → 补全无障碍属性
+- [x] **dailyRoutine.tsx** — 日程项 React key 使用 `${time}-${title}`，允许相同时间+标题的重复项导致 key 冲突 → key 改为 `${index}-${time}-${title}`
+- [x] **auth.ts** — `logout()` 缺少显式泛型 `<null>`（其他 null 返回方法统一标注）→ 添加 `<null>`
+- [x] **types.ts** — 注释引用 `docs/interface.md` 路径不完整 → 修正为 `frontend/docs/interface.md`
+- [x] **authStore.ts** — JSON 解析失败 catch 块无日志，脏数据清理不可见 → 添加 `console.warn`
+
+### 文档修复
+
+- [x] **CLAUDE.md** — "文件上传" 节头像大小写为 2 MB，与底部表格和实际代码（5 MB）矛盾 → 修正为 5 MB
+- [x] **interface.md** — 头像上传大小写为 2 MB（3 处），与代码矛盾 → 全部修正为 5 MB
+- [x] **COMPLETED.md** — Setting 页头像上传大小写为 2 MB → 修正为 5 MB
+- [x] **interface.md** — 错误码 `1003`（密码格式）、`1102`（账号禁用）、`1103`（登录频繁）标注为"预留，后端未实现"，避免前端开发者误解
+
+### 2026-08-02 — 后端 Debug（同步记录）
+
+后端对应的修复记录见 `backend/docs/COMPLETED.md`，本处仅记录前端文档相关的联动更新：
+
+- [x] **interface.md** — 错误码 `1003`、`1102`、`1103` 标注为预留（已在上述文档修复中包含）
+
+### 验证结果
+
+- [x] **TypeScript** — `tsc --noEmit` 零错误
+- [x] **Vite 生产构建** — `vite build` 成功，127 modules
+
 ### 已知问题（非阻塞）
 
 | 问题 | 影响 | 建议 |
@@ -437,3 +474,8 @@ cd frontend && npm run dev
 | `passlib` + `bcrypt` 版本兼容警告 | 无（仅终端警告，不影响功能） | 升级 passlib 或降级 bcrypt |
 | 前端 `.env` 指向 Render 后端 | 本地开发使用远程后端（冷启动 30-60s） | 如需本地后端开发，将 `VITE_API_BASE_URL` 设为空或 `http://localhost:8001/api` |
 | Vite 代理未使用 | 因 `VITE_API_BASE_URL` 已设置，代理配置被绕过 | 符合当前设计（开发也使用部署后端） |
+| 深色模式下部分页面使用硬编码颜色 | Hero 横幅、功能卡片图标等不跟随主题切换 | 后续统一迁移到 CSS 变量 |
+| PersonalCenter 统计卡片硬编码为 0 | 照片/点单/留言/家庭成员计数不反映真实数据 | 后续接入后端统计 API |
+| Home.tsx 内联导航栏与 PageNav 组件重复 | Home 页有独立的导航实现，维护成本增加 | 后续统一为 PageNav |
+| 受保护路由无 route-level auth guard | 未登录直接访问返回空白页闪动后才跳转 | 后续添加路由守卫组件 |
+| 部分 CSS 文件含未使用类名 | PersonalCenter.css / Setting.css 约 180 行旧导航样式未清理 | 后续清理死代码 |

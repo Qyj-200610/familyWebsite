@@ -29,7 +29,7 @@ async def submit_order(
             items=items_payload,
             note=data.note,
         )
-    except RuntimeError as e:
-        return error_response(4002, str(e), status_code=500)
+    except RuntimeError:
+        return error_response(4002, "邮件发送失败，请稍后重试", status_code=500)
 
     return success_response(None, message="点单成功！订单已通过邮件通知")

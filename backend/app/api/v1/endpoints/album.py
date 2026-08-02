@@ -174,6 +174,7 @@ async def get_album_photos(
     db: AsyncSession = Depends(get_db),
 ):
     """获取相册内的照片列表（分页）。"""
+    limit = min(max(limit, 1), 100)  # clamp to [1, 100]
     album = await AlbumService.get_album_by_id(db, album_id)
     if album is None:
         return error_response(3202, "相册不存在", status_code=404)

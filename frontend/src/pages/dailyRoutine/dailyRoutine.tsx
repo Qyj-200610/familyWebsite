@@ -290,7 +290,7 @@ function DailyRoutine() {
       <ul className="dr__list">
         {template.map((item, index) => (
           <li
-            key={`${item.time}-${item.title}`}
+            key={`${index}-${item.time}-${item.title}`}
             className={`dr__item ${doneSet.has(index) ? "dr__item--done" : ""} ${editing ? "dr__item--editing" : ""}`}
             onClick={() => !editing && toggleDone(index)}
           >

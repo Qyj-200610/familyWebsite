@@ -20,7 +20,7 @@ export const authApi = {
     client.post<AuthResponse>("/auth/login", data),
 
   /** POST /api/auth/logout — 退出登录 */
-  logout: () => client.post("/auth/logout"),
+  logout: () => client.post<null>("/auth/logout"),
 
   /** POST /api/auth/reset-password — 重置密码 */
   resetPassword: (data: ResetPasswordRequest) =>

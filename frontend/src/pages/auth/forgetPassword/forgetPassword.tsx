@@ -134,6 +134,7 @@ function ForgetPassword() {
               onChange={(e) => updateField("email", e.target.value)}
               autoComplete="email"
               autoFocus
+              aria-describedby={errors.email ? "forget-email-error" : undefined}
             />
             <img
               className="form-input-icon"
@@ -142,7 +143,11 @@ function ForgetPassword() {
               aria-hidden="true"
             />
           </div>
-          {errors.email && <span className="form-error">{errors.email}</span>}
+          {errors.email && (
+            <span className="form-error" id="forget-email-error" role="alert">
+              {errors.email}
+            </span>
+          )}
         </div>
 
         <div className="form-group">
@@ -158,6 +163,7 @@ function ForgetPassword() {
               value={form.newPassword}
               onChange={(e) => updateField("newPassword", e.target.value)}
               autoComplete="new-password"
+              aria-describedby={errors.newPassword ? "forget-new-password-error" : undefined}
             />
             <img
               className="form-input-icon"
@@ -176,7 +182,9 @@ function ForgetPassword() {
             </button>
           </div>
           {errors.newPassword && (
-            <span className="form-error">{errors.newPassword}</span>
+            <span className="form-error" id="forget-new-password-error" role="alert">
+              {errors.newPassword}
+            </span>
           )}
         </div>
 
@@ -193,6 +201,7 @@ function ForgetPassword() {
               value={form.confirmPassword}
               onChange={(e) => updateField("confirmPassword", e.target.value)}
               autoComplete="new-password"
+              aria-describedby={errors.confirmPassword ? "forget-confirm-error" : undefined}
             />
             <img
               className="form-input-icon"
@@ -211,7 +220,9 @@ function ForgetPassword() {
             </button>
           </div>
           {errors.confirmPassword && (
-            <span className="form-error">{errors.confirmPassword}</span>
+            <span className="form-error" id="forget-confirm-error" role="alert">
+              {errors.confirmPassword}
+            </span>
           )}
         </div>
 

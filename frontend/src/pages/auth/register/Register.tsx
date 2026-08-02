@@ -4,10 +4,10 @@ import { useNavigate } from "react-router-dom";
 import Auth from "../Auth";
 import { authApi } from "../../../api";
 
-import usernameIcon from "../../../svg/username.svg"
-import emailIcon from "../../../svg/email.svg"
-import passwordIcon from "../../../svg/password.svg"
-import confirmPasswordIcon from "../../../svg/confirmPassword.svg"
+import usernameIcon from "../../../svg/username.svg";
+import emailIcon from "../../../svg/email.svg";
+import passwordIcon from "../../../svg/password.svg";
+import confirmPasswordIcon from "../../../svg/confirmPassword.svg";
 
 import "./Register.css";
 
@@ -95,7 +95,7 @@ function Register() {
     }
   };
 
-  const updateField = (field: keyof RegisterForm, value: string | boolean) => {
+  const updateField = (field: keyof RegisterForm, value: string) => {
     setForm((prev) => ({ ...prev, [field]: value }));
     if (errors[field as keyof FormErrors]) {
       setErrors((prev) => ({ ...prev, [field]: undefined }));

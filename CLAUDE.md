@@ -155,6 +155,7 @@ npm run dev  # 启动在 localhost:5175，代理 /api → localhost:8001
 | 3100–3199 | 照片操作 |
 | 3200–3299 | 相册操作 |
 | 4000–4099 | 美食点单 |
+| 5000–5099 | 系统健康检查 |
 
 ### 命名规范
 
@@ -180,7 +181,7 @@ npm run dev  # 启动在 localhost:5175，代理 /api → localhost:8001
 
 ### 文件上传
 
-- 头像：`uploads/avatars/`，最大 2 MB，支持 JPEG/PNG/WebP
+- 头像：`uploads/avatars/`，最大 5 MB，支持 JPEG/PNG/WebP
 - 照片：`uploads/photos/`，最大 10 MB，支持 JPEG/PNG/WebP
 - 服务端三重验证：文件扩展名 + Content-Type + 魔数检测
 - FastAPI StaticFiles 在 `/uploads` 路径挂载上传目录

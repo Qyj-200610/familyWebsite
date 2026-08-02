@@ -81,7 +81,14 @@ class UserService:
         if data.avatar is not None:
             user.avatar = data.avatar
 
-        await db.flush()
+        try:
+            await db.flush()
+        except IntegrityError as e:
+            await db.rollback()
+            err_msg = str(e.orig).lower() if e.orig else ""
+            if "username" in err_msg:
+                raise ValueError("USERNAME_TAKEN") from e
+            raise
         await db.refresh(user)
         return user
 

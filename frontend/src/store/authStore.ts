@@ -19,6 +19,7 @@ function loadPersistedAuth(): { user: User | null; token: string | null } {
       return { user: JSON.parse(storedUser), token: storedToken };
     } catch {
       // JSON 解析失败则清除脏数据
+      console.warn("Failed to parse persisted auth data, clearing corrupted storage.");
       localStorage.removeItem(AUTH_USER_KEY);
       localStorage.removeItem(AUTH_TOKEN_KEY);
       sessionStorage.removeItem(AUTH_USER_KEY);

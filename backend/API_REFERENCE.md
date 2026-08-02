@@ -211,7 +211,7 @@ POST /api/user/me/avatar
 **请求体**：`multipart/form-data`
 | 字段 | 类型 | 说明 |
 |------|------|------|
-| `file` | File | 头像文件，仅 jpg/png/webp，最大 2 MB |
+| `file` | File | 头像文件，仅 jpg/png/webp，最大 5 MB |
 
 **数据库操作**：
 - `UPDATE` users 更新 avatar 字段为 `/uploads/avatars/{uuid}.jpg`
@@ -569,7 +569,7 @@ POST /api/food/orders
 
 | 列名 | 类型 | 约束 | 说明 |
 |------|------|------|------|
-| `id` | int | PK, auto_increment | 主键 |
+| `id` | bigint | PK, auto_increment | 主键 |
 | `username` | varchar(50) | NOT NULL | 用户名 |
 | `email` | varchar(100) | UNIQUE, NOT NULL | 邮箱 |
 | `password` | varchar(100) | NOT NULL | bcrypt 哈希密码 |
@@ -581,24 +581,24 @@ POST /api/food/orders
 
 | 列名 | 类型 | 约束 | 说明 |
 |------|------|------|------|
-| `id` | int | PK, auto_increment | 主键 |
+| `id` | bigint | PK, auto_increment | 主键 |
 | `name` | varchar(100) | NOT NULL | 相册名称 |
 | `is_public` | tinyint(1) | NOT NULL, DEFAULT 1 | 是否公开 |
-| `created_by` | int | FK → users.id, NOT NULL | 创建者 |
+| `created_by` | bigint | FK → users.id, NOT NULL | 创建者 |
 | `created_at` | datetime | NOT NULL, DEFAULT CURRENT_TIMESTAMP | 创建时间 |
 
 ## photos
 
 | 列名 | 类型 | 约束 | 说明 |
 |------|------|------|------|
-| `id` | int | PK, auto_increment | 主键 |
+| `id` | bigint | PK, auto_increment | 主键 |
 | `filename` | varchar(200) | NOT NULL | 存储文件名 (UUID) |
 | `original_filename` | varchar(200) | NOT NULL | 原始文件名 |
 | `file_size` | bigint | NOT NULL | 文件大小 (bytes) |
 | `content_type` | varchar(100) | NOT NULL | MIME 类型 |
 | `description` | text | NULL | 照片描述 |
-| `uploaded_by` | int | FK → users.id, NOT NULL | 上传者 |
-| `album_id` | int | FK → albums.id, NULL, ON DELETE SET NULL | 所属相册 |
+| `uploaded_by` | bigint | FK → users.id, NOT NULL | 上传者 |
+| `album_id` | bigint | FK → albums.id, NULL, ON DELETE SET NULL | 所属相册 |
 | `created_at` | datetime | NOT NULL, DEFAULT CURRENT_TIMESTAMP | 上传时间 |
 
 ---
@@ -623,7 +623,7 @@ POST /api/food/orders
 | `Photo.filename` | `filename` | String(200) 适配 varchar(200) |
 | `Photo.original_filename` | `original_filename` | String(200) 适配 varchar(200) |
 | `Photo.file_size` | `file_size` | BigInteger 适配 bigint |
-| `Photo.content_type` | `content_type` | String(50) 适配 varchar(100) |
+| `Photo.content_type` | `content_type` | String(100) 适配 varchar(100) |
 | `Photo.description` | `description` | ✅ |
 | `Photo.uploaded_by` | `uploaded_by` | ✅ |
 | `Photo.album_id` | `album_id` | ✅ |

@@ -96,7 +96,8 @@ function Home() {
       console.error("Logout failed:", e);
     }
     logout();
-    navigate("/");
+    // 直接导航到 /login，避免 auth guard 与 navigate("/") 竞争导致双重跳转
+    navigate("/login", { replace: true });
   };
 
   /** 获取头像首字母 */
