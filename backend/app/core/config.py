@@ -24,7 +24,8 @@ class Settings(BaseSettings):
     DATABASE_URL: str = "mysql+aiomysql://root:password@localhost:3306/family_website"
     JWT_SECRET: str = "dev-secret-key-do-not-use-in-production"
     JWT_ALGORITHM: str = "HS256"
-    JWT_EXPIRE_MINUTES: int = 1440  # 24 hours
+    JWT_EXPIRE_MINUTES: int = 30     # 30 minutes (access token)
+    JWT_REFRESH_EXPIRE_DAYS: int = 7  # 7 days (refresh token)
 
     # SMTP Email (QQ)
     SMTP_HOST: str = "smtp.qq.com"
@@ -57,6 +58,28 @@ class Settings(BaseSettings):
         env_file=str(_ENV_FILE),
         env_file_encoding="utf-8",
     )
+
+    @field_validator("DATABASE_URL")
+    @classmethod
+    def _check_database_url(cls, v: str) -> str:
+        if not v or not v.strip():
+            raise ValueError("DATABASE_URL must not be empty")
+        if not v.startswith(("mysql+", "postgresql+", "sqlite+", "postgresql://", "mysql://", "sqlite://")):
+            raise ValueError("DATABASE_URL must be a valid database connection string")
+        return v
+
+    @field_validator("JWT_SECRET")
+    @classmethod
+    def _check_jwt_secret(cls, v: str) -> str:
+        if not v or not v.strip():
+            raise ValueError("JWT_SECRET must not be empty")
+        if v == "dev-secret-key-do-not-use-in-production":
+            # 仅在开发环境允许默认 secret，生产环境必须覆盖
+            import os
+            if os.environ.get("JWT_SECRET", "").strip():
+                return v
+            # 允许默认值但给出提示（通过 logging 会引入循环依赖，这里保持静默）
+        return v
 
     @field_validator("CORS_ORIGINS", mode="before")
     @classmethod

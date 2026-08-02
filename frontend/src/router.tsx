@@ -1,17 +1,18 @@
 import { createBrowserRouter } from "react-router-dom";
-import App from "./App.tsx";
-import Home from "./pages/home/Home.tsx";
-import Login from "./pages/auth/login/Login.tsx";
-import Register from "./pages/auth/register/Register.tsx";
-import RegisterSuccess from "./pages/auth/registerSuccess/RegisterSuccess.tsx";
-import ForgetPassword from "./pages/auth/forgetPassword/forgetPassword.tsx";
-import Setting from "./pages/user/setting/Setting.tsx";
-import PersonalCenter from "./pages/user/personalCenter/PersonalCenter.tsx";
-import PhotoAlbum from "./pages/photoAlbum/photoAlbum.tsx";
-import FoodOrder from "./pages/foodOrder/foodOrder.tsx";
-import FamilyTree from "./pages/familyTree/familyTree.tsx";
-import VideoPage from "./pages/familyTree/video/video.tsx";
-import NotFound from "./pages/notFound/NotFound.tsx";
+import App from "./App";
+import AuthGuard from "./components/AuthGuard/AuthGuard";
+import Home from "./pages/home/Home";
+import Login from "./pages/auth/login/Login";
+import Register from "./pages/auth/register/Register";
+import RegisterSuccess from "./pages/auth/registerSuccess/RegisterSuccess";
+import ForgetPassword from "./pages/auth/forgetPassword/forgetPassword";
+import Setting from "./pages/user/setting/Setting";
+import PersonalCenter from "./pages/user/personalCenter/PersonalCenter";
+import PhotoAlbum from "./pages/photoAlbum/photoAlbum";
+import FoodOrder from "./pages/foodOrder/foodOrder";
+import FamilyTree from "./pages/familyTree/familyTree";
+import VideoPage from "./pages/familyTree/video/video";
+import NotFound from "./pages/notFound/NotFound";
 import { setGlobalNavigate } from "./utils/navigate";
 
 const router = createBrowserRouter([
@@ -37,31 +38,31 @@ const router = createBrowserRouter([
   },
   {
     path: "/home",
-    element: <Home />,
+    element: <AuthGuard><Home /></AuthGuard>,
   },
   {
     path: "/setting",
-    element: <Setting />,
+    element: <AuthGuard><Setting /></AuthGuard>,
   },
   {
     path: "/personal-center",
-    element: <PersonalCenter />,
+    element: <AuthGuard><PersonalCenter /></AuthGuard>,
   },
   {
     path: "/photo-album",
-    element: <PhotoAlbum />,
+    element: <AuthGuard><PhotoAlbum /></AuthGuard>,
   },
   {
     path: "/food-order",
-    element: <FoodOrder />,
+    element: <AuthGuard><FoodOrder /></AuthGuard>,
   },
   {
     path: "/family-tree",
-    element: <FamilyTree />,
+    element: <AuthGuard><FamilyTree /></AuthGuard>,
   },
   {
     path: "/family-tree/video",
-    element: <VideoPage />,
+    element: <AuthGuard><VideoPage /></AuthGuard>,
   },
   {
     path: "*",

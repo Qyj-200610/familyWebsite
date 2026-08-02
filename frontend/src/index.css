@@ -37,6 +37,14 @@
   --color-hero-bg-end: #eaf3e9;
   --color-empty-dot: #d4d0c8;
 
+  /* ---- 图标容器渐变背景（用于卡片图标和统计图标） ---- */
+  --color-icon-bg-green: linear-gradient(135deg, #e8f0e7, #d4e8d3);
+  --color-icon-bg-orange: linear-gradient(135deg, #fef3e4, #fce8cc);
+  --color-icon-bg-pink: linear-gradient(135deg, #fde8ec, #f9d0d8);
+
+  /* ---- 食品卡片背景 ---- */
+  --color-food-card-bg: linear-gradient(135deg, #fef9f0 0%, #fdf2e4 40%, #fef5e7 100%);
+
   --radius-sm: 8px;
   --radius-md: 12px;
   --radius-lg: 16px;
@@ -76,6 +84,14 @@
   --color-hero-bg-mid: #2a2a42;
   --color-hero-bg-end: #252540;
   --color-empty-dot: #353555;
+
+  /* ---- 图标容器渐变背景（深色模式） ---- */
+  --color-icon-bg-green: linear-gradient(135deg, #2a3a2a, #1e2e1e);
+  --color-icon-bg-orange: linear-gradient(135deg, #3a3020, #2e2818);
+  --color-icon-bg-pink: linear-gradient(135deg, #3a2028, #2e1a20);
+
+  /* ---- 食品卡片背景（深色模式） ---- */
+  --color-food-card-bg: linear-gradient(135deg, #2a2820 0%, #252218 40%, #2a2820 100%);
 
   /* ---- 阴影加深 ---- */
   --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.4);

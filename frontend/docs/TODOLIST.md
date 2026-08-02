@@ -1,6 +1,6 @@
 # TODOLIST — 待办事项
 
-> 最后更新：2026-08-02（全量代码审查 + debug 修复 + 已知问题归类）
+> 最后更新：2026-08-02（代码修复批次：路由守卫、深色模式适配、CSS 清理、导航合并、组件重定位、内存泄漏修复、后端加固）
 
 ---
 
@@ -37,9 +37,12 @@
   - 涉及文件：[forgetPassword.tsx](../src/pages/auth/forgetPassword/forgetPassword.tsx)
   - 实现为合并页面（邮箱 + 新密码直接重置，家庭场景无需邮件验证）
 
-- [ ] **Token 过期自动刷新** — 考虑在 `client.ts` 的响应拦截器中接入 refresh token 逻辑
-- [ ] **路由级别认证守卫** — 当前每个页面通过 `useEffect` + `isAuthenticated` 手动检查，应抽取为共享路由守卫组件，统一拦截未登录访问
-- [ ] **深色模式适配完善** — 部分页面（Hero 横幅、功能卡片图标、Toast、食品卡片）使用硬编码颜色，不跟随主题切换
+- [x] **Token 过期自动刷新** — 双 token 机制（access 30min + refresh 7天），请求拦截器主动检测过期并清除，响应拦截器 401 自动静默刷新 + 并发请求排队
+  - 涉及文件：[client.ts](../src/api/client.ts)、[authStore.ts](../src/store/authStore.ts)、[auth.ts](../src/api/auth.ts)、[security.py](../../backend/app/core/security.py)、[auth.py](../../backend/app/api/v1/endpoints/auth.py)
+- [x] **路由级别认证守卫** — 已抽取 `AuthGuard` 共享路由守卫组件，包裹所有需登录的路由；各页面保留 `isAuthenticated` 空返回作为双重保障
+  - 涉及文件：[AuthGuard.tsx](../src/components/AuthGuard/AuthGuard.tsx)、[router.tsx](../src/router.tsx)
+- [x] **深色模式适配完善** — 卡片图标容器背景、统计图标背景、食品卡片背景已改为 CSS 变量（`--color-icon-bg-*`、`--color-food-card-bg`），跟随主题切换
+  - 涉及文件：[index.css](../src/index.css)、[Home.css](../src/pages/home/Home.css)、[PersonalCenter.css](../src/pages/user/personalCenter/PersonalCenter.css)、[foodOrder.css](../src/pages/foodOrder/foodOrder.css)
 
 ---
 
@@ -60,12 +63,18 @@
 
 ## ⚪ 技术债务（2026-08-02 审查新增）
 
-- [ ] **CSS 死代码清理** — PersonalCenter.css 和 Setting.css 各含约 180 行旧导航栏样式（已由 PageNav 替代）
-- [ ] **Home.tsx 导航栏合并** — Home 页内联了完整的导航栏实现（约 120 行），与 PageNav 组件功能重复，应统一
-- [ ] **dailyRoutine.tsx 位置** — 该组件位于 `pages/` 但非路由页面，实际上为 Home 的子组件，应移至 `components/`
-- [ ] **Auth.tsx 位置** — 该组件位于 `pages/auth/` 但非路由页面，是 Login/Register/ForgetPassword 共享的布局组件
-- [ ] **video.tsx 内存泄漏** — 组件卸载时 `MediaRecorder.stop()` 异步触发 `onstop` handler 创建新 blob URL，但此时清理已完成，该 URL 永久泄漏
-- [ ] **main.tsx import 扩展名** — `import router from './router.tsx'` 显式 `.tsx` 扩展名与其他 import 不一致
+- [x] **CSS 死代码清理** — PersonalCenter.css 和 Setting.css 旧导航栏样式（约 180 行/文件）已移除，统一由 PageNav 组件处理
+  - 涉及文件：[PersonalCenter.css](../src/pages/user/personalCenter/PersonalCenter.css)、[Setting.css](../src/pages/user/setting/Setting.css)
+- [x] **Home.tsx 导航栏合并** — Home 页内联导航（约 120 行）已替换为共享 `PageNav` 组件，移除重复的 nav 逻辑（dropdown state、click-outside handler、handleLogout、avatarLetter）
+  - 涉及文件：[Home.tsx](../src/pages/home/Home.tsx)
+- [x] **dailyRoutine.tsx 位置** — 已从 `pages/dailyRoutine/` 移至 `components/DailyRoutine/`，所有 import 已更新
+  - 涉及文件：[DailyRoutine.tsx](../src/components/DailyRoutine/DailyRoutine.tsx)、[Home.tsx](../src/pages/home/Home.tsx)
+- [x] **Auth.tsx 位置** — 已从 `pages/auth/Auth.tsx` 移至 `components/Auth/Auth.tsx`，所有 auth 页面 import 已更新
+  - 涉及文件：[Auth.tsx](../src/components/Auth/Auth.tsx)、[Login.tsx](../src/pages/auth/login/Login.tsx)、[Register.tsx](../src/pages/auth/register/Register.tsx)、[RegisterSuccess.tsx](../src/pages/auth/registerSuccess/RegisterSuccess.tsx)、[forgetPassword.tsx](../src/pages/auth/forgetPassword/forgetPassword.tsx)
+- [x] **video.tsx 内存泄漏** — 新增 `mountedRef` 标记，组件卸载时 `MediaRecorder.onstop` 检查该标记，跳过 blob URL 创建，避免永久泄漏
+  - 涉及文件：[video.tsx](../src/pages/familyTree/video/video.tsx)
+- [x] **main.tsx import 扩展名** — `import router from './router.tsx'` 已改为 `'./router'`（无扩展名），与其他 import 风格一致
+  - 涉及文件：[main.tsx](../src/main.tsx)、[router.tsx](../src/router.tsx)（同步清理所有 `.tsx` 扩展名 import）
 - [x] ~~FormData Content-Type 删除逻辑~~ → 已改为无条件删除（2026-08-02）
 - [x] ~~UPLOADS_BASE 正则不兼容尾部斜杠~~ → 已修复（2026-08-02）
 - [x] ~~authStore JSON 解析静默失败~~ → 已添加 console.warn（2026-08-02）

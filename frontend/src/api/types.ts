@@ -43,10 +43,16 @@ export interface ResetPasswordRequest {
   newPassword: string;
 }
 
-/** 认证成功返回（登录 & 注册通用） */
+/** 认证成功返回（登录 & token 刷新通用） */
 export interface AuthResponse {
   user: User;
   token: string;
+  refreshToken: string;
+}
+
+/** POST /api/auth/refresh */
+export interface RefreshTokenRequest {
+  refreshToken: string;
 }
 
 // === 用户操作 ===

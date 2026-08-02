@@ -12,7 +12,15 @@ if settings.DATABASE_SSL:
     ssl_ctx = ssl.create_default_context(cafile=ca_path) if ca_path else ssl.create_default_context()
     _connect_args["ssl"] = ssl_ctx
 
-engine = create_async_engine(settings.DATABASE_URL, echo=False, connect_args=_connect_args or {})
+engine = create_async_engine(
+    settings.DATABASE_URL,
+    echo=False,
+    connect_args=_connect_args or {},
+    pool_size=10,
+    max_overflow=20,
+    pool_pre_ping=True,
+    pool_recycle=3600,
+)
 
 async_session_factory = async_sessionmaker(
     engine,

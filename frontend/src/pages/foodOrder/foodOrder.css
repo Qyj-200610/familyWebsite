@@ -139,7 +139,7 @@
 .food__card-image {
   position: relative;
   height: 170px;
-  background: linear-gradient(135deg, #fef9f0 0%, #fdf2e4 40%, #fef5e7 100%);
+  background: var(--color-food-card-bg);
   display: flex;
   align-items: center;
   justify-content: center;

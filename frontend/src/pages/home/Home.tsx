@@ -1,10 +1,8 @@
-import { useEffect, useState, useRef, useMemo } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useAuthStore } from "../../store/authStore";
-import { authApi, uploadUrl } from "../../api";
-import DailyRoutine from "../dailyRoutine/dailyRoutine";
-
-import exitLoginIcon from "../../svg/exitLogin.svg";
+import DailyRoutine from "../../components/DailyRoutine/DailyRoutine";
+import PageNav from "../../components/PageNav/PageNav";
 
 import "./Home.css";
 
@@ -50,9 +48,7 @@ function getHeroDecorations(period: TimePeriod): string[] {
 
 function Home() {
   const navigate = useNavigate();
-  const { user, isAuthenticated, logout } = useAuthStore();
-  const [dropdownOpen, setDropdownOpen] = useState(false);
-  const dropdownRef = useRef<HTMLDivElement>(null);
+  const { user, isAuthenticated } = useAuthStore();
 
   const [clockTime, setClockTime] = useState(new Date());
 
@@ -66,42 +62,18 @@ function Home() {
     return () => clearInterval(timer);
   }, []);
 
-  /** 格式化时间 HH:MM:SS */
-  const formatClock = (d: Date): string => {
-    const pad = (n: number) => String(n).padStart(2, "0");
-    return `${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
-  };
-
-  // 点击外部关闭下拉菜单
-  useEffect(() => {
-    function handleClickOutside(e: MouseEvent) {
-      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
-        setDropdownOpen(false);
-      }
-    }
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
-
+  // 认证守卫（AuthGuard 已在路由层拦截，此处为双重保障）
   useEffect(() => {
     if (!isAuthenticated) {
       navigate("/login", { replace: true });
     }
   }, [isAuthenticated, navigate]);
 
-  const handleLogout = async () => {
-    try {
-      await authApi.logout();
-    } catch (e) {
-      console.error("Logout failed:", e);
-    }
-    logout();
-    // 直接导航到 /login，避免 auth guard 与 navigate("/") 竞争导致双重跳转
-    navigate("/login", { replace: true });
+  /** 格式化时间 HH:MM:SS */
+  const formatClock = (d: Date): string => {
+    const pad = (n: number) => String(n).padStart(2, "0");
+    return `${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
   };
-
-  /** 获取头像首字母 */
-  const avatarLetter = user?.username?.charAt(0).toUpperCase() || "U";
 
   if (!isAuthenticated) {
     return null;
@@ -112,62 +84,8 @@ function Home() {
       {/* 顶部装饰条 */}
       <div className="home__top-decor" />
 
-      {/* Nav */}
-      <nav className="home__nav">
-        <div className="home__nav-inner">
-          <div className="home__logo-wrap">
-            <span className="home__logo-icon">🏠</span>
-            <h1 className="home__logo">我们的家</h1>
-          </div>
-
-          {/* 头像 + 下拉菜单 */}
-          <div className="home__user-area" ref={dropdownRef}>
-            <button
-              className="home__avatar-btn"
-              onClick={() => setDropdownOpen(!dropdownOpen)}
-            >
-              <span className="home__avatar">
-                {user?.avatar ? (
-                  <img src={uploadUrl(user.avatar)} alt={user.username} />
-                ) : (
-                  <span className="home__avatar-placeholder">{avatarLetter}</span>
-                )}
-              </span>
-              <span className="home__username">{user?.username || "用户"}</span>
-              <span className={`home__dropdown-arrow ${dropdownOpen ? "home__dropdown-arrow--open" : ""}`}>▾</span>
-            </button>
-
-            {dropdownOpen && (
-              <div className="home__dropdown">
-                <Link
-                  to="/personal-center"
-                  className="home__dropdown-item"
-                  onClick={() => setDropdownOpen(false)}
-                >
-                  <span className="home__dropdown-icon">👤</span>
-                  个人中心
-                </Link>
-                <Link
-                  to="/setting"
-                  className="home__dropdown-item"
-                  onClick={() => setDropdownOpen(false)}
-                >
-                  <span className="home__dropdown-icon">⚙️</span>
-                  设置
-                </Link>
-                <div className="home__dropdown-divider" />
-                <button
-                  className="home__dropdown-item home__dropdown-item--danger"
-                  onClick={handleLogout}
-                >
-                  <img src={exitLoginIcon} alt="退出登录" />
-                  退出登录
-                </button>
-              </div>
-            )}
-          </div>
-        </div>
-      </nav>
+      {/* Nav — 共享组件 */}
+      <PageNav logoText="我们的家" logoEmoji="🏠" homePath="/home" />
 
       {/* Main */}
       <main className="home__main">

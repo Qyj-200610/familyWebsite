@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import Auth from "../Auth";
+import Auth from "../../../components/Auth/Auth";
 import "./RegisterSuccess.css";
 
 const COUNTDOWN_SECONDS = 5;

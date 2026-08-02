@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect, type FormEvent } from "react";
 import { useNavigate } from "react-router-dom";
-import Auth from "../Auth";
+import Auth from "../../../components/Auth/Auth";
 import { authApi } from "../../../api";
 import emailIcon from "../../../svg/email.svg";
 import passwordIcon from "../../../svg/password.svg";

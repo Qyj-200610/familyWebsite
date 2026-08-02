@@ -771,15 +771,15 @@
 }
 
 .home__card-icon-wrap--album {
-  background: linear-gradient(135deg, #e8f0e7, #d4e8d3);
+  background: var(--color-icon-bg-green);
 }
 
 .home__card-icon-wrap--food {
-  background: linear-gradient(135deg, #fef3e4, #fce8cc);
+  background: var(--color-icon-bg-orange);
 }
 
 .home__card-icon-wrap--family {
-  background: linear-gradient(135deg, #e8f0e7, #d0e6ce);
+  background: var(--color-icon-bg-green);
 }
 
 .home__card-icon {

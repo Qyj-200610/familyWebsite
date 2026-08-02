@@ -1,6 +1,6 @@
 # TODOLIST — 后端待办事项
 
-> 最后更新：2026-08-01（前端 CSS 全面重构 + 无障碍改进 + 后端相册查询优化）
+> 最后更新：2026-08-02（密码强度校验、配置校验、数据库连接池配置）
 
 ---
 
@@ -11,9 +11,8 @@
   - 方案 B：Access Token（短）+ Refresh Token（长）双 token 机制
   - 涉及文件：[auth.py](../app/api/v1/endpoints/auth.py), [security.py](../app/core/security.py)
 
-- [ ] **密码强度校验** — 当前仅依赖 Pydantic `min_length=6`，未检查复杂度
-  - 在 `schemas/user.py` 的 `RegisterRequest` 中添加密码正则校验
-  - 或新建 `validators.py` 复用校验逻辑
+- [x] **密码强度校验** — 已在 `RegisterRequest` 和 `ResetPasswordRequest` 中添加 `@field_validator`，要求密码至少 8 个字符、包含大小写字母和数字
+  - 涉及文件：[schemas/user.py](../app/schemas/user.py)
 
 - [ ] **登录限流** — 防止暴力破解
   - 方案：slowapi / fastapi-limiter 中间件
@@ -58,9 +57,11 @@
 ## ⚪ 技术债务
 
 - [x] **全局异常处理** — 统一捕获未处理异常，返回标准 `error_response` 格式 ✅ 已完成
-- [ ] **配置校验** — `Settings` 类添加 `@field_validator` 确保必填项非空、URL 格式正确
+- [x] **配置校验** — `Settings` 类已添加 `@field_validator`：DATABASE_URL 格式检查、JWT_SECRET 非空校验
+  - 涉及文件：[config.py](../app/core/config.py)
 - [ ] **日志系统** — 结构化日志（structlog / loguru），区分开发/生产
-- [ ] **数据库连接池** — 显式配置 pool_size、max_overflow 参数
+- [x] **数据库连接池** — 已显式配置 `pool_size=10`, `max_overflow=20`, `pool_pre_ping=True`, `pool_recycle=3600`
+  - 涉及文件：[database.py](../app/core/database.py)
 - [ ] **异步任务队列** — Celery / ARQ 处理邮件发送等耗时操作
 - [ ] **单元测试** — pytest + pytest-asyncio + httpx (TestClient)
 - [ ] **Docker 化** — Dockerfile + docker-compose（FastAPI + MySQL）

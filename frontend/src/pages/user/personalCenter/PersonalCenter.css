@@ -22,188 +22,6 @@
   z-index: 200;
 }
 
-/* ===== Nav ===== */
-.pc__nav {
-  position: sticky;
-  top: 0;
-  z-index: 100;
-  backdrop-filter: blur(16px) saturate(180%);
-  background: var(--color-nav-glass);
-  border-bottom: 1px solid rgba(91, 140, 90, 0.12);
-  transition: box-shadow 0.3s;
-}
-
-.pc__nav-inner {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  height: 64px;
-}
-
-.pc__nav-left {
-  display: flex;
-  align-items: center;
-  gap: 24px;
-}
-
-.pc__logo {
-  font-size: 1.2rem;
-  font-weight: 700;
-  color: var(--color-primary-dark);
-  text-decoration: none;
-  letter-spacing: 0.02em;
-}
-
-@media (hover: hover) {
-  .pc__logo:hover {
-    color: var(--color-primary-dark);
-  }
-}
-
-/* ---- User Area ---- */
-.pc__user-area {
-  position: relative;
-}
-
-.pc__avatar-btn {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  background: rgba(91, 140, 90, 0.06);
-  padding: 4px 12px 4px 4px;
-  border-radius: 28px;
-  transition: background 0.25s, box-shadow 0.25s;
-}
-
-@media (hover: hover) {
-  .pc__avatar-btn:hover {
-    background: rgba(91, 140, 90, 0.12);
-    box-shadow: 0 2px 8px rgba(91, 140, 90, 0.1);
-  }
-}
-
-.pc__avatar {
-  width: 34px;
-  height: 34px;
-  border-radius: 50%;
-  overflow: hidden;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: linear-gradient(135deg, var(--color-primary-light), var(--color-primary));
-  flex-shrink: 0;
-  box-shadow: 0 2px 6px rgba(91, 140, 90, 0.25);
-}
-
-.pc__avatar img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-.pc__avatar-placeholder {
-  color: #fff;
-  font-weight: 700;
-  font-size: 0.9rem;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.15);
-}
-
-.pc__username {
-  font-size: 0.88rem;
-  font-weight: 500;
-  color: var(--color-text);
-}
-
-.pc__dropdown-arrow {
-  font-size: 0.65rem;
-  color: var(--color-text-muted);
-  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.pc__dropdown-arrow--open {
-  transform: rotate(180deg);
-}
-
-/* ---- Dropdown ---- */
-.pc__dropdown {
-  position: absolute;
-  top: calc(100% + 8px);
-  right: 0;
-  width: 200px;
-  background: var(--color-surface);
-  border-radius: var(--radius-md);
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1), 0 2px 8px rgba(0, 0, 0, 0.06);
-  border: 1px solid var(--color-border);
-  overflow: hidden;
-  z-index: 200;
-  animation: pcDropdownIn 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-@keyframes pcDropdownIn {
-  from {
-    opacity: 0;
-    transform: translateY(-8px) scale(0.96);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-  }
-}
-
-.pc__dropdown-item {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  width: 100%;
-  padding: 11px 16px;
-  font-size: 0.88rem;
-  color: var(--color-text);
-  text-decoration: none;
-  background: none;
-  border: none;
-  cursor: pointer;
-  transition: background 0.15s, padding-left 0.2s;
-  text-align: left;
-  font-family: inherit;
-}
-
-@media (hover: hover) {
-  .pc__dropdown-item:hover {
-    background: var(--color-bg);
-    padding-left: 20px;
-  }
-}
-
-.pc__dropdown-item--active {
-  background: rgba(91, 140, 90, 0.06);
-  color: var(--color-primary);
-  font-weight: 600;
-}
-
-.pc__dropdown-item--danger {
-  color: var(--color-error);
-}
-
-@media (hover: hover) {
-  .pc__dropdown-item--danger:hover {
-    background: var(--color-alert-error-bg);
-    color: var(--color-error);
-  }
-}
-
-.pc__dropdown-icon {
-  font-size: 1rem;
-  width: 20px;
-  text-align: center;
-  flex-shrink: 0;
-}
-
-.pc__dropdown-divider {
-  height: 1px;
-  background: var(--color-border);
-  margin: 4px 0;
-}
-
 /* ===== Hero Banner ===== */
 .pc__hero {
   position: relative;
@@ -523,15 +341,15 @@
 }
 
 .pc__stat-icon-wrap--photos {
-  background: linear-gradient(135deg, #e8f0e7, #d4e8d3);
+  background: var(--color-icon-bg-green);
 }
 
 .pc__stat-icon-wrap--food {
-  background: linear-gradient(135deg, #fef3e4, #fce8cc);
+  background: var(--color-icon-bg-orange);
 }
 
 .pc__stat-icon-wrap--family {
-  background: linear-gradient(135deg, #fde8ec, #f9d0d8);
+  background: var(--color-icon-bg-pink);
 }
 
 .pc__stat-icon {
@@ -754,10 +572,6 @@
 
   .pc__stat-icon {
     font-size: 1.3rem;
-  }
-
-  .pc__username {
-    display: none;
   }
 
   .pc__card {

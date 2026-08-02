@@ -1,6 +1,6 @@
 import { useState, type FormEvent } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import Auth from "../Auth";
+import Auth from "../../../components/Auth/Auth";
 import { authApi } from "../../../api";
 import { useAuthStore } from "../../../store/authStore";
 import emailIcon from "../../../svg/email.svg";
@@ -62,7 +62,7 @@ function Login() {
         email: form.email,
         password: form.password,
       });
-      useAuthStore.getState().setAuth(res.user, res.token, form.remember);
+      useAuthStore.getState().setAuth(res.user, res.token, res.refreshToken, form.remember);
       navigate("/home", { replace: true });
     } catch (err: unknown) {
       const message =

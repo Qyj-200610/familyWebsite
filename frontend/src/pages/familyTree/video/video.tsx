@@ -1,6 +1,5 @@
 import { useEffect, useRef, useState, useCallback } from "react";
 import { useSearchParams } from "react-router-dom";
-import { useAuthStore } from "../../../store/authStore";
 import { navigateTo } from "../../../utils/navigate";
 import PageNav from "../../../components/PageNav/PageNav";
 import "./video.css";
@@ -30,18 +29,9 @@ function formatTime(seconds: number): string {
 function VideoPage() {
   const [searchParams] = useSearchParams();
   const memberName = searchParams.get("name") || "成员";
-  const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
 
   const videoRef = useRef<HTMLVideoElement>(null);
-
-  // ── 认证守卫 ──
-  useEffect(() => {
-    if (!isAuthenticated) {
-      navigateTo("/login");
-    }
-  }, [isAuthenticated]);
-
-  if (!isAuthenticated) return null;
+  const mountedRef = useRef(true);
 
   // ── 摄像头 ──
   const cameraStreamRef = useRef<MediaStream | null>(null);
@@ -206,9 +196,11 @@ function VideoPage() {
   // ============================================================
 
   useEffect(() => {
+    mountedRef.current = true;
     startCamera();
 
     return () => {
+      mountedRef.current = false;
       // 清理摄像头
       if (cameraStreamRef.current) {
         cameraStreamRef.current.getTracks().forEach((t) => t.stop());
@@ -219,11 +211,12 @@ function VideoPage() {
         screenStreamRef.current.getTracks().forEach((t) => t.stop());
         screenStreamRef.current = null;
       }
-      // 清理录屏
+      // 停止录制（注意：stop() 是异步的，onstop 中会检查 mountedRef 避免泄漏）
       if (mediaRecorderRef.current && mediaRecorderRef.current.state !== "inactive") {
         mediaRecorderRef.current.stop();
       }
       if (timerRef.current) clearInterval(timerRef.current);
+      // 清理已存在的 blob URL（onstop 可能在组件卸载后触发，那里不会再创建新 URL）
       if (downloadUrlRef.current) {
         URL.revokeObjectURL(downloadUrlRef.current);
         downloadUrlRef.current = null;
@@ -275,6 +268,8 @@ function VideoPage() {
     };
 
     recorder.onstop = () => {
+      // 组件已卸载 → 不创建 blob URL（清理函数已处理旧 URL），避免内存泄漏
+      if (!mountedRef.current) return;
       const blob = new Blob(chunksRef.current, { type: "video/webm" });
       if (downloadUrlRef.current) URL.revokeObjectURL(downloadUrlRef.current);
       const url = URL.createObjectURL(blob);

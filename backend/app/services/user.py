@@ -4,7 +4,7 @@ from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.core.security import create_access_token, hash_password, verify_password
+from app.core.security import create_access_token, create_refresh_token, hash_password, verify_password
 from app.models.user import User
 from app.schemas.user import RegisterRequest, UpdateUserRequest
 
@@ -45,8 +45,8 @@ class UserService:
         return user
 
     @staticmethod
-    async def authenticate_user(db: AsyncSession, email: str, password: str) -> tuple[User, str] | None:
-        """Authenticate a user by email and password. Returns (user, token) or None."""
+    async def authenticate_user(db: AsyncSession, email: str, password: str) -> tuple[User, str, str] | None:
+        """Authenticate a user by email and password. Returns (user, access_token, refresh_token) or None."""
         result = await db.execute(select(User).where(User.email == email))
         user = result.scalar_one_or_none()
 
@@ -57,8 +57,10 @@ class UserService:
         user.last_login = datetime.now(timezone.utc)
         await db.flush()
 
-        token = create_access_token({"sub": str(user.id)})
-        return user, token
+        token_payload = {"sub": str(user.id)}
+        access_token = create_access_token(token_payload)
+        refresh_token = create_refresh_token(token_payload)
+        return user, access_token, refresh_token
 
     @staticmethod
     async def get_user_by_id(db: AsyncSession, user_id: int) -> User | None:
