@@ -154,6 +154,7 @@
 | `/photo-album` | PhotoAlbum | 需认证 |
 | `/food-order` | FoodOrder | 需认证 |
 | `/family-tree` | FamilyTree | 需认证 |
+| `/family-tree/video` | VideoPage | 需认证 |
 | `/setting` | Setting | 需认证 |
 | `/personal-center` | PersonalCenter | 需认证 |
 | `/*` | NotFound | 404 |
@@ -467,6 +468,59 @@ cd frontend && npm run dev
 - [x] **TypeScript** — `tsc --noEmit` 零错误
 - [x] **Vite 生产构建** — `vite build` 成功，127 modules
 
+---
+
+## Debug 修复 (2026-08-03 · 前端全面 Debug + 文档更新)
+
+### 删除死文件
+
+- [x] **dailyRoutine/**（pages 下）— 删除 stale 副本（已迁移至 components/DailyRoutine/），含 `.tsx` 和 `.css`
+- [x] **Auth/**（pages 下）— 删除 stale 副本（已迁移至 components/Auth/），含 `.tsx` 和 `.css`
+- [x] **Register.css** — 删除空文件（仅有注释，样式已合并至 Auth.css）
+- [x] **forgetPassword.css** — 删除空文件（同上）
+
+### Bug 修复
+
+- [x] **DailyRoutine.tsx** — `addRoutine` 中 `saveTemplate(next)` 在 `setTemplate` updater 内调用（副作用破坏纯函数）；已移除，由 `useEffect` 统一持久化
+- [x] **DailyRoutine.css** — `dr__edit-btn--cancel` 修饰符名误导（实际是"完成编辑"按钮）；已重命名为 `dr__edit-btn--done`
+- [x] **Setting.tsx / PersonalCenter.tsx** — `charAt(0).toUpperCase()` 在 `user` 为 null 时抛出 TypeError；添加可选链 `?.toUpperCase()`
+- [x] **video.tsx** — `startCamera` 缺少 `mountedRef` 检查，组件卸载后仍调用 setState 并泄漏 MediaStream；已添加守卫
+- [x] **photoAlbum.tsx** — `uploadPreview` blob URL 未在组件卸载时清理；已添加 `useEffect` 清理 + `uploadPreviewRef` 追踪
+- [x] **photoAlbum.tsx** — 点击遮罩关闭删除确认弹窗时未清除 `deleteError`；已修复
+- [x] **client.ts** — 响应拦截器类型为 `AxiosError`，请求拦截器拒绝的普通 `Error`（如"Token 已过期"）被错误替换为"网络错误"；改为 `unknown` + `axios.isAxiosError` 守卫
+- [x] **index.html** — favicon 路径 `./src/svg/website.svg` 在生产构建中 404；已复制到 `public/` 并改为 `/website.svg`
+- [x] **Home.tsx** — `getGreeting()` / `getTimePeriod()` 内部调用 `new Date()` 而非使用 `clockTime`；改为接受 hour 参数
+- [x] **types.ts** — `SubmitOrderRequest` 注释错放在「家谱」节下；已移至正确的「美食点单」节
+
+### 深色模式 CSS 修复
+
+- [x] **App.css** — `.cover__badge` 硬编码浅色背景 → 使用 `var(--color-accent-light)` / `var(--color-primary-dark)`
+- [x] **App.css** — `.cover__wave` SVG data URI 硬编码 `#faf8f5` → 添加 `[data-theme="dark"]` 覆盖为 `#1a1a2e`
+- [x] **App.css** — `.cover__feature-icon` nth-child 硬编码渐变 → 改用 `var(--color-icon-bg-*)` 变量
+- [x] **photoAlbum.css** — 公开/私有相册徽章硬编码背景色 → 改用 `var(--color-alert-success-bg)` / `var(--color-alert-error-bg)`
+- [x] **foodOrder.css** — 购物车底部渐变硬编码 `rgba(254,249,240,0.5)` → 改用 `var(--color-bg-warm)`
+- [x] **foodOrder.css** — 购物车列表分割线 `rgba(0,0,0,0.05)` → 改用 `var(--color-border)`
+- [x] **familyTree.css** — 性别圆点 / 头像背景 / 状态环 / Toast 背景全部改用 CSS 变量
+
+### 次要 CSS 修复
+
+- [x] **Home.css** — 不对称 padding `32px 32px 60px 16px` → 对称 `32px 32px 60px 32px`
+- [x] **index.css** — 移除未使用的 `--color-success` 变量
+- [x] **DailyRoutine.css** — `--dr-width` / `--dr-collapsed-width` 从 `:root` 移至 `.dr` 选择器
+- [x] **Auth.css** — `1.5px` 边框 → `1px`（避免亚像素渲染差异）
+
+### 文档更新
+
+- [x] **COMPLETED.md** — 路由表新增 `/family-tree/video`；新增 2026-08-03 调试记录
+- [x] **interface.md** — 新增 `GET /api/user/me/stats` 端点文档
+- [x] **CLAUDE.md** — 修正 stale 目录引用（`pages/dailyRoutine/` → `components/DailyRoutine/`，`pages/auth/Auth.tsx` → `components/Auth/Auth.tsx`）
+- [x] **TODOLIST.md** — 标记部分已修复条目
+
+### 验证结果
+
+- [x] **TypeScript** — `tsc --noEmit` 零错误
+- [x] **Vite 生产构建** — `vite build` 成功
+
 ### 已知问题（非阻塞）
 
 | 问题 | 影响 | 建议 |
@@ -474,8 +528,7 @@ cd frontend && npm run dev
 | `passlib` + `bcrypt` 版本兼容警告 | 无（仅终端警告，不影响功能） | 升级 passlib 或降级 bcrypt |
 | 前端 `.env` 指向 Render 后端 | 本地开发使用远程后端（冷启动 30-60s） | 如需本地后端开发，将 `VITE_API_BASE_URL` 设为空或 `http://localhost:8001/api` |
 | Vite 代理未使用 | 因 `VITE_API_BASE_URL` 已设置，代理配置被绕过 | 符合当前设计（开发也使用部署后端） |
-| 深色模式下部分页面使用硬编码颜色 | Hero 横幅、功能卡片图标等不跟随主题切换 | 后续统一迁移到 CSS 变量 |
-| PersonalCenter 统计卡片硬编码为 0 | 照片/点单/留言/家庭成员计数不反映真实数据 | 后续接入后端统计 API |
-| Home.tsx 内联导航栏与 PageNav 组件重复 | Home 页有独立的导航实现，维护成本增加 | 后续统一为 PageNav |
+| video.css 全部使用硬编码颜色 | 视频页面为固有深色主题，未使用 CSS 变量 | 后续逐步迁移 |
+| PersonalCenter 统计卡片计入 0（foodOrderCount） | 点单系统不存储订单，固定为 0 | 后续如有需要可接入存储 |
 | 受保护路由无 route-level auth guard | 未登录直接访问返回空白页闪动后才跳转 | 后续添加路由守卫组件 |
 | 部分 CSS 文件含未使用类名 | PersonalCenter.css / Setting.css 约 180 行旧导航样式未清理 | 后续清理死代码 |

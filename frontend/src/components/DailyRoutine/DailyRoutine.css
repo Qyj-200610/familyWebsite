@@ -1,11 +1,8 @@
 /* ===== Daily Routine — 侧边栏（在主内容区内，sticky 定位） ===== */
 
-:root {
+.dr {
   --dr-width: 320px;
   --dr-collapsed-width: 52px;
-}
-
-.dr {
   position: sticky;
   top: 80px;
   width: var(--dr-width);
@@ -253,13 +250,13 @@
   font-family: inherit;
 }
 
-.dr__edit-btn--cancel {
+.dr__edit-btn--done {
   background: var(--color-primary);
   color: #fff;
 }
 
 @media (hover: hover) {
-  .dr__edit-btn--cancel:hover {
+  .dr__edit-btn--done:hover {
     background: var(--color-primary-dark);
   }
 }

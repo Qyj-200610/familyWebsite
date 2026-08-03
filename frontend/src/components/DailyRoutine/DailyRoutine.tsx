@@ -174,11 +174,7 @@ function DailyRoutine() {
       title: trimmed,
       icon: newForm.icon || "📌",
     };
-    setTemplate((prev) => {
-      const next = [...prev, item];
-      saveTemplate(next);
-      return next;
-    });
+    setTemplate((prev) => [...prev, item]);
     setNewForm({ time: "08:00", title: "", icon: "📌" });
   }, [newForm]);
 
@@ -276,7 +272,7 @@ function DailyRoutine() {
         {/* 编辑模式工具栏 */}
         {editing && (
           <div className="dr__edit-toolbar">
-            <button className="dr__edit-btn dr__edit-btn--cancel" onClick={cancelEdit}>
+            <button className="dr__edit-btn dr__edit-btn--done" onClick={cancelEdit}>
               完成编辑
             </button>
             <button className="dr__edit-btn dr__edit-btn--reset" onClick={resetToday}>

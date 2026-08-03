@@ -126,6 +126,12 @@ export interface OrderItem {
   quantity: number;
 }
 
+/** POST /api/food/orders */
+export interface SubmitOrderRequest {
+  items: OrderItem[];
+  note?: string;
+}
+
 // === 家谱 ===
 
 /** 家族成员在线状态 */
@@ -138,10 +144,4 @@ export interface FamilyMemberStatus {
 /** GET /api/family/status */
 export interface FamilyStatusResponse {
   members: FamilyMemberStatus[];
-}
-
-/** POST /api/food/orders */
-export interface SubmitOrderRequest {
-  items: OrderItem[];
-  note?: string;
 }

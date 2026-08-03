@@ -1,4 +1,4 @@
-import axios, { type AxiosError, type InternalAxiosRequestConfig } from "axios";
+import axios, { type InternalAxiosRequestConfig } from "axios";
 import { useAuthStore } from "../store/authStore";
 import { navigateTo } from "../utils/navigate";
 
@@ -173,7 +173,12 @@ instance.interceptors.response.use(
   },
 
   // 非 2xx：HTTP 层错误
-  async (error: AxiosError) => {
+  async (error: unknown) => {
+    // 非 AxiosError（如请求拦截器主动拒绝）→ 透传原始错误消息
+    if (!axios.isAxiosError(error)) {
+      return Promise.reject(error);
+    }
+
     if (error.response) {
       const { status, data } = error.response;
       const config = error.config as InternalAxiosRequestConfig & {

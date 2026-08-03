@@ -6,10 +6,8 @@ from app.core.database import get_db
 from app.core.response import error_response, success_response
 from app.models.user import User
 from app.schemas.album import AlbumCreateRequest, AlbumResponse
-from app.schemas.photo import PhotoResponse
 from app.services.album import AlbumService
 from app.services.photo import PhotoService
-from app.services.storage import get_url
 from app.utils.response_helpers import PHOTO_UPLOAD_ERROR_MAP, photo_to_response
 
 router = APIRouter(prefix="/albums", tags=["albums"])
@@ -48,18 +46,7 @@ def _album_to_response(album) -> dict:
     n_photos = _photo_count(album)
     if n_photos > 0:
         latest = _latest_photo(album)
-        cover_photo = PhotoResponse(
-            id=latest.id,
-            filename=get_url(latest.filename),
-            original_filename=latest.original_filename,
-            file_size=latest.file_size,
-            content_type=latest.content_type,
-            description=latest.description,
-            uploaded_by=latest.uploaded_by,
-            uploader={"id": latest.uploader.id, "username": latest.uploader.username} if latest.uploader else None,
-            album_id=latest.album_id,
-            created_at=latest.created_at,
-        ).model_dump(mode="json", by_alias=True)
+        cover_photo = photo_to_response(latest)
 
     return AlbumResponse(
         id=album.id,

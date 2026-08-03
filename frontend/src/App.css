@@ -209,8 +209,8 @@
 .cover__badge {
   display: inline-block;
   padding: 6px 16px;
-  background: linear-gradient(135deg, #fff8e7, #fef0d5);
-  color: #8b6914;
+  background: var(--color-accent-light);
+  color: var(--color-primary-dark);
   font-size: 0.85rem;
   font-weight: 600;
   border-radius: 20px;
@@ -372,6 +372,10 @@
   animation: cover-wave-drift 20s linear infinite;
 }
 
+[data-theme="dark"] .cover__wave::before {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1200 60' preserveAspectRatio='none'%3E%3Cpath d='M0 30 C 100 0, 200 60, 300 30 C 400 0, 500 60, 600 30 C 700 0, 800 60, 900 30 C 1000 0, 1100 60, 1200 30 L 1200 60 L 0 60 Z' fill='%231a1a2e'/%3E%3C/svg%3E");
+}
+
 @keyframes cover-wave-drift {
   0% { background-position-x: 0; }
   100% { background-position-x: 1200px; }
@@ -462,15 +466,15 @@
 }
 
 .cover__feature-card:nth-child(1) .cover__feature-icon {
-  background: linear-gradient(135deg, #e8f5e9, #c8e6c9);
+  background: var(--color-icon-bg-green);
 }
 
 .cover__feature-card:nth-child(2) .cover__feature-icon {
-  background: linear-gradient(135deg, #fff3e0, #ffe0b2);
+  background: var(--color-icon-bg-orange);
 }
 
 .cover__feature-card:nth-child(3) .cover__feature-icon {
-  background: linear-gradient(135deg, #e3f2fd, #bbdefb);
+  background: var(--color-icon-bg-pink);
 }
 
 .cover__feature-card h4 {

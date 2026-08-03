@@ -79,6 +79,17 @@ function PhotoAlbum() {
   const [uploading, setUploading] = useState(false);
   const [uploadError, setUploadError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const uploadPreviewRef = useRef<string | null>(null);
+
+  // 组件卸载时清理 blob URL，防止内存泄漏
+  useEffect(() => {
+    return () => {
+      if (uploadPreviewRef.current) {
+        URL.revokeObjectURL(uploadPreviewRef.current);
+        uploadPreviewRef.current = null;
+      }
+    };
+  }, []);
 
   // ---------- 照片查看器 ----------
   const [viewerOpen, setViewerOpen] = useState(false);
@@ -202,7 +213,9 @@ function PhotoAlbum() {
     setUploadError(null);
     if (uploadPreview) URL.revokeObjectURL(uploadPreview);
     setUploadFile(file);
-    setUploadPreview(URL.createObjectURL(file));
+    const previewUrl = URL.createObjectURL(file);
+    setUploadPreview(previewUrl);
+    uploadPreviewRef.current = previewUrl;
   };
 
   const handleUploadConfirm = async () => {
@@ -217,6 +230,7 @@ function PhotoAlbum() {
       setUploadOpen(false);
       setUploadFile(null);
       setUploadPreview(null);
+      uploadPreviewRef.current = null;
       setUploadDescription("");
     } catch (err) {
       setUploadError(err instanceof Error ? err.message : "上传失败");
@@ -240,6 +254,7 @@ function PhotoAlbum() {
     if (uploadPreview) URL.revokeObjectURL(uploadPreview);
     setUploadFile(null);
     setUploadPreview(null);
+    uploadPreviewRef.current = null;
     setUploadDescription("");
     setUploadError(null);
   };
@@ -568,7 +583,7 @@ function PhotoAlbum() {
 
       {/* ===== 删除相册确认 ===== */}
       {deleteAlbumTarget && (
-        <div className="album__modal-overlay" onClick={() => setDeleteAlbumTarget(null)}>
+        <div className="album__modal-overlay" onClick={() => { setDeleteAlbumTarget(null); setDeleteError(null); }}>
           <div className="album__modal album__modal--confirm" onClick={(e) => e.stopPropagation()}>
             <div className="album__modal-header"><h3>确认删除相册</h3></div>
             <div className="album__modal-body">
@@ -586,7 +601,7 @@ function PhotoAlbum() {
 
       {/* ===== 删除照片确认 ===== */}
       {deletePhotoTarget && (
-        <div className="album__modal-overlay" onClick={() => setDeletePhotoTarget(null)}>
+        <div className="album__modal-overlay" onClick={() => { setDeletePhotoTarget(null); setDeleteError(null); }}>
           <div className="album__modal album__modal--confirm" onClick={(e) => e.stopPropagation()}>
             <div className="album__modal-header"><h3>确认删除</h3></div>
             <div className="album__modal-body">

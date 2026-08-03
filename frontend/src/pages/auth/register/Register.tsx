@@ -9,8 +9,6 @@ import emailIcon from "../../../svg/email.svg";
 import passwordIcon from "../../../svg/password.svg";
 import confirmPasswordIcon from "../../../svg/confirmPassword.svg";
 
-import "./Register.css";
-
 interface RegisterForm {
   username: string;
   email: string;

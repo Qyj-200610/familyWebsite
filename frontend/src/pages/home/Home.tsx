@@ -10,8 +10,7 @@ import "./Home.css";
 type TimePeriod = "night" | "dawn" | "morning" | "noon" | "afternoon" | "evening";
 
 /** 根据当前小时返回问候语 */
-function getGreeting(): { text: string; emoji: string } {
-  const h = new Date().getHours();
+function getGreeting(h: number): { text: string; emoji: string } {
   if (h < 6) return { text: "夜深了", emoji: "🌙" };
   if (h < 9) return { text: "早上好", emoji: "☀️" };
   if (h < 12) return { text: "上午好", emoji: "🌤️" };
@@ -22,8 +21,7 @@ function getGreeting(): { text: string; emoji: string } {
 }
 
 /** 根据当前小时返回时间段 */
-function getTimePeriod(): TimePeriod {
-  const h = new Date().getHours();
+function getTimePeriod(h: number): TimePeriod {
   if (h < 5) return "night";
   if (h < 7) return "dawn";
   if (h < 11) return "morning";
@@ -52,8 +50,8 @@ function Home() {
 
   const [clockTime, setClockTime] = useState(new Date());
 
-  const greeting = useMemo(() => getGreeting(), [clockTime]);
-  const timePeriod = useMemo(() => getTimePeriod(), [clockTime]);
+  const greeting = useMemo(() => getGreeting(clockTime.getHours()), [clockTime]);
+  const timePeriod = useMemo(() => getTimePeriod(clockTime.getHours()), [clockTime]);
   const heroDecorations = useMemo(() => getHeroDecorations(timePeriod), [timePeriod]);
 
   // 每秒更新时钟

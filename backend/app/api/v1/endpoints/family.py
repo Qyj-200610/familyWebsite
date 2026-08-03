@@ -16,6 +16,7 @@ from app.api.deps import get_optional_user
 from app.core.database import get_db
 from app.core.response import success_response
 from app.models.user import User
+from app.services.storage import get_url
 
 router = APIRouter(prefix="/family", tags=["family"])
 
@@ -66,7 +67,7 @@ async def get_family_status(
         {
             "name": name,
             "online": name.lower() == online_name_folded,
-            "avatar": avatar_map.get(name.lower()),
+            "avatar": get_url(avatar_map.get(name.lower())) if avatar_map.get(name.lower()) else None,
         }
         for name in sorted(FAMILY_MEMBER_NAMES)
     ]

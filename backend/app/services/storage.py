@@ -7,6 +7,7 @@ Cloudinary 存储服务 — 上传、删除、URL 生成。
 
 import io
 import logging
+import threading
 from typing import Optional
 
 import cloudinary
@@ -19,6 +20,7 @@ from app.core.config import settings
 logger = logging.getLogger(__name__)
 
 _initialized = False
+_init_lock = threading.Lock()
 
 
 def _ensure_initialized() -> None:
@@ -26,13 +28,16 @@ def _ensure_initialized() -> None:
     global _initialized
     if _initialized:
         return
-    cloudinary.config(
-        cloud_name=settings.CLOUDINARY_CLOUD_NAME,
-        api_key=settings.CLOUDINARY_API_KEY,
-        api_secret=settings.CLOUDINARY_API_SECRET,
-        secure=True,
-    )
-    _initialized = True
+    with _init_lock:
+        if _initialized:
+            return  # Double-checked locking — another thread may have beaten us
+        cloudinary.config(
+            cloud_name=settings.CLOUDINARY_CLOUD_NAME,
+            api_key=settings.CLOUDINARY_API_KEY,
+            api_secret=settings.CLOUDINARY_API_SECRET,
+            secure=True,
+        )
+        _initialized = True
 
 
 # ── 公开 API ────────────────────────────────────────────────

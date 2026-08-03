@@ -25,6 +25,7 @@
 | 1200–1299 | 密码重置 |
 | 2000–2099 | 用户更新 |
 | 2003–2007 | 头像上传（文件验证） |
+| 2008–2010 | 头像上传（存储/大小） |
 | 3000–3099 | 照片上传/删除 |
 | 3100–3199 | 照片操作 |
 | 3200–3299 | 相册操作 |
@@ -48,7 +49,7 @@ POST /api/auth/register
 {
   "username": "string (2-50)", 
   "email": "string (邮箱格式, ≤255)",
-  "password": "string (6-128)"
+  "password": "string (8-128, 须包含大小写字母和数字)"
 }
 ```
 
@@ -94,11 +95,12 @@ POST /api/auth/login
       "id": 1,
       "username": "Qyj",
       "email": "xxx@qq.com",
-      "avatar": "/uploads/avatars/xxx.jpg",
+      "avatar": "https://res.cloudinary.com/.../family-website/avatars/abc123",
       "lastLoginAt": "2026-07-30T12:00:00Z",
       "createdAt": "2026-07-01T00:00:00Z"
     },
-    "token": "eyJhbGciOi..."
+    "token": "eyJhbGciOi...",
+    "refreshToken": "eyJhbGciOi..."
   }
 }
 ```
@@ -121,7 +123,31 @@ POST /api/auth/logout
 
 ---
 
-## 1.4 重置密码
+## 1.4 刷新 Token
+
+```
+POST /api/auth/refresh
+```
+
+**认证**：无需（使用 refresh token 本身作为凭证）
+
+**请求体**：
+```json
+{
+  "refreshToken": "string (非空)"
+}
+```
+
+**数据库操作**：
+- `SELECT` users 按 ID 查询（从 refresh token 中解析）
+
+**成功响应** (code=0)：同 1.2 登录响应（返回新的 access + refresh token 对 + user 信息）
+
+**错误码**：`1102` 刷新令牌无效或已过期, `1103` 刷新令牌格式错误, `1104` 用户不存在
+
+---
+
+## 1.5 重置密码
 
 ```
 POST /api/auth/reset-password
@@ -133,7 +159,7 @@ POST /api/auth/reset-password
 ```json
 {
   "email": "string (邮箱格式)",
-  "newPassword": "string (6-128)"
+  "newPassword": "string (8-128, 须包含大小写字母和数字)"
 }
 ```
 
@@ -147,7 +173,7 @@ POST /api/auth/reset-password
 
 ---
 
-## 1.5 获取个人信息
+## 1.6 获取个人信息
 
 ```
 GET /api/user/me
@@ -174,7 +200,7 @@ GET /api/user/me
 
 ---
 
-## 1.6 更新个人资料
+## 1.7 更新个人资料
 
 ```
 PATCH /api/user/me
@@ -200,7 +226,7 @@ PATCH /api/user/me
 
 ---
 
-## 1.7 上传头像
+## 1.8 上传头像
 
 ```
 POST /api/user/me/avatar
@@ -214,17 +240,17 @@ POST /api/user/me/avatar
 | `file` | File | 头像文件，仅 jpg/png/webp，最大 5 MB |
 
 **数据库操作**：
-- `UPDATE` users 更新 avatar 字段为 `/uploads/avatars/{uuid}.jpg`
+- `UPDATE` users 更新 avatar 字段为 Cloudinary public_id（如 `family-website/avatars/{uuid}`）
 
-**文件存储**：`backend/uploads/avatars/` 目录
+**文件存储**：Cloudinary（`family-website/avatars/` 目录），通过 `get_url()` 生成公网访问 URL
 
-**成功响应** (code=0)：返回完整 user 对象（同 1.5）
+**成功响应** (code=0)：返回完整 user 对象（同 1.6）
 
-**错误码**：`2003` 未选择文件, `2004` 不支持的文件格式, `2005` 不支持的文件类型, `2006` 文件大小超出限制, `2007` 文件内容不是有效图片
+**错误码**：`2003` 未选择文件, `2004` 不支持的文件格式, `2005` 不支持的文件类型, `2006` 文件内容为空, `2007` 文件内容不是有效图片, `2008` 图片存储未配置, `2009` 图片存储服务不可用, `2010` 文件大小超出限制
 
 ---
 
-## 1.8 家谱在线状态
+## 1.9 家谱在线状态
 
 ```
 GET /api/family/status
@@ -254,7 +280,34 @@ GET /api/family/status
 }
 ```
 
-**逻辑**：若请求携带有效 JWT，且 token 对应的 `username` 匹配家族成员名，则该成员 `online: true`。
+**逻辑**：若请求携带有效 JWT，且 token 对应的 `username` 匹配家族成员名，则该成员 `online: true`。头像通过 `get_url()` 转换为 Cloudinary 公网 URL。
+
+---
+
+## 1.10 个人统计
+
+```
+GET /api/user/me/stats
+```
+
+**认证**：需要 Bearer Token
+
+**数据库操作**：
+- `SELECT COUNT(*)` photos 统计上传照片数
+
+**成功响应** (code=0)：
+```json
+{
+  "code": 0, "message": "success",
+  "data": {
+    "photoCount": 5,
+    "foodOrderCount": 0,
+    "familyMemberCount": 8
+  }
+}
+```
+
+> **注意**：`foodOrderCount` 当前固定为 0（点单系统不存储订单）。
 
 ---
 
@@ -428,11 +481,11 @@ POST /api/albums/{album_id}/photos/upload
 - `INSERT` 新记录到 photos 表
 - `SELECT` users 获取上传者信息
 
-**文件存储**：`backend/uploads/photos/` 目录
+**文件存储**：Cloudinary（`family-website/photos/` 目录），filename 为 Cloudinary public_id，通过 `get_url()` 生成公网 URL
 
 **成功响应** (code=0)：返回 Photo 对象（同照片格式）
 
-**错误码**：`3001-3005` 文件校验错误, `3202` 相册不存在, `3203` 无权访问
+**错误码**：`3001-3008` 文件校验/存储错误, `3202` 相册不存在, `3203` 无权访问
 
 ---
 
@@ -483,11 +536,11 @@ POST /api/photos/upload
 - `INSERT` 新记录到 photos 表（album_id = NULL）
 - `SELECT` users 获取上传者信息
 
-**文件存储**：`backend/uploads/photos/` 目录
+**文件存储**：Cloudinary（`family-website/photos/` 目录），filename 为 Cloudinary public_id
 
 **成功响应** (code=0)：返回 Photo 对象
 
-**错误码**：`3001-3005` 文件校验错误
+**错误码**：`3001-3008` 文件校验/存储错误
 
 ---
 
@@ -525,7 +578,7 @@ DELETE /api/photos/{photo_id}
 
 **数据库操作**：
 - `SELECT` photos 按 ID
-- `DELETE` photos（触发器自动清理磁盘文件）
+- `DELETE` photos（服务层显式清理 Cloudinary 文件，best-effort）
 
 **成功响应** (code=0)：`{ "code": 0, "message": "照片已删除", "data": null }`
 

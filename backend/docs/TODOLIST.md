@@ -1,14 +1,12 @@
 # TODOLIST — 后端待办事项
 
-> 最后更新：2026-08-02（密码强度校验、配置校验、数据库连接池配置）
+> 最后更新：2026-08-03（后端 Debug 全面审查 + 文档更新）
 
 ---
 
 ## 🔴 高优先级（核心功能）
 
-- [ ] **Token 黑名单 / 刷新机制** — 当前 JWT 为无状态设计，logout 后 token 在过期前仍然有效
-  - 方案 A：Redis 黑名单，logout 时将 token 加入黑名单
-  - 方案 B：Access Token（短）+ Refresh Token（长）双 token 机制
+- [x] **Token 黑名单 / 刷新机制** — 已实现双 token 机制（access 30min + refresh 7天 + 轮换），`POST /api/auth/refresh` 端点已上线
   - 涉及文件：[auth.py](../app/api/v1/endpoints/auth.py), [security.py](../app/core/security.py)
 
 - [x] **密码强度校验** — 已在 `RegisterRequest` 和 `ResetPasswordRequest` 中添加 `@field_validator`，要求密码至少 8 个字符、包含大小写字母和数字

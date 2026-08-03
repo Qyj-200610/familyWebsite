@@ -122,6 +122,20 @@
 
 ## 调试记录
 
+### 2026-08-03 — 后端 Debug + 文档更新
+
+- [x] **修复（关键）：`Photo.after_delete` 事件在事务提交前删除 Cloudinary 文件** — 将清理逻辑从 SQLAlchemy 事件移至 `PhotoService.delete_photo()` 服务层，确保 DB 删除成功后才清理 Cloudinary，避免回滚时文件永久丢失
+- [x] **修复：`storage.py` `_ensure_initialized()` 线程安全** — 添加双重检查锁（`threading.Lock`），防止并发上传时的竞态条件
+- [x] **修复：`get_db` 依赖注入捕获 `HTTPException` 导致不必要的回滚** — 改为仅捕获 `SQLAlchemyError`，HTTP 异常（401/403/404）正常传播
+- [x] **修复：家谱端点头像 URL 未转换** — `GET /api/family/status` 返回原始 Cloudinary public_id，前端无法显示；添加 `get_url()` 调用
+- [x] **修复：头像上传重复错误码 2006** — "文件内容为空"和"文件大小超限"共用 2006；文件大小超限改为 2010
+- [x] **修复：`_validate_file` 返回未使用的 `ext` 变量** — 简化为仅返回 `detected_type`
+- [x] **修复：`_album_to_response` 封面照片代码重复** — 使用共享的 `photo_to_response()` 辅助函数
+- [x] **修复：`DATABASE_SSL_CA_PATH` 未在 `Settings` 中定义** — 添加为正式配置项，消除 `getattr`  hack
+- [x] **修复：`JWT_SECRET` 校验器静默接受默认值** — 添加 `warnings.warn` 提示生产环境需覆盖
+- [x] **更新：`API_REFERENCE.md`** — 新增 `POST /api/auth/refresh` 和 `GET /api/user/me/stats` 端点文档；修正头像/照片存储为 Cloudinary；新增错误码 2008-2010、3007-3008；密码要求从 6 位更正为 8 位（含大小写字母和数字）；登录响应增加 `refreshToken`
+- [x] **更新：`TODOLIST.md`** — 标记 Token 刷新机制为已完成
+
 ### 2026-07-31 — 后端 Debug + 文档更新
 - [x] 修复：`error_response()` 不支持 `data` 参数，导致健康检查在数据库不可达时崩溃（TypeError）
 - [x] 修复：全局异常处理器返回 `error_response(500, ...)` 使用默认 `status_code=400`，应返回 HTTP 500

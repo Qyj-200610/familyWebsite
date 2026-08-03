@@ -62,6 +62,7 @@ function VideoPage() {
   // ============================================================
 
   const startCamera = useCallback(async () => {
+    if (!mountedRef.current) return;
     setCameraPhase("requesting");
     setCameraError("");
     try {

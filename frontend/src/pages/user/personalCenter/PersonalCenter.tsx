@@ -29,7 +29,7 @@ function PersonalCenter() {
   }, [isAuthenticated]);
 
   /** 获取头像首字母 */
-  const avatarLetter = user?.username?.charAt(0).toUpperCase() || "U";
+  const avatarLetter = user?.username?.charAt(0)?.toUpperCase() || "U";
 
   /** 格式化日期 */
   const formatDate = (dateStr?: string | null) => {

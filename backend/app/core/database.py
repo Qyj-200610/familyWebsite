@@ -8,8 +8,11 @@ _connect_args: dict = {}
 if settings.DATABASE_SSL:
     # TiDB Cloud uses Let's Encrypt — system CA certs should trust it.
     # Falls back gracefully: if DATABASE_SSL_CA_PATH is set in .env, use that as the CA bundle.
-    ca_path: str | None = getattr(settings, "DATABASE_SSL_CA_PATH", None)
-    ssl_ctx = ssl.create_default_context(cafile=ca_path) if ca_path else ssl.create_default_context()
+    ssl_ctx = (
+        ssl.create_default_context(cafile=settings.DATABASE_SSL_CA_PATH)
+        if settings.DATABASE_SSL_CA_PATH
+        else ssl.create_default_context()
+    )
     _connect_args["ssl"] = ssl_ctx
 
 engine = create_async_engine(
@@ -30,11 +33,18 @@ async_session_factory = async_sessionmaker(
 
 
 async def get_db() -> AsyncSession:
-    """Dependency that provides an async database session per request."""
+    """Dependency that provides an async database session per request.
+
+    Commits on success, rolls back on database errors.  HTTP exceptions
+    (401, 404, etc.) are NOT treated as database errors — they propagate
+    normally and the session is closed without a spurious rollback.
+    """
+    from sqlalchemy.exc import SQLAlchemyError
+
     async with async_session_factory() as session:
         try:
             yield session
             await session.commit()
-        except Exception:
+        except SQLAlchemyError:
             await session.rollback()
             raise

@@ -1,13 +1,9 @@
-import logging
 from datetime import datetime
-from pathlib import Path
 
-from sqlalchemy import BigInteger, DateTime, ForeignKey, String, Text, event, func
+from sqlalchemy import BigInteger, DateTime, ForeignKey, String, Text, func
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.models.user import Base
-
-logger = logging.getLogger(__name__)
 
 
 class Photo(Base):
@@ -37,23 +33,14 @@ class Photo(Base):
         return f"<Photo(id={self.id}, filename={self.filename!r}, uploaded_by={self.uploaded_by})>"
 
 
-@event.listens_for(Photo, "after_delete")
-def _cleanup_photo_file(mapper, connection, target: Photo) -> None:
-    """Clean up the photo file from Cloudinary after the DB record is deleted.
-
-    Handles both new Cloudinary records (public_id in filename) and
-    old local-file records (plain UUID filename — best-effort local delete).
-    """
-    from app.services.storage import delete_image, is_cloudinary_id
-
-    if is_cloudinary_id(target.filename):
-        delete_image(target.filename)
-    else:
-        # Old-format record: try local disk cleanup
-        try:
-            from app.core.config import settings
-
-            filepath = Path(settings.UPLOAD_DIR) / "photos" / target.filename
-            filepath.unlink(missing_ok=True)
-        except Exception:
-            logger.warning("Failed to delete photo file: %s", target.filename, exc_info=True)
+# NOTE: We intentionally do NOT use SQLAlchemy after_delete / after_commit events
+# for cleaning up Cloudinary files.  Events that delete external resources are
+# inherently unsafe — ``after_delete`` fires during ``session.flush()`` and the
+# transaction may still roll back, leaving the Cloudinary file deleted but the
+# DB record restored.  ``after_commit`` avoids that, but breaks the "best-effort"
+# contract (it throws the cleanup onto a background thread where failures go
+# unnoticed by the caller).
+#
+# Instead, the service layer (``PhotoService.delete_photo``) explicitly handles
+# cleanup *after* the DB flush succeeds, so the caller can decide what to do on
+# failure.

@@ -46,6 +46,10 @@ class Settings(BaseSettings):
 
     # Database SSL — PlanetScale requires SSL; set to False for local MySQL
     DATABASE_SSL: bool = True
+    # Optional path to a custom CA certificate bundle (e.g. for self-signed or
+    # corporate CAs).  When set, the SSL context will use this file instead of
+    # the system default CA bundle.  Leave empty to use system CAs.
+    DATABASE_SSL_CA_PATH: str = ""
 
     # File upload
     UPLOAD_DIR: str = str(Path(__file__).resolve().parent.parent.parent / "uploads")
@@ -79,11 +83,15 @@ class Settings(BaseSettings):
         if not v or not v.strip():
             raise ValueError("JWT_SECRET must not be empty")
         if v == "dev-secret-key-do-not-use-in-production":
-            # 仅在开发环境允许默认 secret，生产环境必须覆盖
             import os
-            if os.environ.get("JWT_SECRET", "").strip():
-                return v
-            # 允许默认值但给出提示（通过 logging 会引入循环依赖，这里保持静默）
+            if not os.environ.get("JWT_SECRET", "").strip():
+                import warnings
+                warnings.warn(
+                    "JWT_SECRET is using the default insecure value. "
+                    "Set the JWT_SECRET environment variable for production.",
+                    UserWarning,
+                    stacklevel=2,
+                )
         return v
 
     @field_validator("CORS_ORIGINS", mode="before")

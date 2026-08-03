@@ -1,6 +1,6 @@
 # TODOLIST — 待办事项
 
-> 最后更新：2026-08-02（代码修复批次：路由守卫、深色模式适配、CSS 清理、导航合并、组件重定位、内存泄漏修复、后端加固）
+> 最后更新：2026-08-03（前端全面 Debug：死文件清理、代码 Bug 修复、深色模式 CSS 迁移、文档更新）
 
 ---
 
@@ -80,6 +80,23 @@
 - [x] ~~authStore JSON 解析静默失败~~ → 已添加 console.warn（2026-08-02）
 - [x] ~~接口文档头像大小写为 2MB~~ → interface.md / CLAUDE.md / COMPLETED.md 已全部修正为 5MB（2026-08-02）
 - [x] ~~注销导航与 auth guard 竞争~~ → handleLogout 统一导航到 /login（2026-08-02）
+
+---
+
+## ⚪ 技术债务（2026-08-03 审查新增）
+
+- [ ] **video.css 深色模式变量迁移** — 视频页面全部使用硬编码颜色（593 行），需迁移到 CSS 变量体系
+  - 涉及文件：[video.css](../src/pages/familyTree/video/video.css)
+- [ ] **familyTree 深色模式进一步完善** — 连线/竖线/横条使用硬编码颜色（`#b0aca5`、`#ccc`），需 CSS 变量化
+  - 涉及文件：[familyTree.css](../src/pages/familyTree/familyTree.css)
+- [ ] **Register.css / forgetPassword.css 空文件清理** — 已删除文件 + 移除对应 TSX 中的 import
+- [x] **stale 文件清理** — `pages/dailyRoutine/` 和 `pages/auth/Auth.tsx` 的 stale 副本已删除（2026-08-03）
+- [x] **DailyRoutine impure updater** — `setTemplate` 内调用 `saveTemplate` 已移除（2026-08-03）
+- [x] **avatarLetter null-safety** — `charAt(0).toUpperCase()` 改为 `charAt(0)?.toUpperCase()`（2026-08-03）
+- [x] **client.ts 错误消息吞没** — 响应拦截器改为 `unknown` + `axios.isAxiosError` 守卫（2026-08-03）
+- [x] **favicon 生产构建 404** — SVG 移至 `public/` 目录（2026-08-03）
+- [x] **App.css/photoAlbum/foodOrder/familyTree 深色模式 CSS 变量迁移** — 核心页面完成（2026-08-03）
+- [x] **interface.md stats 端点文档补充** — `GET /api/user/me/stats` 已添加（2026-08-03）
 
 ---
 

@@ -83,7 +83,7 @@ async def upload_avatar(
     if len(content) == 0:
         return error_response(2006, "文件内容为空，请选择有效的图片文件")
     if len(content) > settings.AVATAR_MAX_SIZE:
-        return error_response(2006, f"文件大小超出限制（最大 {settings.AVATAR_MAX_SIZE // (1024 * 1024)} MB）")
+        return error_response(2010, f"文件大小超出限制（最大 {settings.AVATAR_MAX_SIZE // (1024 * 1024)} MB）")
 
     # ── 二次验证：通过文件头魔数检测真实类型 ──
     detected_type = detect_image_type(content)

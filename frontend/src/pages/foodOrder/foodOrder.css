@@ -371,7 +371,7 @@
   align-items: center;
   gap: 12px;
   padding: 14px 0;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+  border-bottom: 1px solid var(--color-border);
 }
 
 .food__cart-item:last-child {
@@ -461,7 +461,7 @@
   display: flex;
   flex-direction: column;
   gap: 10px;
-  background: linear-gradient(180deg, transparent, rgba(254, 249, 240, 0.5));
+  background: linear-gradient(180deg, transparent, var(--color-bg-warm));
 }
 
 .food__cart-summary {
@@ -709,7 +709,7 @@
   justify-content: space-between;
   align-items: center;
   padding: 10px 0;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.04);
+  border-bottom: 1px solid var(--color-border);
   font-size: 0.92rem;
   color: var(--color-text);
 }

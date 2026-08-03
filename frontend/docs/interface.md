@@ -425,6 +425,46 @@ Content-Type: multipart/form-data
 
 ---
 
+### 5.4 获取用户统计数据
+
+```
+GET /api/user/me/stats
+```
+
+**请求头**
+
+```http
+Authorization: Bearer <token>
+```
+
+**请求体**
+
+无。
+
+**响应体**
+
+```json
+{
+  "code": 0,
+  "message": "success",
+  "data": {
+    "photoCount": 12,
+    "foodOrderCount": 0,
+    "familyMemberCount": 8
+  }
+}
+```
+
+| 字段 | 类型 | 说明 |
+|------|------|------|
+| `data.photoCount` | `number` | 用户上传的照片总数 |
+| `data.foodOrderCount` | `number` | 用户提交的点单次数（当前固定为 0） |
+| `data.familyMemberCount` | `number` | 家族成员总数（固定值 8） |
+
+> 此端点用于个人中心统计卡片展示。`foodOrderCount` 固定为 0 是因为点单系统当前不存储历史订单。
+
+---
+
 ## 6. 相册模块 `/api/photos` 与 `/api/albums`
 
 > 以下接口均需携带 `Authorization` 头。

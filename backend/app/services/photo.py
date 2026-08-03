@@ -1,4 +1,5 @@
 import asyncio
+import logging
 import uuid
 from pathlib import Path
 
@@ -14,9 +15,13 @@ from app.models.user import User
 from app.services.storage import (
     CloudinaryNotConfiguredError,
     CloudinaryUploadError,
+    delete_image,
+    is_cloudinary_id,
     upload_image,
 )
 from app.utils.image import detect_image_type
+
+logger = logging.getLogger(__name__)
 
 
 class PhotoService:
@@ -26,8 +31,8 @@ class PhotoService:
     ALLOWED_EXTENSIONS = {".jpg", ".jpeg", ".png", ".webp"}
 
     @staticmethod
-    def _validate_file(filename: str, content_type: str | None, content: bytes) -> tuple[str, str | None]:
-        """Validate the uploaded file and return (normalized_extension, detected_content_type).
+    def _validate_file(filename: str, content_type: str | None, content: bytes) -> str | None:
+        """Validate the uploaded file and return the detected content type.
 
         Raises ValueError on failure.
         """
@@ -51,8 +56,9 @@ class PhotoService:
         if detected is None or detected not in settings.PHOTO_ALLOWED_CONTENT_TYPES:
             raise ValueError("INVALID_IMAGE")
 
-        ext = ".jpg" if suffix == ".jpeg" else suffix
-        return ext, detected
+        # Normalize .jpeg → .jpg (kept for consistency; the extension is not used
+        # by the upload path — Cloudinary uses uuid.hex as the public_id).
+        return detected
 
     @staticmethod
     async def upload_photo(
@@ -69,7 +75,7 @@ class PhotoService:
         original_filename = file.filename or ""
 
         # 验证文件
-        ext, detected_type = PhotoService._validate_file(original_filename, file.content_type, content)
+        detected_type = PhotoService._validate_file(original_filename, file.content_type, content)
         content_type = file.content_type or detected_type or "image/jpeg"
 
         # 上传到 Cloudinary（在后台线程中执行，避免阻塞事件循环）
@@ -149,6 +155,26 @@ class PhotoService:
 
     @staticmethod
     async def delete_photo(db: AsyncSession, photo: Photo) -> None:
-        """Delete a photo record (the after_delete event cleans up the disk file)."""
+        """Delete a photo record and its Cloudinary file.
+
+        Cloudinary cleanup runs *after* the DB flush succeeds, so the file is
+        only deleted once we know the DB delete is committed.  The cleanup is
+        best-effort — a Cloudinary failure is logged but does not roll back
+        the DB delete (the orphaned file is just wasted storage, not data loss).
+        """
+        # Save public_id before deleting the ORM object
+        public_id: str = photo.filename
+
         await db.delete(photo)
         await db.flush()
+
+        # Best-effort Cloudinary / local cleanup — must happen AFTER flush
+        if is_cloudinary_id(public_id):
+            await asyncio.to_thread(delete_image, public_id)
+        else:
+            # Old-format record: try local disk cleanup
+            try:
+                filepath = Path(settings.UPLOAD_DIR) / "photos" / public_id
+                filepath.unlink(missing_ok=True)
+            except Exception:
+                logger.warning("Failed to delete photo file: %s", public_id, exc_info=True)

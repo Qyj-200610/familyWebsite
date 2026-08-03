@@ -5,7 +5,6 @@ import { authApi } from "../../../api";
 import emailIcon from "../../../svg/email.svg";
 import passwordIcon from "../../../svg/password.svg";
 import confirmPasswordIcon from "../../../svg/confirmPassword.svg";
-import "./forgetPassword.css";
 
 interface ResetForm {
   email: string;

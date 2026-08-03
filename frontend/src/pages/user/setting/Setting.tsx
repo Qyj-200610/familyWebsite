@@ -36,7 +36,7 @@ function Setting() {
   }, [isAuthenticated, navigate]);
 
   /** 获取头像首字母 */
-  const avatarLetter = user?.username?.charAt(0).toUpperCase() || "U";
+  const avatarLetter = user?.username?.charAt(0)?.toUpperCase() || "U";
 
   /** 点击"更换头像"按钮 → 打开文件选择器 */
   const handleAvatarClick = () => {

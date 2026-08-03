@@ -174,16 +174,16 @@
 }
 
 .ft-intro__dot--male {
-  background: linear-gradient(135deg, #5b8c5a, #6da86b);
+  background: linear-gradient(135deg, var(--color-primary), var(--color-primary-light));
 }
 
 .ft-intro__dot--female {
-  background: linear-gradient(135deg, #e8987a, #f0a04b);
+  background: linear-gradient(135deg, var(--color-accent), var(--color-accent-light));
 }
 
 .ft-intro__dot--empty {
   background: var(--color-empty-dot);
-  border: 2px dashed #b0aca5;
+  border: 2px dashed var(--color-text-muted);
 }
 
 .ft-intro__reopen-wrap {
@@ -458,23 +458,23 @@
   border-radius: 50%;
   flex-shrink: 0;
   display: inline-block;
-  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.8);
+  box-shadow: 0 0 0 2px var(--color-surface);
 }
 
 .ft-card__status--online {
   background: #22c55e;
-  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.8), 0 0 8px rgba(34, 197, 94, 0.4);
+  box-shadow: 0 0 0 2px var(--color-surface), 0 0 8px rgba(34, 197, 94, 0.4);
   animation: ftStatusPulse 2s ease-in-out infinite;
 }
 
 .ft-card__status--offline {
   background: #ef4444;
-  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.8);
+  box-shadow: 0 0 0 2px var(--color-surface);
 }
 
 @keyframes ftStatusPulse {
-  0%, 100% { box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.8), 0 0 4px rgba(34, 197, 94, 0.3); }
-  50% { box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.8), 0 0 12px rgba(34, 197, 94, 0.6); }
+  0%, 100% { box-shadow: 0 0 0 2px var(--color-surface), 0 0 4px rgba(34, 197, 94, 0.3); }
+  50% { box-shadow: 0 0 0 2px var(--color-surface), 0 0 12px rgba(34, 197, 94, 0.6); }
 }
 
 .ft-card--root .ft-card__name {
@@ -505,11 +505,11 @@
 }
 
 .ft-avatar--male {
-  background: linear-gradient(135deg, #5b8c5a, #6da86b);
+  background: linear-gradient(135deg, var(--color-primary), var(--color-primary-light));
 }
 
 .ft-avatar--female {
-  background: linear-gradient(135deg, #e8987a, #f0a04b);
+  background: linear-gradient(135deg, var(--color-accent), var(--color-accent-light));
 }
 
 /* 首字母 */
@@ -602,20 +602,20 @@
 }
 
 .ft-toast--connecting {
-  background: linear-gradient(135deg, #eaf7ea, #f0faf0);
-  border: 1px solid rgba(91, 140, 90, 0.3);
+  background: var(--color-alert-success-bg);
+  border: 1px solid var(--color-alert-success-border);
 }
 
 .ft-toast--offline {
-  background: linear-gradient(135deg, #fef5f0, #fff7f0);
-  border: 1px solid rgba(240, 160, 75, 0.35);
+  background: var(--color-alert-error-bg);
+  border: 1px solid var(--color-alert-error-border);
 }
 
 .ft-toast__spinner {
   width: 18px;
   height: 18px;
   border: 2.5px solid rgba(91, 140, 90, 0.2);
-  border-top-color: #5b8c5a;
+  border-top-color: var(--color-primary);
   border-radius: 50%;
   animation: ftSpin 0.8s linear infinite;
   flex-shrink: 0;

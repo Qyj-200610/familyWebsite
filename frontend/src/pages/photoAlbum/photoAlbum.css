@@ -422,13 +422,13 @@
 }
 
 .album__album-badge--public {
-  background: #ecfdf5;
-  color: #059669;
+  background: var(--color-alert-success-bg);
+  color: var(--color-success-text);
 }
 
 .album__album-badge--private {
-  background: #fef3c7;
-  color: #d97706;
+  background: var(--color-alert-error-bg);
+  color: var(--color-accent);
 }
 
 .album__album-meta {
