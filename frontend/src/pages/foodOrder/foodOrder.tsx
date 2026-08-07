@@ -17,6 +17,7 @@ interface Dish {
   name: string;
   category: DishCategory;
   description: string;
+  image: string;
   emoji: string;
   recommended?: boolean;
   spicy?: boolean;
@@ -28,34 +29,14 @@ const CATEGORIES: (DishCategory | "全部")[] = [
 
 const DISHES: Dish[] = [
   // ---- 热菜 ----
-  { id: 1, name: "宫保鸡丁", category: "热菜", description: "花生与鸡丁的经典搭配，香辣可口", emoji: "🍗", spicy: true, recommended: true },
-  { id: 2, name: "红烧肉", category: "热菜", description: "肥而不腻，入口即化，家常美味", emoji: "🥩", recommended: true },
-  { id: 3, name: "清蒸鲈鱼", category: "热菜", description: "鲜嫩滑口，原汁原味", emoji: "🐟" },
-  { id: 4, name: "西红柿炒鸡蛋", category: "热菜", description: "简单家常，营养美味", emoji: "🍅" },
-  { id: 5, name: "麻婆豆腐", category: "热菜", description: "麻辣鲜香，下饭神器", emoji: "🫘", spicy: true },
-  { id: 6, name: "蒜蓉西兰花", category: "热菜", description: "清脆爽口，蒜香四溢", emoji: "🥦" },
-  { id: 7, name: "地三鲜", category: "热菜", description: "土豆茄子青椒，东北经典", emoji: "🥔" },
-  { id: 8, name: "糖醋排骨", category: "热菜", description: "酸甜可口，肉质鲜嫩", emoji: "🍖", recommended: true },
+  { id: 1, name: "家烧六月黄", category: "热菜", description: "时令六月黄，家烧做法，蟹黄饱满鲜美", image: "/image/家烧六月黄.jpg", emoji: "🦀", recommended: true },
+  { id: 2, name: "烤鸡翅", category: "热菜", description: "外焦里嫩，香气四溢，大人小孩都爱吃", image: "/image/烤鸡翅.jpg", emoji: "🍗" },
+  { id: 3, name: "盐水麻虾", category: "热菜", description: "鲜嫩弹牙，原汁原味，经典盐水煮法", image: "/image/盐水麻虾.jpg", emoji: "🦐", recommended: true },
   // ---- 凉菜 ----
-  { id: 9, name: "凉拌黄瓜", category: "凉菜", description: "清脆爽口，开胃解腻", emoji: "🥒" },
-  { id: 10, name: "皮蛋豆腐", category: "凉菜", description: "嫩滑豆腐配松花蛋，经典凉菜", emoji: "🥚" },
-  { id: 11, name: "口水鸡", category: "凉菜", description: "麻辣鲜香，让人回味无穷", emoji: "🐔", spicy: true },
+  { id: 4, name: "凉拌牛肉", category: "凉菜", description: "酱香浓郁，清爽开胃，夏日必备凉菜", image: "/image/凉拌牛肉.jpg", emoji: "🥩", recommended: true },
+  { id: 5, name: "生菜沙拉", category: "凉菜", description: "新鲜时蔬，清脆爽口，健康低脂", image: "/image/生菜沙拉.jpg", emoji: "🥗" },
   // ---- 汤品 ----
-  { id: 12, name: "酸辣汤", category: "汤品", description: "酸辣开胃，暖身暖胃", emoji: "🥣", spicy: true },
-  { id: 13, name: "排骨玉米汤", category: "汤品", description: "清甜鲜美，营养滋补", emoji: "🍖" },
-  { id: 14, name: "紫菜蛋花汤", category: "汤品", description: "清淡爽口，简单快手", emoji: "🍲" },
-  // ---- 主食 ----
-  { id: 15, name: "蛋炒饭", category: "主食", description: "粒粒分明，家常必备", emoji: "🍚" },
-  { id: 16, name: "手工水饺", category: "主食", description: "皮薄馅大，家的味道", emoji: "🥟", recommended: true },
-  { id: 17, name: "葱油拌面", category: "主食", description: "葱香四溢，简单美味", emoji: "🍜" },
-  // ---- 饮品 ----
-  { id: 18, name: "冰镇柠檬水", category: "饮品", description: "酸甜清爽，夏日必备", emoji: "🍋" },
-  { id: 19, name: "绿豆汤", category: "饮品", description: "清热解暑，传统饮品", emoji: "🫘" },
-  { id: 20, name: "奶茶", category: "饮品", description: "香浓丝滑，甜蜜享受", emoji: "🧋" },
-  // ---- 甜点 ----
-  { id: 21, name: "芒果布丁", category: "甜点", description: "香甜嫩滑，入口即化", emoji: "🍮" },
-  { id: 22, name: "红豆沙", category: "甜点", description: "细腻绵密，甜蜜暖心", emoji: "🫘" },
-  { id: 23, name: "水果拼盘", category: "甜点", description: "新鲜时令水果，缤纷多彩", emoji: "🍉" },
+  { id: 6, name: "雪梨鲍鱼", category: "汤品", description: "清甜雪梨搭配鲜美鲍鱼，滋补养生靓汤", image: "/image/雪梨鲍鱼.jpg", emoji: "🥣", recommended: true },
 ];
 
 // ============================================================
@@ -225,14 +206,27 @@ function FoodOrder() {
             </div>
 
             {/* 菜品网格 */}
-            <div className="food__grid">
+            {filteredDishes.length > 0 ? (
+              <div className="food__grid">
               {filteredDishes.map((dish) => {
                 const inCart = cartItems.get(dish.id) || 0;
                 return (
                   <div key={dish.id} className="food__card">
                     {/* 图片区 */}
                     <div className="food__card-image">
-                      <span className="food__card-emoji">{dish.emoji}</span>
+                      <img
+                        className="food__card-img"
+                        src={dish.image}
+                        alt={dish.name}
+                        loading="lazy"
+                        onError={(e) => {
+                          const target = e.currentTarget;
+                          target.style.display = "none";
+                          const fallback = target.nextElementSibling as HTMLElement | null;
+                          if (fallback) fallback.style.display = "flex";
+                        }}
+                      />
+                      <span className="food__card-emoji" style={{ display: "none" }}>{dish.emoji}</span>
                       {dish.recommended && (
                         <span className="food__card-badge">🔥 推荐</span>
                       )}
@@ -265,6 +259,13 @@ function FoodOrder() {
                 );
               })}
             </div>
+            ) : (
+              <div className="food__empty-category">
+                <span className="food__empty-category-icon">🍽️</span>
+                <p>该分类暂无菜品</p>
+                <p className="food__empty-category-hint">敬请期待更多美食~</p>
+              </div>
+            )}
           </div>
 
           {/* ---- 右侧：购物车面板 ---- */}

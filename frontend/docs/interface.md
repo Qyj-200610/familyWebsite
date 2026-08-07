@@ -728,8 +728,8 @@ POST /api/food/orders
 ```json
 {
   "items": [
-    { "dishId": 1, "dishName": "宫保鸡丁", "quantity": 2 },
-    { "dishId": 15, "dishName": "蛋炒饭", "quantity": 1 }
+    { "dishId": 1, "dishName": "家烧六月黄", "quantity": 2 },
+    { "dishId": 4, "dishName": "凉拌牛肉", "quantity": 1 }
   ],
   "note": "少放辣椒"
 }

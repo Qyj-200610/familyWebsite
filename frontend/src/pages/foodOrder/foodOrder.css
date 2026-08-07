@@ -140,12 +140,28 @@
   position: relative;
   height: 170px;
   background: var(--color-food-card-bg);
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  overflow: hidden;
+}
+
+.food__card-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@media (hover: hover) {
+  .food__card:hover .food__card-img {
+    transform: scale(1.08);
+  }
 }
 
 .food__card-emoji {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   font-size: 3.2rem;
   line-height: 1;
   transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -797,6 +813,31 @@
   color: var(--color-text-secondary);
 }
 
+/* ---- 空分类提示 ---- */
+.food__empty-category {
+  text-align: center;
+  padding: 64px 20px;
+  color: var(--color-text-muted);
+}
+
+.food__empty-category-icon {
+  font-size: 3rem;
+  display: block;
+  margin-bottom: 16px;
+  opacity: 0.4;
+}
+
+.food__empty-category p {
+  font-size: 1rem;
+  font-weight: 500;
+}
+
+.food__empty-category-hint {
+  font-size: 0.85rem !important;
+  font-weight: 400 !important;
+  margin-top: 6px;
+}
+
 /* ===== Responsive ===== */
 @media (max-width: 900px) {
   .food__layout {
@@ -854,7 +895,6 @@
   }
 
   .food__card-image { height: 120px; }
-  .food__card-emoji { font-size: 2.4rem; }
   .food__card-body { padding: 12px 14px 4px; }
   .food__card-name { font-size: 0.92rem; }
   .food__card-desc { font-size: 0.76rem; }
