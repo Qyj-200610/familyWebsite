@@ -1,7 +1,12 @@
 """Shared response helpers used by multiple endpoint modules."""
 
+from fastapi.responses import JSONResponse
+
+from app.core.response import error_response
 from app.models.photo import Photo
+from app.models.user import User
 from app.schemas.photo import PhotoResponse
+from app.schemas.user import UserResponse
 from app.services.storage import get_url
 
 
@@ -23,6 +28,27 @@ def photo_to_response(photo: Photo) -> dict:
         album_id=photo.album_id,
         created_at=photo.created_at,
     ).model_dump(mode="json", by_alias=True)
+
+
+def user_to_response(user: User) -> dict:
+    """Convert a User ORM object to a response dict (avatar public_id → full URL)."""
+    return UserResponse.model_validate(user).model_dump(mode="json", by_alias=True)
+
+
+def map_value_error(
+    e: ValueError,
+    error_map: dict[str, tuple[int, str]],
+    default: tuple[int, str],
+) -> JSONResponse:
+    """Map a service-layer ``ValueError`` to a unified error response.
+
+    The service layer raises ``ValueError`` with a symbolic code (e.g. ``"EMAIL_EXISTS"``);
+    each endpoint supplies its own ``error_map`` (code → (error_code, message)) plus a
+    module-appropriate ``default`` fallback.  This removes the repeated
+    ``code, msg = error_map.get(str(e), default)`` boilerplate across endpoints.
+    """
+    code, msg = error_map.get(str(e), default)
+    return error_response(code, msg)
 
 
 # Shared photo upload error code map — used by both /photos/upload and /albums/{id}/photos/upload

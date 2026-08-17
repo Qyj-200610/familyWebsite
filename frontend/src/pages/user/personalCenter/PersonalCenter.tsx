@@ -1,22 +1,17 @@
 import { useEffect, useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { useAuthStore } from "../../../store/authStore";
+import { useRequireAuth } from "../../../hooks/useRequireAuth";
 import { uploadUrl, userApi } from "../../../api";
 import type { UserStats } from "../../../api";
 import PageNav from "../../../components/PageNav/PageNav";
+import ImageWithFallback from "../../../components/ImageWithFallback/ImageWithFallback";
 import "./PersonalCenter.css";
 
 function PersonalCenter() {
-  const navigate = useNavigate();
-  const { user, isAuthenticated } = useAuthStore();
+  const { user } = useAuthStore();
+  const isAuthenticated = useRequireAuth();
   const [stats, setStats] = useState<UserStats | null>(null);
-
-  // 认证检查
-  useEffect(() => {
-    if (!isAuthenticated) {
-      navigate("/login", { replace: true });
-    }
-  }, [isAuthenticated, navigate]);
 
   // 获取用户统计数据
   useEffect(() => {
@@ -67,23 +62,13 @@ function PersonalCenter() {
             </div>
             <div className="pc__hero-inner">
               <span className="pc__hero-avatar">
-                {user?.avatar ? (
-                  <img
-                    src={uploadUrl(user.avatar)}
-                    alt={user.username}
-                    onError={(e) => {
-                      (e.target as HTMLImageElement).style.display = "none";
-                      const fb = (e.target as HTMLImageElement).nextElementSibling as HTMLElement | null;
-                      if (fb) fb.style.display = "flex";
-                    }}
-                  />
-                ) : null}
-                <span
-                  className="pc__hero-avatar-placeholder"
-                  style={{ display: user?.avatar ? "none" : "flex" }}
-                >
-                  {avatarLetter}
-                </span>
+                <ImageWithFallback
+                  src={uploadUrl(user?.avatar)}
+                  alt={user?.username}
+                  fallback={
+                    <span className="pc__hero-avatar-placeholder">{avatarLetter}</span>
+                  }
+                />
               </span>
               <div className="pc__hero-info">
                 <h2 className="pc__hero-name">{user?.username || "用户"}</h2>

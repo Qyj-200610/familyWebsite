@@ -15,6 +15,7 @@ from app.schemas.user import (
     UserResponse,
 )
 from app.services.user import UserService
+from app.utils.response_helpers import map_value_error
 
 
 def _auth_response(user: User, access_token: str, refresh_token: str):
@@ -28,6 +29,16 @@ def _auth_response(user: User, access_token: str, refresh_token: str):
     )
 
 
+_REGISTER_ERROR_MAP = {
+    "EMAIL_EXISTS": (1001, "该邮箱已被注册"),
+    "USERNAME_TAKEN": (1002, "用户名已被占用"),
+}
+
+_RESET_ERROR_MAP = {
+    "USER_NOT_FOUND": (1201, "该邮箱未注册"),
+}
+
+
 router = APIRouter(prefix="/auth", tags=["auth"])
 
 
@@ -38,12 +49,7 @@ async def register(data: RegisterRequest, db: AsyncSession = Depends(get_db)):
         user = await UserService.create_user(db, data)
         return success_response(None, f"账号 {user.username} 注册成功，请登录")
     except ValueError as e:
-        error_map = {
-            "EMAIL_EXISTS": (1001, "该邮箱已被注册"),
-            "USERNAME_TAKEN": (1002, "用户名已被占用"),
-        }
-        code, msg = error_map.get(str(e), (1000, "注册失败"))
-        return error_response(code, msg)
+        return map_value_error(e, _REGISTER_ERROR_MAP, (1000, "注册失败"))
 
 
 @router.post("/login")
@@ -69,11 +75,7 @@ async def reset_password(data: ResetPasswordRequest, db: AsyncSession = Depends(
         await UserService.reset_password(db, data.email, data.new_password)
         return success_response(None, "密码已重置，请使用新密码登录")
     except ValueError as e:
-        error_map = {
-            "USER_NOT_FOUND": (1201, "该邮箱未注册"),
-        }
-        code, msg = error_map.get(str(e), (1200, "密码重置失败"))
-        return error_response(code, msg)
+        return map_value_error(e, _RESET_ERROR_MAP, (1200, "密码重置失败"))
 
 
 @router.post("/refresh")
@@ -105,10 +107,4 @@ async def refresh_token(data: RefreshTokenRequest, db: AsyncSession = Depends(ge
     new_access_token = create_access_token(token_payload)
     new_refresh_token = create_refresh_token(token_payload)
 
-    return success_response(
-        AuthResponse(
-            user=UserResponse.model_validate(user),
-            token=new_access_token,
-            refreshToken=new_refresh_token,
-        ).model_dump(mode="json", by_alias=True)
-    )
+    return _auth_response(user, new_access_token, new_refresh_token)

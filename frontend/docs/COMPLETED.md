@@ -1,6 +1,6 @@
 # COMPLETED — 已完成功能
 
-> 最后更新：2026-08-07（美食点单菜品更新 + 文档同步）
+> 最后更新：2026-08-17（前端重构：共享组件/Hook/校验工具抽取 + 密码校验与后端对齐）
 
 ---
 
@@ -17,7 +17,7 @@
 | 文件 | 说明 |
 |------|------|
 | `client.ts` | Axios 实例封装 — 请求拦截器注入 Bearer Token、响应拦截器解包统一响应格式 + 401 自动清登录态跳转 + 超时处理；`uploadUrl()` 工具函数处理生产/开发环境 URL |
-| `types.ts` | 前端 API 类型定义 — `ApiResponse<T>`, `User`, `RegisterRequest`, `LoginRequest`, `AuthResponse`, `UpdateUserRequest`, `FamilyMemberStatus`, `FamilyStatusResponse` |
+| `types.ts` | 前端 API 类型定义 — `User`, `RegisterRequest`, `LoginRequest`, `AuthResponse`（含 refreshToken）, `UpdateUserRequest`, `UserStats`, `Photo`/`Album`, `SubmitOrderRequest`, `FamilyMemberStatus`, `FamilyStatusResponse` |
 | `auth.ts` | 认证 API — `register()`, `login()`, `logout()`, `resetPassword()` |
 | `user.ts` | 用户 API — `getMe()`, `updateMe()`, `uploadAvatar()` |
 | `photo.ts` | 相册 + 照片 API — `albumApi` (创建/列表/详情/删除), `photoApi` (上传/删除/分页) |
@@ -30,6 +30,7 @@
 | 文件 | 说明 |
 |------|------|
 | `navigate.ts` | SPA 导航工具 — 避免 axios 拦截器与 router 的循环依赖；提供 `navigateTo(path)` 供非组件代码使用，未初始化时降级为 `window.location.href` |
+| `validation.ts` | 表单校验工具 — `isValidEmail()` 邮箱格式 + `getPasswordError()` 密码强度（≥8 位含大小写字母和数字），规则与后端 `schemas/user.py` 对齐 |
 
 ## 项目配置
 
@@ -59,7 +60,7 @@
 
 ### 登录页 (Login.tsx)
 - [x] 邮箱 + 密码表单
-- [x] 前端验证（邮箱格式、密码 >= 6 位）
+- [x] 前端验证（邮箱格式、密码非空，不强制复杂度）
 - [x] 调用 `authApi.login()` 对接后端 `/api/auth/login`
 - [x] 登录成功 → 存储 user/token → 跳转 `/home`
 - [x] loading 状态 + 服务端错误展示
@@ -67,7 +68,7 @@
 
 ### 注册页 (Register.tsx)
 - [x] 用户名 + 邮箱 + 密码 + 确认密码表单
-- [x] 前端验证（用户名 >= 2 位、邮箱格式、密码 >= 6 位、两次密码一致）
+- [x] 前端验证（用户名 >= 2 位、邮箱格式、密码 >= 8 位含大小写字母和数字、两次密码一致）
 - [x] 调用 `authApi.register()` 对接后端 `/api/auth/register`
 - [x] 注册成功 → 跳转 `/register-success`（不自动登录）
 - [x] loading 状态 + 服务端错误展示
@@ -144,6 +145,13 @@
 | 组件 | 说明 |
 |------|------|
 | `PageNav` | 共享导航栏 — 头像、下拉菜单（个人中心/设置）、退出登录，支持自定义 Logo 和 homePath |
+| `ImageWithFallback` | 带加载失败回退的图片组件 — 用 React state 统一处理「无图片」与「图片加载失败」，替代各处散落的 `onError + nextElementSibling` DOM 操作 |
+
+### 自定义 Hook (`src/hooks/`)
+
+| Hook | 说明 |
+|------|------|
+| `useRequireAuth` | 页面级认证守卫（路由层 `AuthGuard` 之后的第二重保障）— 未登录时跳转 `/login` 并返回 `isAuthenticated`，供页面提前返回 null 避免闪动 |
 
 ---
 
@@ -556,5 +564,35 @@ cd frontend && npm run dev
 | Vite 代理未使用 | 因 `VITE_API_BASE_URL` 已设置，代理配置被绕过 | 符合当前设计（开发也使用部署后端） |
 | video.css 全部使用硬编码颜色 | 视频页面为固有深色主题，未使用 CSS 变量 | 后续逐步迁移 |
 | PersonalCenter 统计卡片计入 0（foodOrderCount） | 点单系统不存储订单，固定为 0 | 后续如有需要可接入存储 |
-| 受保护路由无 route-level auth guard | 未登录直接访问返回空白页闪动后才跳转 | 后续添加路由守卫组件 |
 | 部分 CSS 文件含未使用类名 | PersonalCenter.css / Setting.css 约 180 行旧导航样式未清理 | 后续清理死代码 |
+
+---
+
+## 代码重构 (2026-08-17)
+
+### 新共享组件 / Hook / 工具
+
+- [x] **`ImageWithFallback` 组件** — 统一处理「无图片」与「图片加载失败」回退，用 React state 替代原先散落各处的 `onError + nextElementSibling` DOM 操作；`src` 变化时自动重置错误态，修复相册查看器切换照片后错误态残留的问题
+  - 涉及文件：[ImageWithFallback.tsx](../src/components/ImageWithFallback/ImageWithFallback.tsx)
+  - 替换 6 处调用点：PageNav 头像、familyTree 成员头像、photoAlbum（相册封面/照片卡片/查看器）、PersonalCenter 头像、Setting 头像
+
+- [x] **`useRequireAuth` Hook** — 抽取页面级认证守卫，替代 5 个页面重复的 `useEffect + navigate('/login')` 样板代码（路由层 `AuthGuard` 之后的第二重保障）
+  - 涉及文件：[useRequireAuth.ts](../src/hooks/useRequireAuth.ts)
+  - 应用页面：Home、FoodOrder、PhotoAlbum、PersonalCenter、Setting
+
+- [x] **`validation.ts` 校验工具** — 抽取 `isValidEmail()` 与 `getPasswordError()`，密码规则与后端 `schemas/user.py` 的 `PASSWORD_PATTERN` 对齐（≥8 位，含大小写字母和数字），避免前端放行后后端再拒绝的割裂体验
+  - 涉及文件：[validation.ts](../src/utils/validation.ts)
+
+### 认证与 Token 刷新精简
+
+- [x] **`auth.ts` 移除 `rawAxios` 与 `refresh()`** — token 刷新逻辑统一收敛到 [client.ts](../src/api/client.ts)（使用原生 `fetch` 调 `/auth/refresh`，彻底规避拦截器递归）；`authApi` 只保留 register/login/logout/resetPassword
+- [x] **`types.ts` 清理未用类型** — 移除 `ApiResponse`（响应拦截器已解包为 data 载荷）与 `RefreshTokenRequest`（刷新改用原生 fetch，无类型化请求体）
+
+### 主题初始化去重
+
+- [x] **`main.tsx` 复用 store 工具** — `applyTheme` / `resolveSystem` 从 [themeStore.ts](../src/store/themeStore.ts) 导出复用，移除 `main.tsx` 内联的重复实现
+
+### 前端密码校验与后端对齐
+
+- [x] **Register / ForgetPassword** — 密码校验从「≥6 位」升级为「≥8 位，含大小写字母和数字」，占位符与错误文案同步更新
+- [x] **Login** — 移除密码长度校验，仅校验非空（与后端 `LoginRequest` 的 `min_length=1` 对齐，不强制复杂度）

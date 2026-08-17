@@ -1,3 +1,6 @@
+import json
+import os
+import warnings
 from pathlib import Path
 
 from pydantic import field_validator
@@ -83,9 +86,7 @@ class Settings(BaseSettings):
         if not v or not v.strip():
             raise ValueError("JWT_SECRET must not be empty")
         if v == "dev-secret-key-do-not-use-in-production":
-            import os
             if not os.environ.get("JWT_SECRET", "").strip():
-                import warnings
                 warnings.warn(
                     "JWT_SECRET is using the default insecure value. "
                     "Set the JWT_SECRET environment variable for production.",
@@ -106,8 +107,6 @@ class Settings(BaseSettings):
         elif isinstance(v, str):
             v = v.strip()
             if v.startswith("[") and v.endswith("]"):
-                import json
-
                 try:
                     parsed = json.loads(v)
                 except json.JSONDecodeError:

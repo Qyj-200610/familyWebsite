@@ -1,6 +1,6 @@
 # TODOLIST — 待办事项
 
-> 最后更新：2026-08-07（美食点单菜品更新 + 文档同步）
+> 最后更新：2026-08-17（前端重构：抽取共享组件/Hook/校验工具 + 密码校验与后端对齐）
 
 ---
 
@@ -51,7 +51,7 @@
 - [x] **日程管理** — localStorage 持久化、日程模板编辑（增删）、每日完成状态追踪
   - 涉及文件：[dailyRoutine.tsx](../src/pages/dailyRoutine/dailyRoutine.tsx)
 - [ ] **家庭留言** — 留言板/聊天功能
-- [ ] **通用组件库** — `src/components/` 下抽取可复用组件（Button, Input, Modal, Toast 等；目前已有 Auth 布局组件和 PageNav）
+- [ ] **通用组件库** — `src/components/` 下抽取可复用组件（Button, Input, Modal, Toast 等；目前已有 Auth 布局、PageNav、ImageWithFallback 组件，以及 `hooks/useRequireAuth` 认证守卫、`utils/validation.ts` 校验工具）
 - [x] ~~**主题切换** — 深色模式 / 跟随系统~~ — 已完成于 2026-08-01
 - [ ] **单元测试** — vitest + React Testing Library
 - [ ] **E2E 测试** — Playwright

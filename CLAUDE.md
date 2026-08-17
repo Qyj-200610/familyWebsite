@@ -79,7 +79,7 @@ familyWebsite/
 │       │   ├── client.ts        # Axios 实例 + 拦截器（含 token 刷新、uploadUrl 工具函数）
 │       │   ├── index.ts         # API 统一导出
 │       │   ├── types.ts         # 前端 API 类型定义
-│       │   ├── auth.ts          # 认证 API 封装（含 refresh）
+│       │   ├── auth.ts          # 认证 API 封装（register/login/logout/reset-password）
 │       │   ├── user.ts          # 用户 API 封装
 │       │   ├── photo.ts         # 相册 + 照片 API 封装
 │       │   ├── food.ts          # 美食 API 封装
@@ -87,12 +87,16 @@ familyWebsite/
 │       ├── store/
 │       │   ├── authStore.ts     # Zustand 认证状态管理（localStorage/sessionStorage + token 刷新）
 │       │   └── themeStore.ts    # Zustand 主题状态管理（light/dark/system + localStorage 持久化）
+│       ├── hooks/
+│       │   └── useRequireAuth.ts # 页面级认证守卫 Hook（路由层 AuthGuard 之后的第二重保障）
 │       ├── utils/
-│       │   └── navigate.ts      # 全局导航工具（供 axios 拦截器使用）
+│       │   ├── navigate.ts      # 全局导航工具（供 axios 拦截器使用）
+│       │   └── validation.ts    # 表单校验工具（邮箱格式 + 密码强度，与后端 schema 对齐）
 │       ├── components/
 │       │   ├── PageNav/         # 共享导航栏组件（头像、下拉菜单、退出登录）
 │       │   ├── Auth/            # Auth 布局组件（左侧装饰面板 + 右侧表单区域）
 │       │   ├── AuthGuard/       # 路由级认证守卫（统一拦截未登录访问）
+│       │   ├── ImageWithFallback/ # 带加载失败回退的图片组件（统一处理无图/加载失败）
 │       │   └── DailyRoutine/    # 日程侧边栏组件（模板编辑、勾选完成、localStorage 持久化）
 │       ├── svg/                 # SVG 图标（用于表单、按钮等）
 │       └── pages/

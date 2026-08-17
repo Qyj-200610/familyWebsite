@@ -2,6 +2,7 @@ import { useEffect, useState, useCallback, useRef } from "react";
 import { useAuthStore } from "../../store/authStore";
 import { navigateTo } from "../../utils/navigate";
 import PageNav from "../../components/PageNav/PageNav";
+import ImageWithFallback from "../../components/ImageWithFallback/ImageWithFallback";
 import { familyApi, uploadUrl } from "../../api";
 import type { FamilyMemberStatus } from "../../api/types";
 import "./familyTree.css";
@@ -102,8 +103,6 @@ function Avatar({
   online?: boolean;
   onAvatarClick?: () => void;
 }) {
-  const hasPhoto = !!avatarUrl;
-
   const tooltip = (() => {
     const label = title ? `${name}（${title}）` : name;
     if (online) return `${label} — 在线，点击预览视频`;
@@ -127,26 +126,14 @@ function Avatar({
       }}
     >
       {/* 真实头像或首字母占位 */}
-      {hasPhoto ? (
-        <img
-          className="ft-avatar__img"
-          src={uploadUrl(avatarUrl)}
-          alt={name}
-          onError={(e) => {
-            // 图片加载失败时回退到首字母占位
-            (e.target as HTMLImageElement).style.display = "none";
-            const fallback = (e.target as HTMLImageElement)
-              .nextElementSibling as HTMLElement | null;
-            if (fallback) fallback.style.display = "flex";
-          }}
-        />
-      ) : null}
-      <span
-        className="ft-avatar__initial"
-        style={{ display: hasPhoto ? "none" : "flex" }}
-      >
-        {name.charAt(0)}
-      </span>
+      <ImageWithFallback
+        className="ft-avatar__img"
+        src={uploadUrl(avatarUrl)}
+        alt={name}
+        fallback={
+          <span className="ft-avatar__initial">{name.charAt(0)}</span>
+        }
+      />
 
       {/* hover 显示摄像头图标 */}
       <span className="ft-avatar__camera-hint" title={online ? "开启摄像头" : "当前离线"}>

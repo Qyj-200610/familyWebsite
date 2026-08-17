@@ -63,13 +63,13 @@ async def get_family_status(
     # == is CS, so we must compare folded values.
     online_name_folded = online_name.lower() if online_name else None
 
-    members = [
-        {
+    members = []
+    for name in sorted(FAMILY_MEMBER_NAMES):
+        avatar = avatar_map.get(name.lower())
+        members.append({
             "name": name,
             "online": name.lower() == online_name_folded,
-            "avatar": get_url(avatar_map.get(name.lower())) if avatar_map.get(name.lower()) else None,
-        }
-        for name in sorted(FAMILY_MEMBER_NAMES)
-    ]
+            "avatar": get_url(avatar) if avatar else None,
+        })
 
     return success_response({"members": members})

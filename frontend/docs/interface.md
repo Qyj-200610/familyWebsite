@@ -1,7 +1,7 @@
 # 家庭门户网站 — 前后端接口规范
 
-> **版本**: v1.2.1  
-> **最后更新**: 2026-07-31（同步文档与代码：修正约束值、错误码、分页方式、健康检查响应）  
+> **版本**: v1.2.2  
+> **最后更新**: 2026-08-17（密码校验与后端对齐；同步 types.ts 移除 ApiResponse/RefreshTokenRequest；登录响应补充 refreshToken）  
 > **技术栈**: React 19 + TypeScript + Vite + Axios  
 
 ---
@@ -174,13 +174,13 @@ POST /api/auth/register
 |------|------|------|------|
 | `username` | `string` | 是 | 用户名，2–50 个字符 |
 | `email` | `string` | 是 | 邮箱地址，需符合邮箱格式 |
-| `password` | `string` | 是 | 密码，6–128 个字符 |
+| `password` | `string` | 是 | 密码，8–128 个字符，须包含大小写字母和数字 |
 
 ```json
 {
   "username": "小明",
   "email": "xiaoming@example.com",
-  "password": "abc123"
+  "password": "Abc12345"
 }
 ```
 
@@ -206,7 +206,7 @@ POST /api/auth/register
 |------|------|
 | `1001` | 该邮箱已被注册 |
 | `1002` | 用户名已被占用 |
-| `1003` | 密码格式不符合要求（预留，后端未实现） |
+| `1003` | 密码格式不符合要求（由 Pydantic schema 校验，返回 HTTP 422，无独立业务错误码） |
 
 ---
 
@@ -245,7 +245,8 @@ POST /api/auth/login
       "email": "xiaoming@example.com",
       "avatar": "https://cdn.example.com/avatars/1.jpg"
     },
-    "token": "eyJhbGciOiJIUzI1NiIs..."
+    "token": "eyJhbGciOiJIUzI1NiIs...",
+    "refreshToken": "eyJhbGciOiJIUzI1NiIs..."
   }
 }
 ```
@@ -305,12 +306,12 @@ POST /api/auth/reset-password
 | 字段 | 类型 | 必填 | 说明 |
 |------|------|------|------|
 | `email` | `string` | 是 | 注册时使用的邮箱 |
-| `newPassword` | `string` | 是 | 新密码，6–128 个字符 |
+| `newPassword` | `string` | 是 | 新密码，8–128 个字符，须包含大小写字母和数字 |
 
 ```json
 {
   "email": "xiaoming@example.com",
-  "newPassword": "newpass123"
+  "newPassword": "Newpass123"
 }
 ```
 
@@ -858,15 +859,6 @@ Authorization: Bearer <token>    <!-- 可选 -->
 以下类型与前端 [`types.ts`](../src/api/types.ts) 保持一致，可直接用于项目中：
 
 ```typescript
-// === 通用结构 ===
-
-/** 统一响应包装 */
-interface ApiResponse<T = unknown> {
-  code: number;
-  message: string;
-  data: T | null;
-}
-
 // === 用户 ===
 
 interface User {
@@ -893,10 +885,11 @@ interface LoginRequest {
   password: string;
 }
 
-/** 认证成功返回（登录） */
+/** 认证成功返回（登录 & token 刷新通用） */
 interface AuthResponse {
   user: User;
   token: string;
+  refreshToken: string;
 }
 
 // === 用户操作 ===
@@ -905,6 +898,13 @@ interface AuthResponse {
 interface UpdateUserRequest {
   username?: string;
   avatar?: string;
+}
+
+/** GET /api/user/me/stats */
+interface UserStats {
+  photoCount: number;
+  foodOrderCount: number;
+  familyMemberCount: number;
 }
 
 // === 认证 ===

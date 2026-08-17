@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import Auth from "../../../components/Auth/Auth";
 import { authApi } from "../../../api";
 import { useAuthStore } from "../../../store/authStore";
+import { isValidEmail } from "../../../utils/validation";
 import emailIcon from "../../../svg/email.svg";
 import passwordIcon from "../../../svg/password.svg";
 import "./Login.css";
@@ -35,14 +36,13 @@ function Login() {
 
     if (!form.email.trim()) {
       errs.email = "请输入邮箱地址";
-    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) {
+    } else if (!isValidEmail(form.email)) {
       errs.email = "邮箱格式不正确";
     }
 
+    // 登录仅校验非空（与后端 LoginRequest 的 min_length=1 对齐，不强制复杂度）
     if (!form.password) {
       errs.password = "请输入密码";
-    } else if (form.password.length < 6) {
-      errs.password = "密码至少 6 位";
     }
 
     setErrors(errs);

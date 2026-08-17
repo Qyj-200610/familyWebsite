@@ -6,7 +6,7 @@ from app.core.database import get_db
 from app.core.response import error_response, success_response
 from app.models.user import User
 from app.services.photo import PhotoService
-from app.utils.response_helpers import PHOTO_UPLOAD_ERROR_MAP, photo_to_response
+from app.utils.response_helpers import PHOTO_UPLOAD_ERROR_MAP, map_value_error, photo_to_response
 
 router = APIRouter(prefix="/photos", tags=["photos"])
 
@@ -37,8 +37,7 @@ async def upload_photo(
     try:
         photo = await PhotoService.upload_photo(db, current_user, file, description)
     except ValueError as e:
-        code, msg = PHOTO_UPLOAD_ERROR_MAP.get(str(e), (3000, "上传失败"))
-        return error_response(code, msg)
+        return map_value_error(e, PHOTO_UPLOAD_ERROR_MAP, (3000, "上传失败"))
 
     return success_response(photo_to_response(photo), message="照片上传成功")
 

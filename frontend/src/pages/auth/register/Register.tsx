@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 
 import Auth from "../../../components/Auth/Auth";
 import { authApi } from "../../../api";
+import { getPasswordError, isValidEmail } from "../../../utils/validation";
 
 import usernameIcon from "../../../svg/username.svg";
 import emailIcon from "../../../svg/email.svg";
@@ -48,14 +49,17 @@ function Register() {
 
     if (!form.email.trim()) {
       errs.email = "请输入邮箱";
-    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) {
+    } else if (!isValidEmail(form.email)) {
       errs.email = "邮箱格式不正确";
     }
 
     if (!form.password) {
       errs.password = "请输入密码";
-    } else if (form.password.length < 6) {
-      errs.password = "密码至少 6 位";
+    } else {
+      const passwordError = getPasswordError(form.password);
+      if (passwordError) {
+        errs.password = passwordError;
+      }
     }
 
     if (!form.confirmPassword) {
@@ -184,7 +188,7 @@ function Register() {
               id="reg-password"
               type={showPassword ? "text" : "password"}
               className={`form-input form-input--with-icon form-input--with-toggle ${errors.password ? "form-input--error" : ""}`}
-              placeholder="至少 6 位密码"
+              placeholder="至少 8 位，含大小写字母和数字"
               value={form.password}
               onChange={(e) => updateField("password", e.target.value)}
               autoComplete="new-password"

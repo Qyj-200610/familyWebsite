@@ -1,6 +1,7 @@
 import { useEffect, useState, useMemo } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { useAuthStore } from "../../store/authStore";
+import { useRequireAuth } from "../../hooks/useRequireAuth";
 import DailyRoutine from "../../components/DailyRoutine/DailyRoutine";
 import PageNav from "../../components/PageNav/PageNav";
 
@@ -45,8 +46,8 @@ function getHeroDecorations(period: TimePeriod): string[] {
 }
 
 function Home() {
-  const navigate = useNavigate();
-  const { user, isAuthenticated } = useAuthStore();
+  const { user } = useAuthStore();
+  const isAuthenticated = useRequireAuth();
 
   const [clockTime, setClockTime] = useState(new Date());
 
@@ -59,13 +60,6 @@ function Home() {
     const timer = setInterval(() => setClockTime(new Date()), 1000);
     return () => clearInterval(timer);
   }, []);
-
-  // 认证守卫（AuthGuard 已在路由层拦截，此处为双重保障）
-  useEffect(() => {
-    if (!isAuthenticated) {
-      navigate("/login", { replace: true });
-    }
-  }, [isAuthenticated, navigate]);
 
   /** 格式化时间 HH:MM:SS */
   const formatClock = (d: Date): string => {

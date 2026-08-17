@@ -13,7 +13,7 @@ from app.core.database import get_db
 from app.core.response import error_response, success_response
 from app.models.photo import Photo
 from app.models.user import User
-from app.schemas.user import UpdateUserRequest, UserResponse
+from app.schemas.user import UpdateUserRequest
 from app.services.user import UserService
 from app.services.storage import (
     CloudinaryNotConfiguredError,
@@ -24,17 +24,22 @@ from app.services.storage import (
     upload_image,
 )
 from app.utils.image import detect_image_type
+from app.utils.response_helpers import map_value_error, user_to_response
 
 router = APIRouter(prefix="/user", tags=["user"])
 
 # 头像允许的扩展名
 _AVATAR_ALLOWED_EXTENSIONS = {".jpg", ".jpeg", ".png", ".webp"}
 
+_UPDATE_ERROR_MAP = {
+    "USERNAME_TAKEN": (2002, "用户名已被占用"),
+}
+
 
 @router.get("/me")
 async def get_me(current_user: User = Depends(get_current_user)):
     """Get the current authenticated user's profile."""
-    return success_response(UserResponse.model_validate(current_user).model_dump(mode="json", by_alias=True))
+    return success_response(user_to_response(current_user))
 
 
 @router.patch("/me")
@@ -46,13 +51,9 @@ async def update_me(
     """Update the current user's profile."""
     try:
         user = await UserService.update_user(db, current_user, data)
-        return success_response(UserResponse.model_validate(user).model_dump(mode="json", by_alias=True))
+        return success_response(user_to_response(user))
     except ValueError as e:
-        error_map = {
-            "USERNAME_TAKEN": (2002, "用户名已被占用"),
-        }
-        code, msg = error_map.get(str(e), (2000, "更新失败"))
-        return error_response(code, msg)
+        return map_value_error(e, _UPDATE_ERROR_MAP, (2000, "更新失败"))
 
 
 @router.post("/me/avatar")
@@ -115,10 +116,7 @@ async def upload_avatar(
     if is_cloudinary_id(old_avatar):
         await asyncio.to_thread(delete_image, old_avatar)
 
-    return success_response(
-        UserResponse.model_validate(user).model_dump(mode="json", by_alias=True),
-        message="头像上传成功",
-    )
+    return success_response(user_to_response(user), message="头像上传成功")
 
 
 @router.get("/me/stats")

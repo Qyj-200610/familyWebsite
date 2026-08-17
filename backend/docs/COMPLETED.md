@@ -1,6 +1,6 @@
 # COMPLETED — 后端已完成功能
 
-> 最后更新：2026-08-01（前端 CSS 全面重构 + 无障碍改进 + 后端相册查询优化）
+> 最后更新：2026-08-17（前后端代码重构：响应转换/错误映射去重 + 后端 token 解析去重）
 
 ---
 
@@ -121,6 +121,16 @@
 ---
 
 ## 调试记录
+
+### 2026-08-17 — 后端代码重构（DRY + 可读性）
+
+- [x] **`deps.py` 去重** — 抽取 `_resolve_user_from_token()` 共享辅助函数，`get_current_user` / `get_optional_user` 统一委托，消除重复的 token 解码 + 用户查询逻辑
+- [x] **`response_helpers.py` 新增工具**：
+  - `user_to_response()` — 用户 ORM → 响应字典（头像 public_id → 完整 URL），替代各端点重复的 `UserResponse.model_validate(...).model_dump(...)`
+  - `map_value_error()` — 服务层 `ValueError` → 统一错误响应，替代各端点重复的 `code, msg = error_map.get(str(e), default)` 样板代码
+- [x] **端点错误映射模块化** — `auth.py` 将 `_REGISTER_ERROR_MAP` / `_RESET_ERROR_MAP` 提升为模块级常量；`user.py` 新增 `_UPDATE_ERROR_MAP`；`refresh_token` 端点复用 `_auth_response()` 消除重复的 `AuthResponse` 构造
+- [x] **`family.py` 可读性** — 成员列表推导式改写为显式 for 循环，避免重复调用 `avatar_map.get(name.lower())`
+- [x] **import 清理** — `config.py` 将 `json` / `os` / `warnings` 提升到模块顶部；`services/photo.py` 移除冗余的内联 import；`router.py` 调整 import 顺序
 
 ### 2026-08-03 — 后端 Debug + 文档更新
 

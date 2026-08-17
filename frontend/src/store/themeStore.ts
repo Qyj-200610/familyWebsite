@@ -19,7 +19,7 @@ function persistTheme(theme: Theme) {
 }
 
 /** 解析系统主题 */
-function resolveSystem(): ResolvedTheme {
+export function resolveSystem(): ResolvedTheme {
   if (typeof window !== "undefined" && window.matchMedia) {
     return window.matchMedia("(prefers-color-scheme: dark)").matches
       ? "dark"
@@ -29,7 +29,7 @@ function resolveSystem(): ResolvedTheme {
 }
 
 /** 应用主题到 <html> 元素 */
-function applyTheme(resolved: ResolvedTheme) {
+export function applyTheme(resolved: ResolvedTheme) {
   document.documentElement.setAttribute("data-theme", resolved);
 }
 

@@ -103,7 +103,6 @@ class PhotoService:
             await db.flush()
         except Exception:
             # DB write failed — clean up the Cloudinary file
-            from app.services.storage import delete_image
             await asyncio.to_thread(delete_image, public_id)
             raise
         await db.refresh(photo)

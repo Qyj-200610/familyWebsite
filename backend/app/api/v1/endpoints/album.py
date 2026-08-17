@@ -8,7 +8,7 @@ from app.models.user import User
 from app.schemas.album import AlbumCreateRequest, AlbumResponse
 from app.services.album import AlbumService
 from app.services.photo import PhotoService
-from app.utils.response_helpers import PHOTO_UPLOAD_ERROR_MAP, photo_to_response
+from app.utils.response_helpers import PHOTO_UPLOAD_ERROR_MAP, map_value_error, photo_to_response
 
 router = APIRouter(prefix="/albums", tags=["albums"])
 
@@ -69,8 +69,7 @@ async def create_album(
     try:
         album = await AlbumService.create_album(db, current_user, body.name, body.is_public)
     except ValueError as e:
-        code, msg = _ERROR_MAP.get(str(e), (3200, "创建相册失败"))
-        return error_response(code, msg)
+        return map_value_error(e, _ERROR_MAP, (3200, "创建相册失败"))
     return success_response(_album_to_response(album), message="相册创建成功")
 
 
@@ -147,8 +146,7 @@ async def upload_photo_to_album(
     try:
         photo = await PhotoService.upload_photo(db, current_user, file, description, album_id=album_id)
     except ValueError as e:
-        code, msg = PHOTO_UPLOAD_ERROR_MAP.get(str(e), (3000, "上传失败"))
-        return error_response(code, msg)
+        return map_value_error(e, PHOTO_UPLOAD_ERROR_MAP, (3000, "上传失败"))
 
     return success_response(photo_to_response(photo), message="照片上传成功")
 

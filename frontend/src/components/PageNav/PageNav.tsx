@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuthStore } from "../../store/authStore";
 import { authApi, uploadUrl } from "../../api";
+import ImageWithFallback from "../ImageWithFallback/ImageWithFallback";
 import exitLoginIcon from "../../svg/exitLogin.svg";
 import "./PageNav.css";
 
@@ -61,23 +62,13 @@ function PageNav({
             onClick={() => setDropdownOpen(!dropdownOpen)}
           >
             <span className="pagenav__avatar">
-              {user?.avatar ? (
-                <img
-                  src={uploadUrl(user.avatar)}
-                  alt={user.username}
-                  onError={(e) => {
-                    (e.target as HTMLImageElement).style.display = "none";
-                    const fb = (e.target as HTMLImageElement).nextElementSibling as HTMLElement | null;
-                    if (fb) fb.style.display = "flex";
-                  }}
-                />
-              ) : null}
-              <span
-                className="pagenav__avatar-placeholder"
-                style={{ display: user?.avatar ? "none" : "flex" }}
-              >
-                {avatarLetter}
-              </span>
+              <ImageWithFallback
+                src={uploadUrl(user?.avatar)}
+                alt={user?.username}
+                fallback={
+                  <span className="pagenav__avatar-placeholder">{avatarLetter}</span>
+                }
+              />
             </span>
             <span className="pagenav__username">{user?.username || "用户"}</span>
             <span className={`pagenav__arrow ${dropdownOpen ? "pagenav__arrow--open" : ""}`}>▾</span>

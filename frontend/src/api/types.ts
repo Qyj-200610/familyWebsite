@@ -2,15 +2,6 @@
 // 前端 API 类型定义 — 与 frontend/docs/interface.md 保持一致
 // ============================================================
 
-// === 通用 ===
-
-/** 后端统一响应包装 */
-export interface ApiResponse<T = unknown> {
-  code: number;
-  message: string;
-  data: T | null;
-}
-
 // === 用户 ===
 
 export interface User {
@@ -47,11 +38,6 @@ export interface ResetPasswordRequest {
 export interface AuthResponse {
   user: User;
   token: string;
-  refreshToken: string;
-}
-
-/** POST /api/auth/refresh */
-export interface RefreshTokenRequest {
   refreshToken: string;
 }
 

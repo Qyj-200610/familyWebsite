@@ -2,6 +2,7 @@ import { useState, useRef, useEffect, type FormEvent } from "react";
 import { useNavigate } from "react-router-dom";
 import Auth from "../../../components/Auth/Auth";
 import { authApi } from "../../../api";
+import { getPasswordError, isValidEmail } from "../../../utils/validation";
 import emailIcon from "../../../svg/email.svg";
 import passwordIcon from "../../../svg/password.svg";
 import confirmPasswordIcon from "../../../svg/confirmPassword.svg";
@@ -45,14 +46,17 @@ function ForgetPassword() {
 
     if (!form.email.trim()) {
       errs.email = "请输入邮箱地址";
-    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) {
+    } else if (!isValidEmail(form.email)) {
       errs.email = "邮箱格式不正确";
     }
 
     if (!form.newPassword) {
       errs.newPassword = "请输入新密码";
-    } else if (form.newPassword.length < 6) {
-      errs.newPassword = "密码至少 6 位";
+    } else {
+      const passwordError = getPasswordError(form.newPassword);
+      if (passwordError) {
+        errs.newPassword = passwordError;
+      }
     }
 
     if (!form.confirmPassword) {
@@ -158,7 +162,7 @@ function ForgetPassword() {
               id="forget-new-password"
               type={showNewPassword ? "text" : "password"}
               className={`form-input form-input--with-icon form-input--with-toggle ${errors.newPassword ? "form-input--error" : ""}`}
-              placeholder="至少 6 位密码"
+              placeholder="至少 8 位，含大小写字母和数字"
               value={form.newPassword}
               onChange={(e) => updateField("newPassword", e.target.value)}
               autoComplete="new-password"

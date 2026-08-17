@@ -1,6 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { useAuthStore } from "../../store/authStore";
+import { useRequireAuth } from "../../hooks/useRequireAuth";
 import { foodApi } from "../../api";
 import PageNav from "../../components/PageNav/PageNav";
 
@@ -44,8 +43,7 @@ const DISHES: Dish[] = [
 // ============================================================
 
 function FoodOrder() {
-  const navigate = useNavigate();
-  const { isAuthenticated } = useAuthStore();
+  const isAuthenticated = useRequireAuth();
 
   // ---------- 菜品筛选 ----------
   const [activeCategory, setActiveCategory] = useState<DishCategory | "全部">("全部");
@@ -68,13 +66,6 @@ function FoodOrder() {
       if (successTimerRef.current) clearTimeout(successTimerRef.current);
     };
   }, []);
-
-  // 认证检查
-  useEffect(() => {
-    if (!isAuthenticated) {
-      navigate("/login", { replace: true });
-    }
-  }, [isAuthenticated, navigate]);
 
   // ---------- 购物车逻辑 ----------
   const handleAddToCart = useCallback((dishId: number) => {

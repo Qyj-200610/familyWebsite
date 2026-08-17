@@ -1,9 +1,10 @@
-import { useEffect, useState, useRef } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState, useRef } from "react";
 import { useAuthStore } from "../../../store/authStore";
 import { useThemeStore } from "../../../store/themeStore";
+import { useRequireAuth } from "../../../hooks/useRequireAuth";
 import { userApi, uploadUrl } from "../../../api";
 import PageNav from "../../../components/PageNav/PageNav";
+import ImageWithFallback from "../../../components/ImageWithFallback/ImageWithFallback";
 import "./Setting.css";
 
 /** 允许的头像格式 */
@@ -12,8 +13,8 @@ const ALLOWED_EXTENSIONS = [".jpg", ".jpeg", ".png", ".webp"];
 const MAX_SIZE = 5 * 1024 * 1024; // 5 MB
 
 function Setting() {
-  const navigate = useNavigate();
-  const { user, isAuthenticated, updateUser } = useAuthStore();
+  const { user, updateUser } = useAuthStore();
+  const isAuthenticated = useRequireAuth();
   const theme = useThemeStore((s) => s.theme);
   const setTheme = useThemeStore((s) => s.setTheme);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -27,13 +28,6 @@ function Setting() {
   const [usernameValue, setUsernameValue] = useState(user?.username || "");
   const [usernameError, setUsernameError] = useState("");
   const [savingUsername, setSavingUsername] = useState(false);
-
-  // 认证检查
-  useEffect(() => {
-    if (!isAuthenticated) {
-      navigate("/login", { replace: true });
-    }
-  }, [isAuthenticated, navigate]);
 
   /** 获取头像首字母 */
   const avatarLetter = user?.username?.charAt(0)?.toUpperCase() || "U";
@@ -179,23 +173,13 @@ function Setting() {
                   <label className="setting__label">头像</label>
                   <div className="setting__avatar-edit">
                     <span className={`setting__avatar setting__avatar--lg ${uploading ? "setting__avatar--uploading" : ""}`}>
-                      {user?.avatar ? (
-                        <img
-                          src={uploadUrl(user.avatar)}
-                          alt={user.username}
-                          onError={(e) => {
-                            (e.target as HTMLImageElement).style.display = "none";
-                            const fb = (e.target as HTMLImageElement).nextElementSibling as HTMLElement | null;
-                            if (fb) fb.style.display = "flex";
-                          }}
-                        />
-                      ) : null}
-                      <span
-                        className="setting__avatar-placeholder"
-                        style={{ display: user?.avatar ? "none" : "flex" }}
-                      >
-                        {avatarLetter}
-                      </span>
+                      <ImageWithFallback
+                        src={uploadUrl(user?.avatar)}
+                        alt={user?.username}
+                        fallback={
+                          <span className="setting__avatar-placeholder">{avatarLetter}</span>
+                        }
+                      />
                       {uploading && (
                         <span className="setting__avatar-overlay">
                           <span className="setting__spinner" />
