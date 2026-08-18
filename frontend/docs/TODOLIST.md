@@ -71,8 +71,6 @@
   - 涉及文件：[DailyRoutine.tsx](../src/components/DailyRoutine/DailyRoutine.tsx)、[Home.tsx](../src/pages/home/Home.tsx)
 - [x] **Auth.tsx 位置** — 已从 `pages/auth/Auth.tsx` 移至 `components/Auth/Auth.tsx`，所有 auth 页面 import 已更新
   - 涉及文件：[Auth.tsx](../src/components/Auth/Auth.tsx)、[Login.tsx](../src/pages/auth/login/Login.tsx)、[Register.tsx](../src/pages/auth/register/Register.tsx)、[RegisterSuccess.tsx](../src/pages/auth/registerSuccess/RegisterSuccess.tsx)、[forgetPassword.tsx](../src/pages/auth/forgetPassword/forgetPassword.tsx)
-- [x] **video.tsx 内存泄漏** — 新增 `mountedRef` 标记，组件卸载时 `MediaRecorder.onstop` 检查该标记，跳过 blob URL 创建，避免永久泄漏
-  - 涉及文件：[video.tsx](../src/pages/familyTree/video/video.tsx)
 - [x] **main.tsx import 扩展名** — `import router from './router.tsx'` 已改为 `'./router'`（无扩展名），与其他 import 风格一致
   - 涉及文件：[main.tsx](../src/main.tsx)、[router.tsx](../src/router.tsx)（同步清理所有 `.tsx` 扩展名 import）
 - [x] ~~FormData Content-Type 删除逻辑~~ → 已改为无条件删除（2026-08-02）
@@ -85,8 +83,6 @@
 
 ## ⚪ 技术债务（2026-08-03 审查新增）
 
-- [ ] **video.css 深色模式变量迁移** — 视频页面全部使用硬编码颜色（593 行），需迁移到 CSS 变量体系
-  - 涉及文件：[video.css](../src/pages/familyTree/video/video.css)
 - [ ] **familyTree 深色模式进一步完善** — 连线/竖线/横条使用硬编码颜色（`#b0aca5`、`#ccc`），需 CSS 变量化
   - 涉及文件：[familyTree.css](../src/pages/familyTree/familyTree.css)
 - [ ] **Register.css / forgetPassword.css 空文件清理** — 已删除文件 + 移除对应 TSX 中的 import

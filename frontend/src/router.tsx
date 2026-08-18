@@ -11,7 +11,6 @@ import PersonalCenter from "./pages/user/personalCenter/PersonalCenter";
 import PhotoAlbum from "./pages/photoAlbum/photoAlbum";
 import FoodOrder from "./pages/foodOrder/foodOrder";
 import FamilyTree from "./pages/familyTree/familyTree";
-import VideoPage from "./pages/familyTree/video/video";
 import NotFound from "./pages/notFound/NotFound";
 import { setGlobalNavigate } from "./utils/navigate";
 
@@ -59,10 +58,6 @@ const router = createBrowserRouter([
   {
     path: "/family-tree",
     element: <AuthGuard><FamilyTree /></AuthGuard>,
-  },
-  {
-    path: "/family-tree/video",
-    element: <AuthGuard><VideoPage /></AuthGuard>,
   },
   {
     path: "*",

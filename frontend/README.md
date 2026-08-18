@@ -59,7 +59,6 @@ src/
     ├── photoAlbum/       # 家庭相册
     ├── foodOrder/        # 美食点单
     ├── familyTree/       # 家谱图
-    │   └── video/         # 视频预览页
     ├── dailyRoutine/     # 日常日程侧边栏
     ├── user/
     │   ├── setting/      # 用户设置

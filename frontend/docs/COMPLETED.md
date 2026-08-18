@@ -168,7 +168,6 @@
 | `/photo-album` | PhotoAlbum | 需认证 |
 | `/food-order` | FoodOrder | 需认证 |
 | `/family-tree` | FamilyTree | 需认证 |
-| `/family-tree/video` | VideoPage | 需认证 |
 | `/setting` | Setting | 需认证 |
 | `/personal-center` | PersonalCenter | 需认证 |
 | `/*` | NotFound | 404 |
@@ -562,7 +561,6 @@ cd frontend && npm run dev
 | `passlib` + `bcrypt` 版本兼容警告 | 无（仅终端警告，不影响功能） | 升级 passlib 或降级 bcrypt |
 | 前端 `.env` 指向 Render 后端 | 本地开发使用远程后端（冷启动 30-60s） | 如需本地后端开发，将 `VITE_API_BASE_URL` 设为空或 `http://localhost:8001/api` |
 | Vite 代理未使用 | 因 `VITE_API_BASE_URL` 已设置，代理配置被绕过 | 符合当前设计（开发也使用部署后端） |
-| video.css 全部使用硬编码颜色 | 视频页面为固有深色主题，未使用 CSS 变量 | 后续逐步迁移 |
 | PersonalCenter 统计卡片计入 0（foodOrderCount） | 点单系统不存储订单，固定为 0 | 后续如有需要可接入存储 |
 | 部分 CSS 文件含未使用类名 | PersonalCenter.css / Setting.css 约 180 行旧导航样式未清理 | 后续清理死代码 |
 

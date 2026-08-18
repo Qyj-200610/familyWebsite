@@ -31,11 +31,16 @@ const DISHES: Dish[] = [
   { id: 1, name: "家烧六月黄", category: "热菜", description: "时令六月黄，家烧做法，蟹黄饱满鲜美", image: "/image/家烧六月黄.jpg", emoji: "🦀", recommended: true },
   { id: 2, name: "烤鸡翅", category: "热菜", description: "外焦里嫩，香气四溢，大人小孩都爱吃", image: "/image/烤鸡翅.jpg", emoji: "🍗" },
   { id: 3, name: "盐水麻虾", category: "热菜", description: "鲜嫩弹牙，原汁原味，经典盐水煮法", image: "/image/盐水麻虾.jpg", emoji: "🦐", recommended: true },
+  { id: 7, name: "孜然羊排", category: "热菜", description: "外酥里嫩，孜然飘香，羊肉鲜嫩多汁", image: "/image/孜然羊排.jpg", emoji: "🍖" },
+  { id: 8, name: "家烧梭子蟹", category: "热菜", description: "梭子蟹肥美，家烧酱汁浓郁，蟹肉鲜甜", image: "/image/家烧梭子蟹.jpg", emoji: "🦀", recommended: true },
+  { id: 9, name: "香葱炒牛肉", category: "热菜", description: "牛肉滑嫩，葱香四溢，下饭神器", image: "/image/香葱炒牛肉.jpg", emoji: "🥩" },
   // ---- 凉菜 ----
   { id: 4, name: "凉拌牛肉", category: "凉菜", description: "酱香浓郁，清爽开胃，夏日必备凉菜", image: "/image/凉拌牛肉.jpg", emoji: "🥩", recommended: true },
   { id: 5, name: "生菜沙拉", category: "凉菜", description: "新鲜时蔬，清脆爽口，健康低脂", image: "/image/生菜沙拉.jpg", emoji: "🥗" },
   // ---- 汤品 ----
   { id: 6, name: "雪梨鲍鱼", category: "汤品", description: "清甜雪梨搭配鲜美鲍鱼，滋补养生靓汤", image: "/image/雪梨鲍鱼.jpg", emoji: "🥣", recommended: true },
+  // ---- 主食 ----
+  { id: 10, name: "生煎锅贴", category: "主食", description: "底部金黄酥脆，馅料鲜嫩多汁", image: "/image/生煎锅贴.jpg", emoji: "🥟" },
 ];
 
 // ============================================================
