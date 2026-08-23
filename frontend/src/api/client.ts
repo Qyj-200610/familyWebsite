@@ -6,9 +6,16 @@ import { navigateTo } from "../utils/navigate";
 // 环境相关 URL 配置
 // ============================================================
 
-// 开发时 VITE_API_BASE_URL 留空 → 走 Vite 代理（/api → localhost:8001）
-// 生产环境在 Cloudflare Pages 面板设置 VITE_API_BASE_URL 为后端完整地址，如 https://api.example.com/api
-const API_BASE: string = import.meta.env.VITE_API_BASE_URL || "/api";
+// API_BASE 取值优先级：
+// 1. VITE_API_BASE_URL（可用 .env / Cloudflare Pages 面板环境变量覆盖）
+// 2. 生产环境兜底：直接指向 Render 后端 —— 避免因漏配环境变量而静默回退到同源 /api，
+//    导致所有 /api 请求打到 Cloudflare Pages 静态站上（POST 返回 405）
+// 3. 开发环境：/api → 走 Vite 代理到 localhost:8001
+const PRODUCTION_API_URL = "https://familywebsite-qkqd.onrender.com/api";
+
+const API_BASE: string =
+  import.meta.env.VITE_API_BASE_URL ||
+  (import.meta.env.PROD ? PRODUCTION_API_URL : "/api");
 
 /** 上传文件的基础路径（从 API_BASE 推导，替换 /api → /uploads，兼容尾部斜杠） */
 export const UPLOADS_BASE: string = API_BASE.replace(/\/api\/?$/, "/uploads");
