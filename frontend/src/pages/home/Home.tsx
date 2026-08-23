@@ -4,6 +4,7 @@ import { useAuthStore } from "../../store/authStore";
 import { useRequireAuth } from "../../hooks/useRequireAuth";
 import DailyRoutine from "../../components/DailyRoutine/DailyRoutine";
 import PageNav from "../../components/PageNav/PageNav";
+import Page from "../../components/Page/Page";
 
 import "./Home.css";
 
@@ -72,10 +73,7 @@ function Home() {
   }
 
   return (
-    <div className="home">
-      {/* 顶部装饰条 */}
-      <div className="home__top-decor" />
-
+    <Page className="home">
       {/* Nav — 共享组件 */}
       <PageNav logoText="我们的家" logoEmoji="🏠" homePath="/home" />
 
@@ -153,7 +151,7 @@ function Home() {
           </section>
         </div>
       </main>
-    </div>
+    </Page>
   );
 }
 

@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useAuthStore } from "../../store/authStore";
 import { navigateTo } from "../../utils/navigate";
 import PageNav from "../../components/PageNav/PageNav";
+import Page from "../../components/Page/Page";
 import ImageWithFallback from "../../components/ImageWithFallback/ImageWithFallback";
 import { familyApi, uploadUrl } from "../../api";
 import type { FamilyMemberStatus } from "../../api/types";
@@ -347,10 +348,7 @@ function FamilyTree() {
   }, []);
 
   return (
-    <div className="ft-page">
-      {/* 顶部装饰条 */}
-      <div className="ft-page__top-decor" />
-
+    <Page className="ft-page">
       {/* 导航 */}
       <PageNav />
 
@@ -461,7 +459,7 @@ function FamilyTree() {
       <footer className="ft-footer">
         <p>🌿 家和万事兴 · 代代永相传 🌿</p>
       </footer>
-    </div>
+    </Page>
   );
 }
 

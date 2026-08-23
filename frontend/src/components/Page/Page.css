@@ -1,0 +1,29 @@
+/* ===== Page — 认证后页面共享外壳 ===== */
+.page {
+  min-height: 100vh;
+  background: linear-gradient(165deg, var(--color-bg) 0%, var(--color-bg-warm) 40%, var(--color-bg-alt) 100%);
+  position: relative;
+  overflow-x: hidden;
+}
+
+/* ---- 顶部装饰条 ---- */
+.page__top-decor {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(
+    90deg,
+    var(--color-primary) 0%,
+    var(--color-accent) 50%,
+    var(--color-primary-light) 100%
+  );
+  z-index: 200;
+}
+
+@media (max-width: 768px) {
+  .page__top-decor {
+    height: 3px;
+  }
+}

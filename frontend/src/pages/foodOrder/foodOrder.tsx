@@ -2,6 +2,9 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useRequireAuth } from "../../hooks/useRequireAuth";
 import { foodApi } from "../../api";
 import PageNav from "../../components/PageNav/PageNav";
+import Page from "../../components/Page/Page";
+import Modal from "../../components/Modal/Modal";
+import EmptyState from "../../components/EmptyState/EmptyState";
 
 import "./foodOrder.css";
 
@@ -171,8 +174,7 @@ function FoodOrder() {
   if (!isAuthenticated) return null;
 
   return (
-    <div className="food">
-      <div className="food__top-decor" />
+    <Page className="food">
       {/* ===== 导航栏 (共享组件) ===== */}
       <PageNav />
 
@@ -259,11 +261,9 @@ function FoodOrder() {
               })}
             </div>
             ) : (
-              <div className="food__empty-category">
-                <span className="food__empty-category-icon">🍽️</span>
-                <p>该分类暂无菜品</p>
-                <p className="food__empty-category-hint">敬请期待更多美食~</p>
-              </div>
+              <EmptyState icon="🍽️" description="该分类暂无菜品">
+                <p className="empty-state__hint">敬请期待更多美食~</p>
+              </EmptyState>
             )}
           </div>
 
@@ -281,11 +281,9 @@ function FoodOrder() {
               </div>
 
               {cartDetails.items.length === 0 ? (
-                <div className="food__cart-empty">
-                  <span className="food__cart-empty-icon">🛒</span>
-                  <p>点单是空的</p>
-                  <p className="food__cart-empty-hint">快去挑选美食吧~</p>
-                </div>
+                <EmptyState icon="🛒" description="点单是空的">
+                  <p className="empty-state__hint">快去挑选美食吧~</p>
+                </EmptyState>
               ) : (
                 <>
                   <ul className="food__cart-list">
@@ -333,70 +331,66 @@ function FoodOrder() {
       </main>
 
       {/* ===== 下单确认弹窗 ===== */}
-      {orderModalOpen && (
-        <div className="food__modal-overlay" onClick={closeOrderModal}>
-          <div className="food__modal" onClick={(e) => e.stopPropagation()}>
-            <div className="food__modal-header">
-              <h3>确认点单</h3>
-              <button className="food__modal-close" onClick={closeOrderModal} disabled={submitting}>✕</button>
-            </div>
-
-            <div className="food__modal-body">
-              {submitSuccess ? (
-                <div className="food__success">
-                  <span className="food__success-icon">✅</span>
-                  <h4>点单成功！</h4>
-                  <p>订单已通过邮件通知，敬请期待美食上桌~</p>
-                </div>
-              ) : (
-                <>
-                  <div className="food__modal-summary">
-                    <h4>📋 点单明细</h4>
-                    <ul className="food__modal-list">
-                      {cartDetails.items.map(({ dish, quantity }) => (
-                        <li key={dish.id} className="food__modal-item">
-                          <span>{dish.emoji} {dish.name}</span>
-                          <span>×{quantity}</span>
-                        </li>
-                      ))}
-                    </ul>
-                    <p className="food__modal-total-count">
-                      共计 <strong>{cartDetails.totalCount}</strong> 道菜品
-                    </p>
-                  </div>
-
-                  <div className="food__modal-note-area">
-                    <label className="food__modal-label">📝 备注（选填）</label>
-                    <textarea
-                      className="food__modal-note"
-                      placeholder="如有特殊需求，请在此注明..."
-                      value={orderNote}
-                      onChange={(e) => setOrderNote(e.target.value)}
-                      maxLength={500}
-                      rows={3}
-                      disabled={submitting}
-                    />
-                  </div>
-
-                  {submitError && (
-                    <div className="food__modal-error">⚠️ {submitError}</div>
-                  )}
-                </>
-              )}
-            </div>
-
-            {!submitSuccess && (
-              <div className="food__modal-footer">
-                <button className="food__modal-btn food__modal-btn--cancel" onClick={closeOrderModal} disabled={submitting}>取消</button>
-                <button className="food__modal-btn food__modal-btn--confirm" onClick={handleSubmitOrder} disabled={submitting}>
-                  {submitting ? "提交中..." : "确认提交"}
-                </button>
-              </div>
-            )}
+      <Modal
+        open={orderModalOpen}
+        onClose={closeOrderModal}
+        title="确认点单"
+        maxWidth={480}
+        closeDisabled={submitting}
+        footer={
+          !submitSuccess ? (
+            <>
+              <button className="modal__btn modal__btn--cancel modal__btn--block" onClick={closeOrderModal} disabled={submitting}>取消</button>
+              <button className="modal__btn modal__btn--confirm modal__btn--block" onClick={handleSubmitOrder} disabled={submitting}>
+                {submitting ? "提交中..." : "确认提交"}
+              </button>
+            </>
+          ) : undefined
+        }
+      >
+        {submitSuccess ? (
+          <div className="food__success">
+            <span className="food__success-icon">✅</span>
+            <h4>点单成功！</h4>
+            <p>订单已通过邮件通知，敬请期待美食上桌~</p>
           </div>
-        </div>
-      )}
-    </div>
+        ) : (
+          <>
+            <div className="food__modal-summary">
+              <h4>📋 点单明细</h4>
+              <ul className="food__modal-list">
+                {cartDetails.items.map(({ dish, quantity }) => (
+                  <li key={dish.id} className="food__modal-item">
+                    <span>{dish.emoji} {dish.name}</span>
+                    <span>×{quantity}</span>
+                  </li>
+                ))}
+              </ul>
+              <p className="food__modal-total-count">
+                共计 <strong>{cartDetails.totalCount}</strong> 道菜品
+              </p>
+            </div>
+
+            <div className="food__modal-note-area">
+              <label className="food__modal-label">📝 备注（选填）</label>
+              <textarea
+                className="food__modal-note"
+                placeholder="如有特殊需求，请在此注明..."
+                value={orderNote}
+                onChange={(e) => setOrderNote(e.target.value)}
+                maxLength={500}
+                rows={3}
+                disabled={submitting}
+              />
+            </div>
+
+            {submitError && (
+              <div className="food__modal-error">⚠️ {submitError}</div>
+            )}
+          </>
+        )}
+      </Modal>
+    </Page>
   );
 }
 

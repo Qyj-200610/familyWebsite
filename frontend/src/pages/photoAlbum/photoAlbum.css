@@ -1,28 +1,5 @@
 /* ===== PhotoAlbum — 家庭相册 ===== */
 
-.album {
-  min-height: 100vh;
-  background: linear-gradient(165deg, var(--color-bg) 0%, var(--color-bg-warm) 40%, var(--color-bg-alt) 100%);
-  position: relative;
-  overflow-x: hidden;
-}
-
-/* ---- 顶部装饰条 ---- */
-.album__top-decor {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 4px;
-  background: linear-gradient(
-    90deg,
-    var(--color-primary) 0%,
-    var(--color-accent) 50%,
-    var(--color-primary-light) 100%
-  );
-  z-index: 200;
-}
-
 /* ---- 主内容区 ---- */
 .album__main {
   padding: 32px 0 80px;
@@ -93,28 +70,6 @@
   line-height: 1;
 }
 
-/* ---- 加载中 ---- */
-.album__loading {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 80px 0;
-  color: var(--color-text-muted);
-}
-
-.album__spinner {
-  width: 40px;
-  height: 40px;
-  border: 3px solid var(--color-border);
-  border-top-color: var(--color-primary);
-  border-radius: 50%;
-  animation: albumSpin 0.8s linear infinite;
-  margin-bottom: 16px;
-}
-
-@keyframes albumSpin { to { transform: rotate(360deg); } }
-
 /* ---- 错误 ---- */
 .album__error {
   display: flex;
@@ -140,35 +95,9 @@
   font-weight: 500;
 }
 
-/* ---- 空状态 ---- */
-.album__empty {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 80px 0;
-  text-align: center;
-}
-
-.album__empty-icon {
-  font-size: 4.5rem;
-  margin-bottom: 20px;
-  opacity: 0.35;
-}
-
-.album__empty h3 {
-  font-size: 1.25rem;
-  font-weight: 700;
-  color: var(--color-text);
-  margin: 0 0 8px;
-}
-
-.album__empty p {
-  color: var(--color-text-muted);
-  margin: 0 0 24px;
-}
-
+/* ---- 空状态动作按钮 ---- */
 .album__empty-btn {
+  margin-top: 24px;
   padding: 12px 28px;
   background: var(--color-primary);
   color: #fff;
@@ -476,78 +405,8 @@
   inset: -7px;
 }
 
-/* ============================================================
-   弹窗
-   ============================================================ */
-
-.album__modal-overlay {
-  position: fixed;
-  inset: 0;
-  z-index: 1000;
-  background: rgba(0, 0, 0, 0.45);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 24px;
-  animation: albumFadeIn 0.2s ease;
-}
-
+/* 弹窗入场动画（查看器等复用） */
 @keyframes albumFadeIn { from { opacity: 0; } to { opacity: 1; } }
-
-.album__modal {
-  background: var(--color-surface);
-  border-radius: var(--radius-lg);
-  width: 100%;
-  max-width: 520px;
-  max-height: 90vh;
-  overflow-y: auto;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
-  animation: albumModalSlide 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-@keyframes albumModalSlide {
-  from { transform: translateY(20px); opacity: 0; }
-  to { transform: translateY(0); opacity: 1; }
-}
-
-.album__modal--confirm { max-width: 420px; }
-
-.album__modal-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 22px 24px 0;
-}
-
-.album__modal-header h3 {
-  font-size: 1.15rem;
-  font-weight: 700;
-  color: var(--color-text);
-  margin: 0;
-}
-
-.album__modal-close {
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  background: var(--color-bg);
-  border: none;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 0.95rem;
-  color: var(--color-text-muted);
-  transition: background 0.15s;
-}
-
-@media (hover: hover) {
-  .album__modal-close:hover {
-    background: var(--color-border);
-  }
-}
-
-.album__modal-body { padding: 22px 24px; }
 
 /* ---- 拖拽区 ---- */
 .album__dropzone {
@@ -679,60 +538,6 @@
   border-radius: var(--radius-sm);
   color: #dc2626;
   font-size: 0.875rem;
-}
-
-/* ---- 弹窗底部 ---- */
-.album__modal-footer {
-  display: flex;
-  justify-content: flex-end;
-  gap: 12px;
-  padding: 0 24px 22px;
-}
-
-.album__modal-btn {
-  padding: 10px 24px;
-  border-radius: var(--radius-sm);
-  font-size: 0.9rem;
-  font-weight: 600;
-  border: none;
-  cursor: pointer;
-  transition: all 0.15s;
-}
-
-.album__modal-btn:disabled { opacity: 0.5; cursor: not-allowed; }
-
-.album__modal-btn--cancel {
-  background: var(--color-bg);
-  color: var(--color-text-secondary);
-  border: 1px solid var(--color-border);
-}
-
-@media (hover: hover) {
-  .album__modal-btn--cancel:hover:not(:disabled) {
-    background: var(--color-border);
-  }
-}
-
-.album__modal-btn--confirm {
-  background: var(--color-primary);
-  color: #fff;
-}
-
-@media (hover: hover) {
-  .album__modal-btn--confirm:hover:not(:disabled) {
-    background: var(--color-primary-dark);
-  }
-}
-
-.album__modal-btn--danger {
-  background: var(--color-error);
-  color: #fff;
-}
-
-@media (hover: hover) {
-  .album__modal-btn--danger:hover:not(:disabled) {
-    background: #c0392b;
-  }
 }
 
 /* ---- 删除确认 ---- */
@@ -946,8 +751,6 @@
   .album__album-cover { height: 160px; }
 
   .album__toggle-row { flex-direction: column; gap: 8px; }
-
-  .album__modal { margin: 16px; max-width: none; border-radius: var(--radius-lg); }
 
   .album__viewer-content img { max-height: 60vh; }
 }

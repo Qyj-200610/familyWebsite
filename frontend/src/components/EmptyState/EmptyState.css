@@ -1,0 +1,35 @@
+/* ===== EmptyState — 居中空态 ===== */
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 64px 20px;
+  text-align: center;
+  color: var(--color-text-muted);
+}
+
+.empty-state__icon {
+  font-size: 3.5rem;
+  display: block;
+  margin-bottom: 16px;
+  opacity: 0.4;
+}
+
+.empty-state__title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--color-text);
+  margin: 0 0 8px;
+}
+
+.empty-state__desc {
+  font-size: 0.95rem;
+  margin: 0;
+}
+
+.empty-state__hint {
+  font-size: 0.82rem;
+  margin-top: 6px;
+  color: var(--color-text-muted);
+}

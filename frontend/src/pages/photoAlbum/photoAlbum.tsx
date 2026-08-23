@@ -4,7 +4,12 @@ import { useRequireAuth } from "../../hooks/useRequireAuth";
 import { albumApi, photoApi, uploadUrl } from "../../api";
 import type { Album, AlbumDetail, Photo } from "../../api/types";
 import PageNav from "../../components/PageNav/PageNav";
+import Page from "../../components/Page/Page";
+import Modal from "../../components/Modal/Modal";
+import EmptyState from "../../components/EmptyState/EmptyState";
+import { Loading } from "../../components/Spinner/Spinner";
 import ImageWithFallback from "../../components/ImageWithFallback/ImageWithFallback";
+import { formatFileSize, formatRelativeTime } from "../../utils/format";
 
 import "./photoAlbum.css";
 
@@ -13,28 +18,6 @@ import "./photoAlbum.css";
 // ============================================================
 
 const ACCEPTED_IMAGE_TYPES = "image/jpeg,image/png,image/webp";
-
-function formatFileSize(bytes: number): string {
-  if (bytes < 1024) return `${bytes} B`;
-  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
-  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
-}
-
-function formatDate(isoString: string): string {
-  const d = new Date(isoString);
-  const now = new Date();
-  const diff = now.getTime() - d.getTime();
-  const minutes = Math.floor(diff / 60000);
-  const hours = Math.floor(diff / 3600000);
-  const days = Math.floor(diff / 86400000);
-
-  if (minutes < 1) return "刚刚";
-  if (minutes < 60) return `${minutes} 分钟前`;
-  if (hours < 24) return `${hours} 小时前`;
-  if (days < 7) return `${days} 天前`;
-
-  return d.toLocaleDateString("zh-CN", { year: "numeric", month: "2-digit", day: "2-digit" });
-}
 
 // ============================================================
 // PhotoAlbum 页面组件
@@ -296,8 +279,7 @@ function PhotoAlbum() {
   // ============================================================
 
   return (
-    <div className="album">
-      <div className="album__top-decor" />
+    <Page className="album">
       {/* ===== 导航栏 (共享组件) ===== */}
       <PageNav />
 
@@ -328,17 +310,15 @@ function PhotoAlbum() {
               )}
 
               {albumsLoading ? (
-                <div className="album__loading">
-                  <div className="album__spinner" />
-                  <p>正在加载相册...</p>
-                </div>
+                <Loading text="正在加载相册..." />
               ) : albums.length === 0 ? (
-                <div className="album__empty">
-                  <span className="album__empty-icon">📸</span>
-                  <h3>还没有相册</h3>
-                  <p>点击上方「创建相册」按钮，创建你的第一个相册吧</p>
+                <EmptyState
+                  icon="📸"
+                  title="还没有相册"
+                  description="点击上方「创建相册」按钮，创建你的第一个相册吧"
+                >
                   <button className="album__empty-btn" onClick={openCreateAlbumDialog}>创建第一个相册</button>
-                </div>
+                </EmptyState>
               ) : (
                 <div className="album__album-grid">
                   {albums.map((album) => (
@@ -363,7 +343,7 @@ function PhotoAlbum() {
                         <p className="album__album-meta">
                           <span>{album.photoCount} 张照片</span><span>·</span>
                           <span>{album.creator?.username || "未知"}</span><span>·</span>
-                          <span>{formatDate(album.createdAt)}</span>
+                          <span>{formatRelativeTime(album.createdAt)}</span>
                         </p>
                       </div>
                       {album.createdBy === user?.id && (
@@ -401,17 +381,15 @@ function PhotoAlbum() {
               )}
 
               {photosLoading ? (
-                <div className="album__loading">
-                  <div className="album__spinner" />
-                  <p>正在加载照片...</p>
-                </div>
+                <Loading text="正在加载照片..." />
               ) : !albumDetail || albumDetail.photos.length === 0 ? (
-                <div className="album__empty">
-                  <span className="album__empty-icon">📷</span>
-                  <h3>还没有照片</h3>
-                  <p>在这个相册里上传照片，记录美好瞬间吧</p>
+                <EmptyState
+                  icon="📷"
+                  title="还没有照片"
+                  description="在这个相册里上传照片，记录美好瞬间吧"
+                >
                   <button className="album__empty-btn" onClick={openUploadDialog}>上传第一张照片</button>
-                </div>
+                </EmptyState>
               ) : (
                 <div className="album__grid">
                   {albumDetail.photos.map((photo) => (
@@ -425,7 +403,7 @@ function PhotoAlbum() {
                         />
                         <div className="album__card-overlay">
                           {photo.description && <p className="album__card-desc">{photo.description}</p>}
-                          <span className="album__card-date">{formatDate(photo.createdAt)}</span>
+                          <span className="album__card-date">{formatRelativeTime(photo.createdAt)}</span>
                           <span className="album__card-uploader">{photo.uploader?.username || "未知"}</span>
                         </div>
                       </div>
@@ -442,95 +420,89 @@ function PhotoAlbum() {
       </main>
 
       {/* ===== 创建相册弹窗 ===== */}
-      {createAlbumOpen && (
-        <div className="album__modal-overlay" onClick={() => setCreateAlbumOpen(false)}>
-          <div className="album__modal" onClick={(e) => e.stopPropagation()}>
-            <div className="album__modal-header">
-              <h3>创建相册</h3>
-              <button className="album__modal-close" onClick={() => setCreateAlbumOpen(false)} disabled={creatingAlbum}>✕</button>
-            </div>
-            <div className="album__modal-body">
-              <div className="album__form-group">
-                <label className="album__form-label">相册名称</label>
-                <input type="text" className="album__form-input" placeholder="给相册取个名字..." value={newAlbumName}
-                  onChange={(e) => { setNewAlbumName(e.target.value); setCreateAlbumError(null); }}
-                  maxLength={100} disabled={creatingAlbum} autoFocus
-                  onKeyDown={(e) => { if (e.key === "Enter") handleCreateAlbum(); }} />
-              </div>
-              <div className="album__form-group">
-                <label className="album__form-label">相册权限</label>
-                <div className="album__toggle-row">
-                  <button type="button" className={`album__toggle-option ${newAlbumIsPublic ? "album__toggle-option--active" : ""}`}
-                    onClick={() => setNewAlbumIsPublic(true)} disabled={creatingAlbum}>
-                    <span className="album__toggle-icon">🌐</span>
-                    <div><div className="album__toggle-label">公开</div><div className="album__toggle-hint">所有人都能看到</div></div>
-                  </button>
-                  <button type="button" className={`album__toggle-option ${!newAlbumIsPublic ? "album__toggle-option--active" : ""}`}
-                    onClick={() => setNewAlbumIsPublic(false)} disabled={creatingAlbum}>
-                    <span className="album__toggle-icon">🔒</span>
-                    <div><div className="album__toggle-label">私有</div><div className="album__toggle-hint">仅自己可见</div></div>
-                  </button>
-                </div>
-              </div>
-              {createAlbumError && <div className="album__upload-error">⚠️ {createAlbumError}</div>}
-            </div>
-            <div className="album__modal-footer">
-              <button className="album__modal-btn album__modal-btn--cancel" onClick={() => setCreateAlbumOpen(false)} disabled={creatingAlbum}>取消</button>
-              <button className="album__modal-btn album__modal-btn--confirm" onClick={handleCreateAlbum} disabled={!newAlbumName.trim() || creatingAlbum}>
-                {creatingAlbum ? "创建中..." : "创建相册"}
-              </button>
-            </div>
+      <Modal
+        open={createAlbumOpen}
+        onClose={() => setCreateAlbumOpen(false)}
+        title="创建相册"
+        closeDisabled={creatingAlbum}
+        footer={
+          <>
+            <button className="modal__btn modal__btn--cancel" onClick={() => setCreateAlbumOpen(false)} disabled={creatingAlbum}>取消</button>
+            <button className="modal__btn modal__btn--confirm" onClick={handleCreateAlbum} disabled={!newAlbumName.trim() || creatingAlbum}>
+              {creatingAlbum ? "创建中..." : "创建相册"}
+            </button>
+          </>
+        }
+      >
+        <div className="album__form-group">
+          <label className="album__form-label">相册名称</label>
+          <input type="text" className="album__form-input" placeholder="给相册取个名字..." value={newAlbumName}
+            onChange={(e) => { setNewAlbumName(e.target.value); setCreateAlbumError(null); }}
+            maxLength={100} disabled={creatingAlbum} autoFocus
+            onKeyDown={(e) => { if (e.key === "Enter") handleCreateAlbum(); }} />
+        </div>
+        <div className="album__form-group">
+          <label className="album__form-label">相册权限</label>
+          <div className="album__toggle-row">
+            <button type="button" className={`album__toggle-option ${newAlbumIsPublic ? "album__toggle-option--active" : ""}`}
+              onClick={() => setNewAlbumIsPublic(true)} disabled={creatingAlbum}>
+              <span className="album__toggle-icon">🌐</span>
+              <div><div className="album__toggle-label">公开</div><div className="album__toggle-hint">所有人都能看到</div></div>
+            </button>
+            <button type="button" className={`album__toggle-option ${!newAlbumIsPublic ? "album__toggle-option--active" : ""}`}
+              onClick={() => setNewAlbumIsPublic(false)} disabled={creatingAlbum}>
+              <span className="album__toggle-icon">🔒</span>
+              <div><div className="album__toggle-label">私有</div><div className="album__toggle-hint">仅自己可见</div></div>
+            </button>
           </div>
         </div>
-      )}
+        {createAlbumError && <div className="album__upload-error">⚠️ {createAlbumError}</div>}
+      </Modal>
 
       {/* ===== 上传弹窗 ===== */}
-      {uploadOpen && (
-        <div className="album__modal-overlay" onClick={closeUploadDialog}>
-          <div className="album__modal" onClick={(e) => e.stopPropagation()}>
-            <div className="album__modal-header">
-              <h3>上传照片</h3>
-              <button className="album__modal-close" onClick={closeUploadDialog} disabled={uploading}>✕</button>
-            </div>
-            <div className="album__modal-body">
-              {!uploadPreview ? (
-                <div className="album__dropzone" onClick={() => fileInputRef.current?.click()}>
-                  <span className="album__dropzone-icon">📁</span>
-                  <p>点击选择图片，或将图片拖拽到此处</p>
-                  <span className="album__dropzone-hint">支持 JPG、PNG、WebP，最大 10 MB</span>
-                </div>
-              ) : (
-                <div className="album__preview">
-                  <img src={uploadPreview} alt="预览" />
-                  <button className="album__preview-change" onClick={() => {
-                    if (uploadPreview) URL.revokeObjectURL(uploadPreview);
-                    setUploadFile(null); setUploadPreview(null);
-                    if (fileInputRef.current) fileInputRef.current.value = "";
-                  }} disabled={uploading}>重新选择</button>
-                </div>
-              )}
-              <input ref={fileInputRef} type="file" accept={ACCEPTED_IMAGE_TYPES} onChange={handleFileSelect} hidden />
-              {uploadFile && (
-                <div className="album__file-info">
-                  <span className="album__file-name">{uploadFile.name}</span>
-                  <span className="album__file-size">{formatFileSize(uploadFile.size)}</span>
-                </div>
-              )}
-              {uploadFile && (
-                <textarea className="album__desc-input" placeholder="添加照片描述（可选）..." value={uploadDescription}
-                  onChange={(e) => setUploadDescription(e.target.value)} maxLength={200} rows={3} disabled={uploading} />
-              )}
-              {uploadError && <div className="album__upload-error">⚠️ {uploadError}</div>}
-            </div>
-            <div className="album__modal-footer">
-              <button className="album__modal-btn album__modal-btn--cancel" onClick={closeUploadDialog} disabled={uploading}>取消</button>
-              <button className="album__modal-btn album__modal-btn--confirm" onClick={handleUploadConfirm} disabled={!uploadFile || uploading}>
-                {uploading ? "上传中..." : "确认上传"}
-              </button>
-            </div>
+      <Modal
+        open={uploadOpen}
+        onClose={closeUploadDialog}
+        title="上传照片"
+        closeDisabled={uploading}
+        footer={
+          <>
+            <button className="modal__btn modal__btn--cancel" onClick={closeUploadDialog} disabled={uploading}>取消</button>
+            <button className="modal__btn modal__btn--confirm" onClick={handleUploadConfirm} disabled={!uploadFile || uploading}>
+              {uploading ? "上传中..." : "确认上传"}
+            </button>
+          </>
+        }
+      >
+        {!uploadPreview ? (
+          <div className="album__dropzone" onClick={() => fileInputRef.current?.click()}>
+            <span className="album__dropzone-icon">📁</span>
+            <p>点击选择图片，或将图片拖拽到此处</p>
+            <span className="album__dropzone-hint">支持 JPG、PNG、WebP，最大 10 MB</span>
           </div>
-        </div>
-      )}
+        ) : (
+          <div className="album__preview">
+            <img src={uploadPreview} alt="预览" />
+            <button className="album__preview-change" onClick={() => {
+              if (uploadPreview) URL.revokeObjectURL(uploadPreview);
+              setUploadFile(null); setUploadPreview(null);
+              if (fileInputRef.current) fileInputRef.current.value = "";
+            }} disabled={uploading}>重新选择</button>
+          </div>
+        )}
+        <input ref={fileInputRef} type="file" accept={ACCEPTED_IMAGE_TYPES} onChange={handleFileSelect} hidden />
+        {uploadFile && (
+          <div className="album__file-info">
+            <span className="album__file-name">{uploadFile.name}</span>
+            <span className="album__file-size">{formatFileSize(uploadFile.size)}</span>
+          </div>
+        )}
+        {uploadFile && (
+          <textarea className="album__desc-input" placeholder="添加照片描述（可选）..." value={uploadDescription}
+            onChange={(e) => setUploadDescription(e.target.value)} maxLength={200} rows={3} disabled={uploading} />
+        )}
+        {uploadError && <div className="album__upload-error">⚠️ {uploadError}</div>}
+      </Modal>
 
       {/* ===== 照片查看器 ===== */}
       {viewerOpen && viewerPhoto && (
@@ -551,7 +523,7 @@ function PhotoAlbum() {
               {viewerPhoto.description && <p className="album__viewer-desc">{viewerPhoto.description}</p>}
               <p className="album__viewer-meta">
                 <span>上传者：{viewerPhoto.uploader?.username || "未知"}</span>
-                <span>上传时间：{formatDate(viewerPhoto.createdAt)}</span>
+                <span>上传时间：{formatRelativeTime(viewerPhoto.createdAt)}</span>
                 <span>大小：{formatFileSize(viewerPhoto.fileSize)}</span>
               </p>
             </div>
@@ -561,40 +533,46 @@ function PhotoAlbum() {
 
       {/* ===== 删除相册确认 ===== */}
       {deleteAlbumTarget && (
-        <div className="album__modal-overlay" onClick={() => { setDeleteAlbumTarget(null); setDeleteError(null); }}>
-          <div className="album__modal album__modal--confirm" onClick={(e) => e.stopPropagation()}>
-            <div className="album__modal-header"><h3>确认删除相册</h3></div>
-            <div className="album__modal-body">
-              <p>确定要删除相册「{deleteAlbumTarget.name}」吗？</p>
-              <p className="album__confirm-warning">相册内的照片不会被删除，你可以稍后重新整理。</p>
-              {deleteError && <div className="album__upload-error">⚠️ {deleteError}</div>}
-            </div>
-            <div className="album__modal-footer">
-              <button className="album__modal-btn album__modal-btn--cancel" onClick={() => { setDeleteAlbumTarget(null); setDeleteError(null); }}>取消</button>
-              <button className="album__modal-btn album__modal-btn--danger" onClick={handleDeleteAlbum}>确认删除</button>
-            </div>
-          </div>
-        </div>
+        <Modal
+          open
+          onClose={() => { setDeleteAlbumTarget(null); setDeleteError(null); }}
+          title="确认删除相册"
+          maxWidth={420}
+          hideClose
+          footer={
+            <>
+              <button className="modal__btn modal__btn--cancel" onClick={() => { setDeleteAlbumTarget(null); setDeleteError(null); }}>取消</button>
+              <button className="modal__btn modal__btn--danger" onClick={handleDeleteAlbum}>确认删除</button>
+            </>
+          }
+        >
+          <p>确定要删除相册「{deleteAlbumTarget.name}」吗？</p>
+          <p className="album__confirm-warning">相册内的照片不会被删除，你可以稍后重新整理。</p>
+          {deleteError && <div className="album__upload-error">⚠️ {deleteError}</div>}
+        </Modal>
       )}
 
       {/* ===== 删除照片确认 ===== */}
       {deletePhotoTarget && (
-        <div className="album__modal-overlay" onClick={() => { setDeletePhotoTarget(null); setDeleteError(null); }}>
-          <div className="album__modal album__modal--confirm" onClick={(e) => e.stopPropagation()}>
-            <div className="album__modal-header"><h3>确认删除</h3></div>
-            <div className="album__modal-body">
-              <p>确定要删除这张照片吗？{deletePhotoTarget.description && <span className="album__confirm-desc">「{deletePhotoTarget.description}」</span>}</p>
-              <p className="album__confirm-warning">此操作不可撤销。</p>
-              {deleteError && <div className="album__upload-error">⚠️ {deleteError}</div>}
-            </div>
-            <div className="album__modal-footer">
-              <button className="album__modal-btn album__modal-btn--cancel" onClick={() => { setDeletePhotoTarget(null); setDeleteError(null); }}>取消</button>
-              <button className="album__modal-btn album__modal-btn--danger" onClick={handleDeletePhoto}>确认删除</button>
-            </div>
-          </div>
-        </div>
+        <Modal
+          open
+          onClose={() => { setDeletePhotoTarget(null); setDeleteError(null); }}
+          title="确认删除"
+          maxWidth={420}
+          hideClose
+          footer={
+            <>
+              <button className="modal__btn modal__btn--cancel" onClick={() => { setDeletePhotoTarget(null); setDeleteError(null); }}>取消</button>
+              <button className="modal__btn modal__btn--danger" onClick={handleDeletePhoto}>确认删除</button>
+            </>
+          }
+        >
+          <p>确定要删除这张照片吗？{deletePhotoTarget.description && <span className="album__confirm-desc">「{deletePhotoTarget.description}」</span>}</p>
+          <p className="album__confirm-warning">此操作不可撤销。</p>
+          {deleteError && <div className="album__upload-error">⚠️ {deleteError}</div>}
+        </Modal>
       )}
-    </div>
+    </Page>
   );
 }
 

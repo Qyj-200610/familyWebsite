@@ -35,7 +35,7 @@ class LoginRequest(BaseModel):
 
 class UpdateUserRequest(BaseModel):
     username: str | None = Field(None, min_length=2, max_length=50)
-    avatar: str | None = Field(None, max_length=500)
+    avatar: str | None = Field(None, max_length=255)
 
 
 class ResetPasswordRequest(BaseModel):

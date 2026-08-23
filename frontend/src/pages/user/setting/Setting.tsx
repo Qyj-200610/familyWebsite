@@ -4,7 +4,9 @@ import { useThemeStore } from "../../../store/themeStore";
 import { useRequireAuth } from "../../../hooks/useRequireAuth";
 import { userApi, uploadUrl } from "../../../api";
 import PageNav from "../../../components/PageNav/PageNav";
-import ImageWithFallback from "../../../components/ImageWithFallback/ImageWithFallback";
+import Page from "../../../components/Page/Page";
+import Avatar from "../../../components/Avatar/Avatar";
+import { Spinner } from "../../../components/Spinner/Spinner";
 import "./Setting.css";
 
 /** 允许的头像格式 */
@@ -28,9 +30,6 @@ function Setting() {
   const [usernameValue, setUsernameValue] = useState(user?.username || "");
   const [usernameError, setUsernameError] = useState("");
   const [savingUsername, setSavingUsername] = useState(false);
-
-  /** 获取头像首字母 */
-  const avatarLetter = user?.username?.charAt(0)?.toUpperCase() || "U";
 
   /** 点击"更换头像"按钮 → 打开文件选择器 */
   const handleAvatarClick = () => {
@@ -122,10 +121,7 @@ function Setting() {
   }
 
   return (
-    <div className="setting">
-      {/* 顶部装饰条 */}
-      <div className="setting__top-decor" />
-
+    <Page className="setting">
       {/* Nav */}
       <PageNav />
 
@@ -172,17 +168,11 @@ function Setting() {
                 <div className="setting__field">
                   <label className="setting__label">头像</label>
                   <div className="setting__avatar-edit">
-                    <span className={`setting__avatar setting__avatar--lg ${uploading ? "setting__avatar--uploading" : ""}`}>
-                      <ImageWithFallback
-                        src={uploadUrl(user?.avatar)}
-                        alt={user?.username}
-                        fallback={
-                          <span className="setting__avatar-placeholder">{avatarLetter}</span>
-                        }
-                      />
+                    <span className={`setting__avatar-wrap ${uploading ? "setting__avatar-wrap--uploading" : ""}`}>
+                      <Avatar src={uploadUrl(user?.avatar)} name={user?.username} size={72} />
                       {uploading && (
                         <span className="setting__avatar-overlay">
-                          <span className="setting__spinner" />
+                          <Spinner size={22} className="spinner--light" />
                         </span>
                       )}
                     </span>
@@ -322,7 +312,7 @@ function Setting() {
           </div>
         </div>
       </main>
-    </div>
+    </Page>
   );
 }
 

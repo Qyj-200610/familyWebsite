@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect, type FormEvent } from "react";
 import { useNavigate } from "react-router-dom";
 import Auth from "../../../components/Auth/Auth";
+import FormField from "../../../components/Auth/FormField";
 import { authApi } from "../../../api";
 import { getPasswordError, isValidEmail } from "../../../utils/validation";
 import emailIcon from "../../../svg/email.svg";
@@ -122,112 +123,49 @@ function ForgetPassword() {
           </div>
         )}
 
-        <div className="form-group">
-          <label className="form-label" htmlFor="forget-email">
-            邮箱地址
-          </label>
-          <div className="form-input-wrapper">
-            <input
-              id="forget-email"
-              type="email"
-              inputMode="email"
-              className={`form-input form-input--with-icon ${errors.email ? "form-input--error" : ""}`}
-              placeholder="请输入注册邮箱"
-              value={form.email}
-              onChange={(e) => updateField("email", e.target.value)}
-              autoComplete="email"
-              autoFocus
-              aria-describedby={errors.email ? "forget-email-error" : undefined}
-            />
-            <img
-              className="form-input-icon"
-              src={emailIcon}
-              alt=""
-              aria-hidden="true"
-            />
-          </div>
-          {errors.email && (
-            <span className="form-error" id="forget-email-error" role="alert">
-              {errors.email}
-            </span>
-          )}
-        </div>
+        <FormField
+          id="forget-email"
+          label="邮箱地址"
+          icon={emailIcon}
+          type="email"
+          inputMode="email"
+          placeholder="请输入注册邮箱"
+          value={form.email}
+          onChange={(v) => updateField("email", v)}
+          autoComplete="email"
+          autoFocus
+          error={errors.email}
+        />
 
-        <div className="form-group">
-          <label className="form-label" htmlFor="forget-new-password">
-            新密码
-          </label>
-          <div className="form-input-wrapper">
-            <input
-              id="forget-new-password"
-              type={showNewPassword ? "text" : "password"}
-              className={`form-input form-input--with-icon form-input--with-toggle ${errors.newPassword ? "form-input--error" : ""}`}
-              placeholder="至少 8 位，含大小写字母和数字"
-              value={form.newPassword}
-              onChange={(e) => updateField("newPassword", e.target.value)}
-              autoComplete="new-password"
-              aria-describedby={errors.newPassword ? "forget-new-password-error" : undefined}
-            />
-            <img
-              className="form-input-icon"
-              src={passwordIcon}
-              alt=""
-              aria-hidden="true"
-            />
-            <button
-              type="button"
-              className="form-password-toggle"
-              onClick={() => setShowNewPassword((v) => !v)}
-              tabIndex={-1}
-              aria-label={showNewPassword ? "隐藏新密码" : "显示新密码"}
-            >
-              {showNewPassword ? "🙈" : "👁"}
-            </button>
-          </div>
-          {errors.newPassword && (
-            <span className="form-error" id="forget-new-password-error" role="alert">
-              {errors.newPassword}
-            </span>
-          )}
-        </div>
+        <FormField
+          id="forget-new-password"
+          label="新密码"
+          icon={passwordIcon}
+          placeholder="至少 8 位，含大小写字母和数字"
+          value={form.newPassword}
+          onChange={(v) => updateField("newPassword", v)}
+          autoComplete="new-password"
+          error={errors.newPassword}
+          isPassword
+          showPassword={showNewPassword}
+          onTogglePassword={() => setShowNewPassword((v) => !v)}
+          toggleLabel="新密码"
+        />
 
-        <div className="form-group">
-          <label className="form-label" htmlFor="forget-confirm-password">
-            确认新密码
-          </label>
-          <div className="form-input-wrapper">
-            <input
-              id="forget-confirm-password"
-              type={showConfirmPassword ? "text" : "password"}
-              className={`form-input form-input--with-icon form-input--with-toggle ${errors.confirmPassword ? "form-input--error" : ""}`}
-              placeholder="再次输入新密码"
-              value={form.confirmPassword}
-              onChange={(e) => updateField("confirmPassword", e.target.value)}
-              autoComplete="new-password"
-              aria-describedby={errors.confirmPassword ? "forget-confirm-error" : undefined}
-            />
-            <img
-              className="form-input-icon"
-              src={confirmPasswordIcon}
-              alt=""
-              aria-hidden="true"
-            />
-            <button
-              type="button"
-              className="form-password-toggle"
-              onClick={() => setShowConfirmPassword((v) => !v)}
-              tabIndex={-1}
-              aria-label={showConfirmPassword ? "隐藏确认新密码" : "显示确认新密码"}
-            >
-              {showConfirmPassword ? "🙈" : "👁"}
-            </button>
-          </div>
-          {errors.confirmPassword && (
-            <span className="form-error" id="forget-confirm-error" role="alert">
-              {errors.confirmPassword}
-            </span>
-          )}
-        </div>
+        <FormField
+          id="forget-confirm-password"
+          label="确认新密码"
+          icon={confirmPasswordIcon}
+          placeholder="再次输入新密码"
+          value={form.confirmPassword}
+          onChange={(v) => updateField("confirmPassword", v)}
+          autoComplete="new-password"
+          error={errors.confirmPassword}
+          isPassword
+          showPassword={showConfirmPassword}
+          onTogglePassword={() => setShowConfirmPassword((v) => !v)}
+          toggleLabel="确认新密码"
+        />
 
         <button
           type="submit"

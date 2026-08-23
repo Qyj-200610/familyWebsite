@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 interface ImageWithFallbackProps {
   /** 图片地址；为空字符串 / null / undefined 时直接渲染回退内容 */
@@ -25,12 +25,11 @@ function ImageWithFallback({
   loading,
   fallback,
 }: ImageWithFallbackProps) {
-  const [errored, setErrored] = useState(false);
-
-  // src 变化时重置错误态，避免上一次图片的失败状态残留到新图片
-  useEffect(() => {
-    setErrored(false);
-  }, [src]);
+  // 记录「加载失败的图片地址」而非布尔值：用 `erroredSrc === src` 派生错误态，
+  // src 变化时错误态自动重置，既修复切换图片后失败状态残留的问题，
+  // 也避免在 effect 中同步 setState（react-hooks/set-state-in-effect）。
+  const [erroredSrc, setErroredSrc] = useState<string | null | undefined>(null);
+  const errored = erroredSrc === src;
 
   if (!src || errored) {
     return <>{fallback}</>;
@@ -42,7 +41,7 @@ function ImageWithFallback({
       src={src}
       alt={alt}
       loading={loading}
-      onError={() => setErrored(true)}
+      onError={() => setErroredSrc(src)}
     />
   );
 }

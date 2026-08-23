@@ -5,7 +5,9 @@ import { useRequireAuth } from "../../../hooks/useRequireAuth";
 import { uploadUrl, userApi } from "../../../api";
 import type { UserStats } from "../../../api";
 import PageNav from "../../../components/PageNav/PageNav";
-import ImageWithFallback from "../../../components/ImageWithFallback/ImageWithFallback";
+import Page from "../../../components/Page/Page";
+import Avatar from "../../../components/Avatar/Avatar";
+import { formatDate } from "../../../utils/format";
 import "./PersonalCenter.css";
 
 function PersonalCenter() {
@@ -23,28 +25,12 @@ function PersonalCenter() {
     });
   }, [isAuthenticated]);
 
-  /** 获取头像首字母 */
-  const avatarLetter = user?.username?.charAt(0)?.toUpperCase() || "U";
-
-  /** 格式化日期 */
-  const formatDate = (dateStr?: string | null) => {
-    if (!dateStr) return "—";
-    return new Date(dateStr).toLocaleDateString("zh-CN", {
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-    });
-  };
-
   if (!isAuthenticated) {
     return null;
   }
 
   return (
-    <div className="pc">
-      {/* 顶部装饰条 */}
-      <div className="pc__top-decor" />
-
+    <Page className="pc">
       {/* Nav */}
       <PageNav />
 
@@ -61,15 +47,7 @@ function PersonalCenter() {
               <span className="pc__hero-deco pc__hero-deco--4">🌿</span>
             </div>
             <div className="pc__hero-inner">
-              <span className="pc__hero-avatar">
-                <ImageWithFallback
-                  src={uploadUrl(user?.avatar)}
-                  alt={user?.username}
-                  fallback={
-                    <span className="pc__hero-avatar-placeholder">{avatarLetter}</span>
-                  }
-                />
-              </span>
+              <Avatar src={uploadUrl(user?.avatar)} name={user?.username} size={88} />
               <div className="pc__hero-info">
                 <h2 className="pc__hero-name">{user?.username || "用户"}</h2>
                 <p className="pc__hero-email">{user?.email || ""}</p>
@@ -145,7 +123,7 @@ function PersonalCenter() {
           </section>
         </div>
       </main>
-    </div>
+    </Page>
   );
 }
 

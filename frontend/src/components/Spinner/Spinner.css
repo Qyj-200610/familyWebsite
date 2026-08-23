@@ -1,0 +1,36 @@
+/* ===== Spinner — 旋转加载指示器 ===== */
+.spinner {
+  display: inline-block;
+  border-style: solid;
+  border-color: var(--color-border);
+  border-top-color: var(--color-primary);
+  border-radius: 50%;
+  animation: spinner-rotate 0.8s linear infinite;
+  flex-shrink: 0;
+}
+
+@keyframes spinner-rotate {
+  to { transform: rotate(360deg); }
+}
+
+/* 深色背景上的浅色变体 */
+.spinner--light {
+  border-color: rgba(255, 255, 255, 0.5);
+  border-top-color: #fff;
+}
+
+/* ===== Loading — 居中加载态 ===== */
+.loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  padding: 80px 0;
+  color: var(--color-text-muted);
+}
+
+.loading p {
+  margin: 0;
+  font-size: 0.95rem;
+}

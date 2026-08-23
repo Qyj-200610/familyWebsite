@@ -1,26 +1,4 @@
 /* ===== Personal Center Page ===== */
-.pc {
-  min-height: 100vh;
-  background: linear-gradient(165deg, var(--color-bg) 0%, var(--color-bg-warm) 40%, var(--color-bg-alt) 100%);
-  position: relative;
-  overflow-x: hidden;
-}
-
-/* ---- 顶部装饰条 ---- */
-.pc__top-decor {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 4px;
-  background: linear-gradient(
-    90deg,
-    var(--color-primary) 0%,
-    var(--color-accent) 50%,
-    var(--color-primary-light) 100%
-  );
-  z-index: 200;
-}
 
 /* ===== Hero Banner ===== */
 .pc__hero {
@@ -84,42 +62,6 @@
   display: flex;
   align-items: center;
   gap: 28px;
-}
-
-.pc__hero-avatar {
-  width: 88px;
-  height: 88px;
-  border-radius: 50%;
-  overflow: hidden;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: linear-gradient(135deg, var(--color-primary-light), var(--color-primary-dark));
-  flex-shrink: 0;
-  box-shadow: 0 4px 16px rgba(91, 140, 90, 0.25);
-  position: relative;
-}
-
-.pc__hero-avatar::after {
-  content: "";
-  position: absolute;
-  inset: -3px;
-  border-radius: 50%;
-  border: 3px solid rgba(255, 255, 255, 0.6);
-  pointer-events: none;
-}
-
-.pc__hero-avatar img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-.pc__hero-avatar-placeholder {
-  color: #fff;
-  font-weight: 700;
-  font-size: 2.2rem;
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
 }
 
 .pc__hero-info {
@@ -518,24 +460,11 @@
 }
 
 @media (max-width: 768px) {
-  .pc__top-decor {
-    height: 3px;
-  }
-
   .pc__hero-inner {
     flex-direction: column;
     text-align: center;
     padding: 28px 20px;
     gap: 16px;
-  }
-
-  .pc__hero-avatar {
-    width: 72px;
-    height: 72px;
-  }
-
-  .pc__hero-avatar-placeholder {
-    font-size: 1.8rem;
   }
 
   .pc__hero-name {
@@ -582,15 +511,6 @@
 @media (max-width: 480px) {
   .pc__hero-inner {
     padding: 24px 16px;
-  }
-
-  .pc__hero-avatar {
-    width: 60px;
-    height: 60px;
-  }
-
-  .pc__hero-avatar-placeholder {
-    font-size: 1.5rem;
   }
 
   .pc__hero-name {

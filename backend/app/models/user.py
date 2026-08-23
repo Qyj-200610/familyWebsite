@@ -13,7 +13,7 @@ class User(Base):
 
     id: Mapped[int] = mapped_column(BigInteger, primary_key=True, autoincrement=True)
     username: Mapped[str] = mapped_column(String(50), unique=True, index=True, nullable=False)
-    email: Mapped[str] = mapped_column(String(100), unique=True, index=True, nullable=False)
+    email: Mapped[str] = mapped_column(String(255), unique=True, index=True, nullable=False)
     hashed_password: Mapped[str] = mapped_column("password", String(100), nullable=False)
     avatar: Mapped[str | None] = mapped_column(String(255), nullable=True, default=None)
     last_login: Mapped[datetime | None] = mapped_column("last_login_at", DateTime(timezone=True), nullable=True, default=None)

@@ -1,28 +1,5 @@
 /* ===== FoodOrder — 美食专栏 ===== */
 
-.food {
-  min-height: 100vh;
-  background: linear-gradient(165deg, var(--color-bg) 0%, var(--color-bg-warm) 40%, var(--color-bg-alt) 100%);
-  position: relative;
-  overflow-x: hidden;
-}
-
-/* ---- 顶部装饰条 ---- */
-.food__top-decor {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 4px;
-  background: linear-gradient(
-    90deg,
-    var(--color-primary) 0%,
-    var(--color-accent) 50%,
-    var(--color-primary-light) 100%
-  );
-  z-index: 200;
-}
-
 /* ---- 主内容区 ---- */
 .food__main {
   padding: 32px 0 80px;
@@ -349,31 +326,6 @@
   }
 }
 
-/* 空购物车 */
-.food__cart-empty {
-  padding: 56px 20px;
-  text-align: center;
-  color: var(--color-text-muted);
-}
-
-.food__cart-empty-icon {
-  font-size: 3.5rem;
-  display: block;
-  margin-bottom: 16px;
-  opacity: 0.4;
-}
-
-.food__cart-empty p {
-  font-size: 0.95rem;
-  font-weight: 500;
-}
-
-.food__cart-empty-hint {
-  font-size: 0.82rem !important;
-  margin-top: 6px;
-  font-weight: 400 !important;
-}
-
 /* 购物车列表 */
 .food__cart-list {
   list-style: none;
@@ -589,125 +541,6 @@
   display: none;
 }
 
-/* ---- 弹窗 ---- */
-.food__modal-overlay {
-  position: fixed;
-  inset: 0;
-  z-index: 300;
-  background: rgba(0, 0, 0, 0.45);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 24px;
-  animation: foodFadeIn 0.2s ease;
-}
-
-@keyframes foodFadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
-
-.food__modal {
-  background: var(--color-surface);
-  border-radius: var(--radius-lg);
-  width: 100%;
-  max-width: 480px;
-  max-height: 85vh;
-  overflow-y: auto;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
-  animation: foodModalSlide 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-@keyframes foodModalSlide {
-  from { transform: translateY(20px); opacity: 0; }
-  to { transform: translateY(0); opacity: 1; }
-}
-
-.food__modal-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 22px 24px;
-  border-bottom: 1px solid var(--color-border);
-}
-
-.food__modal-header h3 {
-  font-size: 1.15rem;
-  font-weight: 700;
-  color: var(--color-text);
-}
-
-.food__modal-close {
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  border: none;
-  background: none;
-  font-size: 1.1rem;
-  color: var(--color-text-muted);
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: background 0.15s;
-}
-
-@media (hover: hover) {
-  .food__modal-close:hover {
-    background: rgba(0, 0, 0, 0.06);
-  }
-}
-
-.food__modal-body {
-  padding: 22px 24px;
-}
-
-.food__modal-footer {
-  display: flex;
-  gap: 12px;
-  padding: 18px 24px;
-  border-top: 1px solid var(--color-border);
-}
-
-.food__modal-btn {
-  flex: 1;
-  padding: 11px 0;
-  border-radius: var(--radius-sm);
-  font-size: 0.95rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-.food__modal-btn--cancel {
-  background: none;
-  border: 1px solid var(--color-border);
-  color: var(--color-text-secondary);
-}
-
-@media (hover: hover) {
-  .food__modal-btn--cancel:hover {
-    background: rgba(0, 0, 0, 0.03);
-  }
-}
-
-.food__modal-btn--confirm {
-  background: var(--color-primary);
-  border: none;
-  color: #fff;
-}
-
-@media (hover: hover) {
-  .food__modal-btn--confirm:hover {
-    background: var(--color-primary-dark);
-  }
-}
-
-.food__modal-btn:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
-
 /* 订单摘要 */
 .food__modal-summary { margin-bottom: 22px; }
 
@@ -811,31 +644,6 @@
 .food__success p {
   font-size: 0.92rem;
   color: var(--color-text-secondary);
-}
-
-/* ---- 空分类提示 ---- */
-.food__empty-category {
-  text-align: center;
-  padding: 64px 20px;
-  color: var(--color-text-muted);
-}
-
-.food__empty-category-icon {
-  font-size: 3rem;
-  display: block;
-  margin-bottom: 16px;
-  opacity: 0.4;
-}
-
-.food__empty-category p {
-  font-size: 1rem;
-  font-weight: 500;
-}
-
-.food__empty-category-hint {
-  font-size: 0.85rem !important;
-  font-weight: 400 !important;
-  margin-top: 6px;
 }
 
 /* ===== Responsive ===== */

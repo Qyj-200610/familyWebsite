@@ -21,8 +21,10 @@ if sys.platform == "win32":
     _uv_asyncio.asyncio_loop_factory = _patched_asyncio_loop_factory  # type: ignore[assignment]
 
 from fastapi import FastAPI, Request
+from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
+from starlette.exceptions import HTTPException as StarletteHTTPException
 
 from app.api.v1.router import router as v1_router
 from app.core.config import settings
@@ -77,7 +79,22 @@ _upload_dir.mkdir(parents=True, exist_ok=True)
 app.mount("/uploads", StaticFiles(directory=str(_upload_dir)), name="uploads")
 
 
-# ── 全局异常处理：确保所有未捕获异常返回 JSON 格式 ──
+# ── 全局异常处理：确保所有异常都返回统一的 {code, message, data} 格式 ──
+# HTTPException（如 get_current_user 抛出的 401）默认返回 {"detail": ...}，
+# 与统一格式不一致；这里覆盖成统一格式，同时保留原始 HTTP 状态码。
+@app.exception_handler(StarletteHTTPException)
+async def http_exception_handler(_request: Request, exc: StarletteHTTPException):
+    message = exc.detail if isinstance(exc.detail, str) else "请求错误"
+    return error_response(exc.status_code, message, status_code=exc.status_code)
+
+
+# Pydantic 请求体校验失败默认返回 {"detail": [{...}]}，前端只能显示“请求错误 (422)”；
+# 这里转成统一格式，给出可读的中文提示。
+@app.exception_handler(RequestValidationError)
+async def validation_exception_handler(_request: Request, exc: RequestValidationError):  # noqa: ARG001
+    return error_response(422, "请求参数校验失败", status_code=422)
+
+
 @app.exception_handler(Exception)
 async def global_exception_handler(_request: Request, exc: Exception):
     logger.exception("Unhandled exception")

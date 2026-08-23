@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuthStore } from "../../store/authStore";
 import { authApi, uploadUrl } from "../../api";
-import ImageWithFallback from "../ImageWithFallback/ImageWithFallback";
+import Avatar from "../Avatar/Avatar";
 import exitLoginIcon from "../../svg/exitLogin.svg";
 import "./PageNav.css";
 
@@ -46,8 +46,6 @@ function PageNav({
     navigate("/login", { replace: true });
   };
 
-  const avatarLetter = user?.username?.charAt(0).toUpperCase() || "U";
-
   return (
     <nav className="pagenav">
       <div className="pagenav__inner">
@@ -61,15 +59,7 @@ function PageNav({
             className="pagenav__avatar-btn"
             onClick={() => setDropdownOpen(!dropdownOpen)}
           >
-            <span className="pagenav__avatar">
-              <ImageWithFallback
-                src={uploadUrl(user?.avatar)}
-                alt={user?.username}
-                fallback={
-                  <span className="pagenav__avatar-placeholder">{avatarLetter}</span>
-                }
-              />
-            </span>
+            <Avatar src={uploadUrl(user?.avatar)} name={user?.username} size={34} />
             <span className="pagenav__username">{user?.username || "用户"}</span>
             <span className={`pagenav__arrow ${dropdownOpen ? "pagenav__arrow--open" : ""}`}>▾</span>
           </button>
