@@ -34,11 +34,14 @@ const DISHES: Dish[] = [
   { id: 7, name: "孜然羊排", category: "热菜", description: "外酥里嫩，孜然飘香，羊肉鲜嫩多汁", image: "/image/孜然羊排.jpg", emoji: "🍖" },
   { id: 8, name: "家烧梭子蟹", category: "热菜", description: "梭子蟹肥美，家烧酱汁浓郁，蟹肉鲜甜", image: "/image/家烧梭子蟹.jpg", emoji: "🦀", recommended: true },
   { id: 9, name: "香葱炒牛肉", category: "热菜", description: "牛肉滑嫩，葱香四溢，下饭神器", image: "/image/香葱炒牛肉.jpg", emoji: "🥩" },
+  { id: 12, name: "红烧牛排", category: "热菜", description: "牛排软嫩多汁，红烧酱香浓郁，回味无穷", image: "/image/红烧牛排.jpg", emoji: "🥩" },
+  { id: 13, name: "鮸鱼家烧", category: "热菜", description: "鮸鱼肉质细嫩，家烧酱汁浓郁，鲜香下饭", image: "/image/鮸鱼家烧.jpg", emoji: "🐟" },
   // ---- 凉菜 ----
   { id: 4, name: "凉拌牛肉", category: "凉菜", description: "酱香浓郁，清爽开胃，夏日必备凉菜", image: "/image/凉拌牛肉.jpg", emoji: "🥩", recommended: true },
   { id: 5, name: "生菜沙拉", category: "凉菜", description: "新鲜时蔬，清脆爽口，健康低脂", image: "/image/生菜沙拉.jpg", emoji: "🥗" },
   // ---- 汤品 ----
   { id: 6, name: "雪梨鲍鱼", category: "汤品", description: "清甜雪梨搭配鲜美鲍鱼，滋补养生靓汤", image: "/image/雪梨鲍鱼.jpg", emoji: "🥣", recommended: true },
+  { id: 11, name: "排骨炖藕", category: "汤品", description: "排骨软烂，莲藕粉糯，汤汁清甜滋补", image: "/image/排骨炖藕.jpg", emoji: "🍲" },
   // ---- 主食 ----
   { id: 10, name: "生煎锅贴", category: "主食", description: "底部金黄酥脆，馅料鲜嫩多汁", image: "/image/生煎锅贴.jpg", emoji: "🥟" },
 ];

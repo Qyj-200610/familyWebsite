@@ -38,7 +38,7 @@
   width: 240px;
   flex-shrink: 0;
   position: sticky;
-  top: 100px;
+  top: 80px;
 }
 
 .setting__sidebar-label {
@@ -234,7 +234,7 @@
   padding: 10px 14px;
   border: 2px solid var(--color-border);
   border-radius: var(--radius-sm);
-  font-size: 0.9rem;
+  font-size: 1rem; /* 16px — 防止 iOS Safari 聚焦自动缩放 */
   background: var(--color-bg);
   color: var(--color-text);
   transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;

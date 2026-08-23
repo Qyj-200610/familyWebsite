@@ -44,6 +44,11 @@
   /* ---- 食品卡片背景 ---- */
   --color-food-card-bg: linear-gradient(135deg, #fef9f0 0%, #fdf2e4 40%, #fef5e7 100%);
 
+  /* ---- 家谱树连线 ---- */
+  --color-tree-line: rgba(91, 140, 90, 0.5);
+  --color-tree-line-faint: rgba(145, 180, 145, 0.25);
+  --color-tree-ring: rgba(240, 160, 75, 0.4);
+
   --radius-sm: 8px;
   --radius-md: 12px;
   --radius-lg: 16px;
@@ -91,6 +96,11 @@
 
   /* ---- 食品卡片背景（深色模式） ---- */
   --color-food-card-bg: linear-gradient(135deg, #2a2820 0%, #252218 40%, #2a2820 100%);
+
+  /* ---- 家谱树连线（深色模式） ---- */
+  --color-tree-line: rgba(143, 201, 142, 0.45);
+  --color-tree-line-faint: rgba(143, 201, 142, 0.2);
+  --color-tree-ring: rgba(245, 184, 96, 0.35);
 
   /* ---- 阴影加深 ---- */
   --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.4);

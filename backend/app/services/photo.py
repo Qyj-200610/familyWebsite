@@ -138,7 +138,7 @@ class PhotoService:
             stmt = stmt.where(
                 (Album.is_public)
                 | (Album.created_by == current_user_id)
-                | (Photo.album_id == None)
+                | (Photo.album_id.is_(None))
             )
 
         result = await db.execute(stmt.offset(skip).limit(limit))

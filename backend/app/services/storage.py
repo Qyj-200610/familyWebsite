@@ -118,6 +118,11 @@ def get_url(public_id: str) -> str:
     if public_id.startswith("/") or "/" not in public_id or not public_id.startswith("family-website/"):
         return public_id
 
+    # Cloudinary 未配置时，无法生成公网 URL —— 原样返回，避免用空 cloud_name
+    # 拼出损坏的链接（如 https://res.cloudinary.com//image/...）
+    if not settings.CLOUDINARY_CLOUD_NAME or not settings.CLOUDINARY_API_KEY or not settings.CLOUDINARY_API_SECRET:
+        return public_id
+
     # Cloudinary public_id → 生成 URL
     _ensure_initialized()
     return cloudinary.CloudinaryImage(public_id).build_url(secure=True)

@@ -468,6 +468,14 @@
   .album__album-card-delete:hover { background: var(--color-error); }
 }
 
+/* 扩大删除按钮触控热区至 44px（视觉尺寸不变） */
+.album__card-delete::before,
+.album__album-card-delete::before {
+  content: "";
+  position: absolute;
+  inset: -7px;
+}
+
 /* ============================================================
    弹窗
    ============================================================ */
@@ -646,7 +654,7 @@
   padding: 12px 14px;
   border: 1px solid var(--color-border);
   border-radius: var(--radius-sm);
-  font-size: 0.875rem;
+  font-size: 1rem; /* 16px — 防止 iOS Safari 聚焦自动缩放 */
   font-family: inherit;
   resize: vertical;
   transition: border-color 0.2s;
@@ -759,7 +767,7 @@
   padding: 12px 16px;
   border: 1px solid var(--color-border);
   border-radius: var(--radius-sm);
-  font-size: 0.95rem;
+  font-size: 1rem; /* 16px — 防止 iOS Safari 聚焦自动缩放 */
   font-family: inherit;
   transition: border-color 0.2s;
   box-sizing: border-box;

@@ -446,4 +446,9 @@
     right: 12px;
     z-index: 2;
   }
+
+  /* iOS Safari 防自动缩放：聚焦时字号需 ≥16px */
+  .dr__add-input {
+    font-size: 16px;
+  }
 }

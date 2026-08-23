@@ -122,6 +122,13 @@
 
 ## 调试记录
 
+### 2026-08-23 — 后端 Debug（图像上传链路排查）
+
+- [x] **排查：图像上传接口连通性** — 确认 app 可正常导入、25 个路由完整注册、Cloudinary 三要素已配置、`python-multipart` 已安装、前后端路径与字段对齐，上传链路无断点
+- [x] **修复：`storage.get_url()` 未配置兜底** — Cloudinary 凭证缺失时原样返回 public_id，不再用空 cloud_name 拼出 `https://res.cloudinary.com//...` 坏链接
+- [x] **修复：Content-Type 放宽** — `AVATAR_ALLOWED_CONTENT_TYPES` / `PHOTO_ALLOWED_CONTENT_TYPES` 增加非标准 `image/jpg`（等同 jpeg），真实格式仍由魔数检测兜底
+- [x] **清理：`Photo.album_id == None` → `is_(None)`** — 语义等价（均生成 `IS NULL`），更符合 SQLAlchemy 惯用法
+
 ### 2026-08-17 — 后端代码重构（DRY + 可读性）
 
 - [x] **`deps.py` 去重** — 抽取 `_resolve_user_from_token()` 共享辅助函数，`get_current_user` / `get_optional_user` 统一委托，消除重复的 token 解码 + 用户查询逻辑

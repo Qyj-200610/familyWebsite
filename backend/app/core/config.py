@@ -57,9 +57,10 @@ class Settings(BaseSettings):
     # File upload
     UPLOAD_DIR: str = str(Path(__file__).resolve().parent.parent.parent / "uploads")
     AVATAR_MAX_SIZE: int = 5 * 1024 * 1024  # 5 MB
-    AVATAR_ALLOWED_CONTENT_TYPES: set[str] = {"image/jpeg", "image/png", "image/webp"}
+    # image/jpg 是非标准但偶发的 MIME（等同 jpeg），一并放行；真实格式仍由魔数检测兜底
+    AVATAR_ALLOWED_CONTENT_TYPES: set[str] = {"image/jpeg", "image/jpg", "image/png", "image/webp"}
     PHOTO_MAX_SIZE: int = 10 * 1024 * 1024  # 10 MB
-    PHOTO_ALLOWED_CONTENT_TYPES: set[str] = {"image/jpeg", "image/png", "image/webp"}
+    PHOTO_ALLOWED_CONTENT_TYPES: set[str] = {"image/jpeg", "image/jpg", "image/png", "image/webp"}
 
     # Cloudinary — 持久化图片存储
     CLOUDINARY_CLOUD_NAME: str = ""

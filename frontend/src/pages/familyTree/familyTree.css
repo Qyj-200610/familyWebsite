@@ -3,7 +3,7 @@
   min-height: 100vh;
   background: linear-gradient(165deg, var(--color-bg) 0%, var(--color-bg-warm) 40%, var(--color-bg-alt) 100%);
   position: relative;
-  overflow-x: auto;
+  overflow-x: hidden;
 }
 
 /* ---- Top decor bar ---- */
@@ -282,6 +282,13 @@
   }
 }
 
+/* 扩大折叠按钮触控热区至 44px（视觉尺寸不变） */
+.ft-tree__toggle::before {
+  content: "";
+  position: absolute;
+  inset: -7px;
+}
+
 /* ---- Offspring area ---- */
 .ft-tree__offspring {
   display: flex;
@@ -296,8 +303,8 @@
   height: 36px;
   background: linear-gradient(
     180deg,
-    rgba(91, 140, 90, 0.55),
-    rgba(145, 180, 145, 0.25)
+    var(--color-tree-line),
+    var(--color-tree-line-faint)
   );
   border-radius: 1px;
   flex-shrink: 0;
@@ -316,9 +323,9 @@
   height: 2px;
   background: linear-gradient(
     90deg,
-    rgba(145, 180, 145, 0.25),
-    rgba(91, 140, 90, 0.5) 50%,
-    rgba(145, 180, 145, 0.25)
+    var(--color-tree-line-faint),
+    var(--color-tree-line) 50%,
+    var(--color-tree-line-faint)
   );
   border-radius: 1px;
   flex-shrink: 0;
@@ -342,7 +349,7 @@
 .ft-tree__drop {
   width: 2px;
   height: 24px;
-  background: rgba(91, 140, 90, 0.35);
+  background: var(--color-tree-line);
   border-radius: 1px;
   flex-shrink: 0;
 }
@@ -379,7 +386,7 @@
   right: 0;
   top: 50%;
   height: 1.5px;
-  background: rgba(240, 160, 75, 0.4);
+  background: var(--color-tree-ring);
   border-radius: 1px;
 }
 

@@ -227,7 +227,7 @@ npm run dev  # 启动在 localhost:5175，代理 /api → localhost:8001
 - **上传流程**：后端接收文件 → 魔数验证 → 上传到 Cloudinary → 保存 public_id 到数据库
 - **访问 URL**：通过 `storage.get_url(public_id)` 生成 Cloudinary 公网 URL，或 `uploadUrl()` 前端工具函数处理
 - **删除**：best-effort 删除（失败仅 warn，不阻塞用户操作）
-- **降级**：Cloudinary 未配置时抛 `CloudinaryNotConfiguredError`；旧格式路径（`/uploads/...`）原样返回由前端兜底
+- **降级**：Cloudinary 未配置时抛 `CloudinaryNotConfiguredError`；旧格式路径（`/uploads/...`）原样返回由前端兜底；`get_url()` 在凭证缺失时同样原样返回 public_id（不拼坏链接）
 - **配置**：需在 `.env` 中设置 `CLOUDINARY_CLOUD_NAME`、`CLOUDINARY_API_KEY`、`CLOUDINARY_API_SECRET`
 - 涉及文件：[storage.py](backend/app/services/storage.py)、[config.py](backend/app/core/config.py)
 
@@ -235,7 +235,7 @@ npm run dev  # 启动在 localhost:5175，代理 /api → localhost:8001
 
 - 头像：最大 5 MB，支持 JPEG/PNG/WebP，上传到 Cloudinary `family-website/avatars/`
 - 照片：最大 10 MB，支持 JPEG/PNG/WebP，上传到 Cloudinary `family-website/photos/`
-- 服务端三重验证：文件扩展名 + Content-Type + 魔数检测
+- 服务端三重验证：文件扩展名 + Content-Type + 魔数检测（Content-Type 同时接受标准 `image/jpeg` 与非标准 `image/jpg`，最终以魔数检测为准）
 - FastAPI StaticFiles 在 `/uploads` 路径挂载上传目录（仅本地开发降级使用）
 - 照片 `after_delete` 事件自动清理磁盘文件 + Cloudinary 远端文件
 - 删除相册时关联照片的 `album_id` 置为 NULL（SET NULL FK），照片文件不删除
