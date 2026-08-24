@@ -2,6 +2,7 @@ from fastapi import Depends, HTTPException
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.core.config import settings
 from app.core.database import get_db
 from app.core.security import decode_access_token
 from app.models.user import User
@@ -64,3 +65,14 @@ async def get_optional_user(
     Use this for endpoints where authentication is optional (e.g. family status).
     """
     return await _resolve_user_from_token(db, credentials)
+
+
+async def require_admin(current_user: User = Depends(get_current_user)) -> User:
+    """Require the current user to be the configured administrator.
+
+    Raises HTTPException(403) for any authenticated user whose email does not
+    match ``settings.ADMIN_EMAIL``.
+    """
+    if current_user.email != settings.ADMIN_EMAIL:
+        raise HTTPException(status_code=403, detail="无管理员权限")
+    return current_user

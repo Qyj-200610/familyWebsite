@@ -69,6 +69,12 @@ class UserService:
         return result.scalar_one_or_none()
 
     @staticmethod
+    async def get_all_users(db: AsyncSession) -> list[User]:
+        """Return all users ordered by id (admin overview)."""
+        result = await db.execute(select(User).order_by(User.id))
+        return list(result.scalars().all())
+
+    @staticmethod
     async def update_user(db: AsyncSession, user: User, data: UpdateUserRequest) -> User:
         """Update user profile fields."""
         if data.username is not None:

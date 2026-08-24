@@ -6,6 +6,8 @@ import Login from "./pages/auth/login/Login";
 import Register from "./pages/auth/register/Register";
 import RegisterSuccess from "./pages/auth/registerSuccess/RegisterSuccess";
 import ForgetPassword from "./pages/auth/forgetPassword/forgetPassword";
+import Administrator from "./pages/auth/administrator/administrator";
+import Admin from "./pages/admin/Admin";
 import Setting from "./pages/user/setting/Setting";
 import PersonalCenter from "./pages/user/personalCenter/PersonalCenter";
 import PhotoAlbum from "./pages/photoAlbum/photoAlbum";
@@ -34,6 +36,14 @@ const router = createBrowserRouter([
   {
     path: "/forget-password",
     element: <ForgetPassword />,
+  },
+  {
+    path: "/admin",
+    element: <Administrator />,
+  },
+  {
+    path: "/admin/dashboard",
+    element: <Admin />,
   },
   {
     path: "/home",

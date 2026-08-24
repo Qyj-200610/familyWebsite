@@ -67,6 +67,9 @@ class Settings(BaseSettings):
     CLOUDINARY_API_KEY: str = ""
     CLOUDINARY_API_SECRET: str = ""
 
+    # Admin — 唯一管理员邮箱（用于管理员权限校验）
+    ADMIN_EMAIL: str = "3612835647@qq.com"
+
     model_config = SettingsConfigDict(
         env_file=str(_ENV_FILE),
         env_file_encoding="utf-8",
